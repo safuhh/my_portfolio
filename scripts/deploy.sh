@@ -10,7 +10,7 @@ set -euo pipefail
 
 # ─── Configuration ───────────────────────────────────────────────
 COMPOSE_FILE="docker-compose.production.yml"
-HEALTH_URL="http://127.0.0.1:3100/health"
+CONTAINER_NAME="portfolio"
 HEALTH_TIMEOUT=30
 LOCK_DIR="/tmp/portfolio-deploy.lock"
 
@@ -62,9 +62,10 @@ docker compose -f "$COMPOSE_FILE" down --remove-orphans
 docker compose -f "$COMPOSE_FILE" up -d
 
 # ─── Health check ─────────────────────────────────────────────────
+# No port exposed on host — check health via docker exec instead
 log "Waiting for health check..."
 for i in $(seq 1 "$HEALTH_TIMEOUT"); do
-    if curl -sf "$HEALTH_URL" > /dev/null 2>&1; then
+    if docker exec "$CONTAINER_NAME" wget --no-verbose --tries=1 --spider http://127.0.0.1:8080/health 2>/dev/null; then
         log "Health check passed! (${i}s)"
         break
     fi
