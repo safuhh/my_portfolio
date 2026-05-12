@@ -1,0 +1,39 @@
+/* InteractiveBackgroundCanvas — original full-viewport canvas implementation.
+   Kept as a reference / fallback option; not mounted by the app.
+   The active implementation is InteractiveBackground (WebGL). */
+
+.interactiveCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none; /* Mouse tracked globally via window events */
+
+    /* GPU acceleration for Chromium performance */
+    transform: translateZ(0);
+    will-change: contents;
+    contain: strict;
+
+    /* Optimize rendering */
+    image-rendering: -webkit-optimize-contrast;
+    -webkit-transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    /* Disable interactions on touch devices for performance */
+    .interactiveCanvas {
+        pointer-events: none;
+    }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+    .interactiveCanvas {
+        pointer-events: none;
+    }
+}

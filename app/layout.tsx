@@ -5,7 +5,7 @@ import { CustomCursor } from "@/components/ui/CustomCursor";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { AccentColorProvider } from "@/lib/AccentColorContext";
 import { LenisProvider } from "@/lib/LenisProvider";
-import { InteractiveBackgroundV2 } from "@/components/sections/Hero";
+import { InteractiveBackground } from "@/components/sections/Hero";
 import { Navbar } from "@/components/layout/Navbar";
 import siteMetadata from "@/data/site-metadata.json";
 
@@ -73,7 +73,7 @@ export default function RootLayout({
         />
         <LenisProvider>
           <AccentColorProvider>
-            <InteractiveBackgroundV2 />
+            <InteractiveBackground />
             <Navbar />
             <CustomCursor />
             <ThemeToggle />
