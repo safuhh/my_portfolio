@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useBlockFadeIn } from "@/lib/useBlockFadeIn";
 import { useWordLineReveal } from "@/lib/useWordLineReveal";
+import { ScrollTrigger } from "@/lib/gsap";
 import { animationConfig } from "@/data";
 import { SectionLabel } from "../SectionLabel";
 import styles from "./Toggle.module.css";
@@ -167,6 +168,21 @@ export function Toggle() {
   });
 
   useWordLineReveal(titleRef, { scope: sectionRef });
+
+  // Toggling between gallery and list rewrites a large chunk of the
+  // section's height, which shifts every downstream section (Outcomes,
+  // Colophon, NextCase) up or down the page. Those sections register
+  // their reveal triggers with `once: true` against positions measured
+  // at mount; React state flips don't fire a window `resize`, so
+  // ScrollTrigger never recomputes and pending triggers stay anchored
+  // to stale scroll positions — the user toggles to List, scrolls
+  // down, and the sections appear blank until they cross the *old*
+  // (gallery-height) trigger line. A single refresh after layout
+  // settles re-aligns every trigger to the new document height.
+  useEffect(() => {
+    const id = requestAnimationFrame(() => ScrollTrigger.refresh());
+    return () => cancelAnimationFrame(id);
+  }, [mode]);
 
   const movePreview = (clientX: number, clientY: number) => {
     const el = previewRef.current;
