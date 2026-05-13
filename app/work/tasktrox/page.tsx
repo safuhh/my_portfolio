@@ -12,7 +12,7 @@ import { Colophon } from "@/components/sections/case-study/Colophon";
 import { NextCase } from "@/components/sections/case-study/NextCase";
 
 export const metadata: Metadata = {
-  title: "Tasktrox — Case Study · Mohed Abbas",
+  title: "Tasktrox · Case Study · Mohed Abbas",
   description:
     "A complete identity and product redesign for a project-management platform built for architecture studios.",
 };

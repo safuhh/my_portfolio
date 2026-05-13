@@ -58,12 +58,12 @@ export function Product() {
           <strong>
             Sectional header, living grid, margin notes
           </strong>{" "}
-          — the right rail is for context, never controls, lifted directly
+          the right rail is for context, never controls, lifted directly
           from the way studios annotate drawings.
         </p>
         <p>
           Cards align to the 8-pt grid but breathe within it. No two states
-          look identical without reason. Motion is 240ms expo.out — fast
+          look identical without reason. Motion is 240ms expo.out, fast
           enough to feel earned, slow enough to read.
         </p>
       </div>

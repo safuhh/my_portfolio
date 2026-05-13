@@ -43,7 +43,7 @@ const SCREENS: readonly Screen[] = [
   {
     src: "/images/work/tasktrox/Product.jpg",
     alt: "Product surface",
-    galleryCaption: { label: "02 — Product surface" },
+    galleryCaption: { label: "02 · Product surface" },
     list: {
       num: "03",
       name: "Product surface",
@@ -54,7 +54,7 @@ const SCREENS: readonly Screen[] = [
   {
     src: "/images/work/tasktrox/About.jpg",
     alt: "Studio profile",
-    galleryCaption: { label: "03 — Studio profile" },
+    galleryCaption: { label: "03 · Studio profile" },
     list: {
       num: "04",
       name: "Studio profile",
@@ -65,7 +65,7 @@ const SCREENS: readonly Screen[] = [
   {
     src: "/images/work/tasktrox/Price.jpg",
     alt: "Pricing",
-    galleryCaption: { label: "04 — Pricing" },
+    galleryCaption: { label: "04 · Pricing" },
     list: {
       num: "05",
       name: "Pricing",
@@ -76,7 +76,7 @@ const SCREENS: readonly Screen[] = [
   {
     src: "/images/work/tasktrox/testimonials.jpg",
     alt: "Testimonials",
-    galleryCaption: { label: "05 — Testimonials" },
+    galleryCaption: { label: "05 · Testimonials" },
     list: {
       num: "06",
       name: "Testimonials",
@@ -87,7 +87,7 @@ const SCREENS: readonly Screen[] = [
   {
     src: "/images/work/tasktrox/footer.jpg",
     alt: "Footer marquee",
-    galleryCaption: { label: "06 — Footer marquee" },
+    galleryCaption: { label: "06 · Footer marquee" },
     list: {
       num: "07",
       name: "Footer marquee",

@@ -79,7 +79,7 @@ export function Dashboard() {
           Demo
         </span>
         <span className={styles.corner}>
-          Fig. 04 — Studio dashboard · 06 / 24
+          Fig. 04 · Studio dashboard · 06 / 24
         </span>
       </figure>
     </section>

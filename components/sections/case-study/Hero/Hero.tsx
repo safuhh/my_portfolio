@@ -5,13 +5,12 @@ import Link from "next/link";
 import { Fragment, useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
-import { content } from "@/data";
 import styles from "./Hero.module.css";
 
 const TITLE = "TASKTROX";
 
 const LEDE_TEXT =
-  "A complete identity and product redesign for a project-management platform built for architecture studios — moving from spreadsheet sprawl to a single, sensorial workspace.";
+  "A complete identity and product redesign for a project-management platform built for architecture studios, moving from spreadsheet sprawl to a single, sensorial workspace.";
 const LEDE_WORDS = LEDE_TEXT.split(" ");
 
 // Portal-entry directions (matches landing hero — letter slides in from
@@ -553,7 +552,7 @@ export function Hero() {
         ))}
       </span>
       <div className={styles.top}>
-        <div className={styles.metaCol}>
+        <div ref={metaRef} className={styles.metaRow}>
           <Link
             ref={backRef}
             href="/"
@@ -561,15 +560,11 @@ export function Hero() {
             aria-label="Back to home"
           >
             <span aria-hidden="true">←</span>
-            {content.ui.buttons.back}
           </Link>
-          <div ref={metaRef} className={styles.metaRow}>
-            <span className={styles.pill}>2024</span>
-            <span className={styles.pill}>Architecture · SaaS</span>
-            <span className={`${styles.pill} ${styles.pillSolid}`}>
-              Brand · Product · Web
-            </span>
-          </div>
+          <span className={styles.pill}>Architecture · SaaS</span>
+          <span className={`${styles.pill} ${styles.pillSolid}`}>
+            Brand · Product · Web
+          </span>
         </div>
         <p ref={ledeRef} className={styles.lede}>
           {LEDE_WORDS.map((word, i) => (

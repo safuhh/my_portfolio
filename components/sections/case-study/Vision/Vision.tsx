@@ -55,7 +55,7 @@ export function Vision() {
         <p>
           Three principles shaped every screen.{" "}
           <strong>One: replace dashboards with documents.</strong> A studio
-          thinks in artifacts, not metrics — so the product treats every
+          thinks in artifacts, not metrics, so the product treats every
           project as a living folio you can mark up, not a feed you scroll
           past.
         </p>

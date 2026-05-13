@@ -41,7 +41,7 @@ export function Pull() {
       <div ref={attrRef} className={styles.attr}>
         <span className={styles.avatar} aria-hidden />
         <span className={styles.attrText}>
-          <b>Léa Marchand</b>Principal — Atelier Marchand, Lyon
+          <b>Léa Marchand</b>Principal, Atelier Marchand, Lyon
         </span>
       </div>
     </section>

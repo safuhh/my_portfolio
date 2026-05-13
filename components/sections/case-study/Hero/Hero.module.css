@@ -67,39 +67,40 @@
     gap: clamp(32px, 4vw, 80px);
 }
 
-.metaCol {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 14px;
-}
-
 .backLink {
-    font-family: var(--font-navbar);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-size: clamp(11px, 0.8vw, 13px);
-    color: var(--color-primary-text);
-    text-decoration: none;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    opacity: 0.7;
+    justify-content: center;
+    aspect-ratio: 1 / 1;
+    height: calc(2px * 2 + 9px * 2 + clamp(13px, 1vw, 16px));
+    border: 2px solid var(--color-primary-text);
+    border-radius: 999px;
+    background: var(--color-background);
+    color: var(--color-primary-text);
+    text-decoration: none;
+    font-family: var(--font-navbar);
+    font-size: clamp(14px, 1.05vw, 17px);
+    line-height: 1;
     transition:
-        opacity 0.2s ease,
-        color 0.2s ease,
-        transform 0.2s ease;
+        transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+        background-color 0.28s ease,
+        color 0.28s ease,
+        border-color 0.28s ease;
+    will-change: transform;
 }
 
-.backLink:hover {
-    opacity: 1;
-    color: var(--color-accent-purple);
-    transform: translateX(-2px);
+@media (hover: hover) and (pointer: fine) {
+    .backLink:hover {
+        transform: translateX(-2px) scale(1.03);
+        background: var(--color-primary-text);
+        color: var(--color-background);
+    }
 }
 
 .metaRow {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: 12px;
 }
 

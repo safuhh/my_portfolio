@@ -94,7 +94,7 @@ export function Colophon() {
               feel made. Selected work from 2018 → present.
             </p>
             <p>
-              Currently taking on one new engagement per quarter — typically a
+              Currently taking on one new engagement per quarter, typically a
               6 to 14-week sprint covering identity, a flagship surface, and
               the design system that holds them together.
             </p>
