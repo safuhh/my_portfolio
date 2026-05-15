@@ -461,16 +461,27 @@ export function Hero() {
         });
 
         // ── EXIT (unpinned, 1:1 scrub) ── As the page scrolls 1 vh
-        // past the pin, the card translates from top:0 to top:-vh
-        // linearly. The ledger sits in document flow immediately after
-        // the section, so it climbs into the viewport at the same
-        // rate — bottom-of-card and top-of-ledger share one line
-        // throughout, and the card is fully off-screen at the moment
-        // the ledger lands at viewport top.
+        // past the pin, the card translates 1 vh upward, linearly.
+        // The ledger sits in document flow immediately after the
+        // section, so it climbs into the viewport at the same rate —
+        // bottom-of-card and top-of-ledger share one line throughout,
+        // and the card is fully off-screen at the moment the ledger
+        // lands at viewport top.
+        //
+        // Uses `y` (transform) instead of `top`: the master grow tween
+        // owns the `top` property (animates it to 0 as part of the
+        // full-bleed grow, then holds at 0 through its tail). If exit
+        // wrote `top: -vh` too, a ScrollTrigger.refresh() triggered by
+        // a downstream pin (e.g. Pull) re-applies both timelines to
+        // their progress-1 states in registration order — master last,
+        // overwriting exit's translation and stranding the card at
+        // top:0 over downstream sections. Animating `y` keeps the two
+        // timelines on disjoint properties so their final states
+        // compose: card stays at top:0 with transform:translateY(-vh).
         const exitTL = gsap.timeline().to(
           card,
           {
-            top: () => -window.innerHeight,
+            y: () => -window.innerHeight,
             ease: "none",
             duration: 1,
           },
