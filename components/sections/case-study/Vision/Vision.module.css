@@ -15,9 +15,9 @@
     margin: 0 auto clamp(40px, 6vw, 64px);
 }
 
-.eyebrow {
+/* .eyebrow {
     margin: 0 0 clamp(20px, 3vw, 36px);
-}
+} */
 
 .title {
     composes: caseStudyTitle from '../title.module.css';

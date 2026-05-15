@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useBlockFadeIn } from "@/lib/useBlockFadeIn";
 import { useWordLineReveal } from "@/lib/useWordLineReveal";
-import { ScrollTrigger } from "@/lib/gsap";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { animationConfig } from "@/data";
 import { SectionLabel } from "../SectionLabel";
 import styles from "./Toggle.module.css";
@@ -16,6 +16,7 @@ type Mode = "gallery" | "list";
 type Screen = {
   src: string;
   alt: string;
+  previewColor: string;
   galleryCaption?: { label: string };
   list: { num: string; name: string; desc: string; meta: string };
 };
@@ -24,6 +25,7 @@ const SCREENS: readonly Screen[] = [
   {
     src: "/images/work/tasktrox/Hero.jpg",
     alt: "Marketing landing",
+    previewColor: "#E6F4F8",
     list: {
       num: "01",
       name: "Marketing landing",
@@ -34,6 +36,7 @@ const SCREENS: readonly Screen[] = [
   {
     src: "/images/work/tasktrox/Dashboard.jpg",
     alt: "Studio dashboard",
+    previewColor: "#FBE4E5",
     list: {
       num: "02",
       name: "Studio dashboard",
@@ -44,6 +47,7 @@ const SCREENS: readonly Screen[] = [
   {
     src: "/images/work/tasktrox/Product.jpg",
     alt: "Product surface",
+    previewColor: "#FFF0DB",
     galleryCaption: { label: "02 · Product surface" },
     list: {
       num: "03",
@@ -55,6 +59,7 @@ const SCREENS: readonly Screen[] = [
   {
     src: "/images/work/tasktrox/About.jpg",
     alt: "Studio profile",
+    previewColor: "#E8EFEA",
     galleryCaption: { label: "03 · Studio profile" },
     list: {
       num: "04",
@@ -66,6 +71,7 @@ const SCREENS: readonly Screen[] = [
   {
     src: "/images/work/tasktrox/Price.jpg",
     alt: "Pricing",
+    previewColor: "#ECEFFF",
     galleryCaption: { label: "04 · Pricing" },
     list: {
       num: "05",
@@ -77,6 +83,7 @@ const SCREENS: readonly Screen[] = [
   {
     src: "/images/work/tasktrox/testimonials.jpg",
     alt: "Testimonials",
+    previewColor: "#EFE8D3",
     galleryCaption: { label: "05 · Testimonials" },
     list: {
       num: "06",
@@ -88,6 +95,7 @@ const SCREENS: readonly Screen[] = [
   {
     src: "/images/work/tasktrox/footer.jpg",
     alt: "Footer marquee",
+    previewColor: "#F4E8F0",
     galleryCaption: { label: "06 · Footer marquee" },
     list: {
       num: "07",
@@ -118,7 +126,7 @@ export function Toggle() {
     list: null,
   });
 
-  const [mode, setMode] = useState<Mode>("gallery");
+  const [mode, setMode] = useState<Mode>("list");
 
   const selectMode = (target: Mode) => {
     setMode(target);
@@ -147,13 +155,16 @@ export function Toggle() {
         break;
     }
   };
-  // Preview position is updated via direct style mutation in
-  // handleRowMove rather than React state — pumping setState on every
-  // mousemove forces a re-render of all 24 list rows + the gallery.
-  // Visibility + src still go through state because they change rarely.
-  const [preview, setPreview] = useState<{ visible: boolean; src: string }>(
-    { visible: false, src: "" }
+  // Preview position is driven by gsap.quickTo (spring-like follow) on
+  // every mousemove. Pumping setState here would re-render the list on
+  // every mouse tick. visible + active index stay in state because they
+  // flip on enter/leave only — at most once per row.
+  const [preview, setPreview] = useState<{ visible: boolean; index: number }>(
+    { visible: false, index: 0 }
   );
+  const xToRef = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
+  const yToRef = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
+  const reducedMotionRef = useRef(false);
 
   useBlockFadeIn(sectionRef, {
     start: cs.scrollTrigger.early,
@@ -184,15 +195,43 @@ export function Toggle() {
     return () => cancelAnimationFrame(id);
   }, [mode]);
 
-  const movePreview = (clientX: number, clientY: number) => {
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    reducedMotionRef.current = mq.matches;
+    const onChange = (e: MediaQueryListEvent) => {
+      reducedMotionRef.current = e.matches;
+    };
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  useEffect(() => {
     const el = previewRef.current;
     if (!el) return;
-    el.style.left = `${clientX}px`;
-    el.style.top = `${clientY}px`;
+    xToRef.current = gsap.quickTo(el, "left", { duration: 0.55, ease: "power3" });
+    yToRef.current = gsap.quickTo(el, "top", { duration: 0.55, ease: "power3" });
+    return () => {
+      gsap.killTweensOf(el);
+      xToRef.current = null;
+      yToRef.current = null;
+    };
+  }, []);
+
+  // `snap` short-circuits the spring by passing quickTo's optional
+  // startValue equal to the target — collapses the tween to zero
+  // duration so the first appearance doesn't swoosh in from origin.
+  const movePreview = (clientX: number, clientY: number, snap = false) => {
+    if (snap || reducedMotionRef.current) {
+      xToRef.current?.(clientX, clientX);
+      yToRef.current?.(clientY, clientY);
+    } else {
+      xToRef.current?.(clientX);
+      yToRef.current?.(clientY);
+    }
   };
-  const handleRowEnter = (src: string) => (e: React.MouseEvent) => {
-    movePreview(e.clientX, e.clientY);
-    setPreview({ visible: true, src });
+  const handleRowEnter = (index: number) => (e: React.MouseEvent) => {
+    movePreview(e.clientX, e.clientY, !preview.visible);
+    setPreview({ visible: true, index });
   };
   const handleRowLeave = () => setPreview((p) => ({ ...p, visible: false }));
   const handleRowMove = (e: React.MouseEvent) => {
@@ -207,7 +246,7 @@ export function Toggle() {
     >
       <div className={styles.controls}>
         <div>
-          <SectionLabel id="toggle-eyebrow" className={styles.eyebrow}>
+          <SectionLabel id="toggle-eyebrow">
             The Build
           </SectionLabel>
           <h2 ref={titleRef} className={styles.title}>
@@ -273,11 +312,11 @@ export function Toggle() {
           </div>
         ) : (
           <div className={styles.list}>
-            {SCREENS.map((s) => (
+            {SCREENS.map((s, idx) => (
               <div
                 key={s.src}
                 className={styles.row}
-                onMouseEnter={handleRowEnter(s.src)}
+                onMouseEnter={handleRowEnter(idx)}
                 onMouseLeave={handleRowLeave}
                 onMouseMove={handleRowMove}
               >
@@ -291,15 +330,33 @@ export function Toggle() {
         )}
       </div>
 
-      {/* Cursor-following hover preview (list mode only) */}
+      {/*
+        Cursor-following hover preview (list mode only).
+        All 7 cards are mounted once and stacked vertically inside an
+        overflow-hidden window; the inner slider translateY's to expose
+        the active card. This avoids per-hover <img> swaps and gives a
+        slide-between-projects motion when the cursor moves row→row
+        without leaving the list.
+      */}
       <div
         ref={previewRef}
         className={`${styles.preview} ${preview.visible ? styles.previewVisible : ""}`}
         aria-hidden
       >
-        {preview.src && (
-          <Image src={preview.src} alt="" width={560} height={400} sizes="280px" />
-        )}
+        <div
+          className={styles.previewSlider}
+          style={{ transform: `translateY(-${preview.index * 100}%)` }}
+        >
+          {SCREENS.map((s) => (
+            <div
+              key={s.src}
+              className={styles.previewCard}
+              style={{ background: s.previewColor }}
+            >
+              <Image src={s.src} alt="" width={560} height={400} sizes="360px" />
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
