@@ -1,0 +1,182 @@
+{
+  "tasktrox": {
+    "hero": {
+      "title": "TASKTROX",
+      "lede": "A complete identity and product redesign for a project-management platform built for architecture studios, moving from spreadsheet sprawl to a single, sensorial workspace.",
+      "image": "/images/work/tasktrox/Hero.jpg",
+      "alt": "Tasktrox marketing landing",
+      "pills": ["Architecture · SaaS", "Brand · Product · Web"],
+      "badge": "View\nCase",
+      "backHref": "/"
+    },
+    "ledger": {
+      "entries": [
+        { "label": "Client", "primary": "Tasktrox", "secondary": "Internal venture" },
+        { "label": "Year", "primary": "2024", "secondary": "April → November" },
+        { "label": "Role", "primary": "Lead", "secondary": "Brand · Product · Web" },
+        { "label": "Stack", "primary": "Next · GSAP", "secondary": "Lenis · Tailwind" },
+        { "label": "Reach", "primary": "+38", "secondary": "Studios in private beta" }
+      ]
+    },
+    "context": {
+      "label": "Context",
+      "facts": [
+        "**Discipline**Brand · Product · Web",
+        "**Duration**32 weeks",
+        "**Team**1 designer · 2 engineers · 1 PM"
+      ],
+      "body": [
+        "**Tasktrox arrived** with a stack of Notion docs, a battle-scarred Trello board, and one question. Why does software for architects feel like software for accountants?",
+        "The brief was deceptively simple: build a project-management tool that actually feels like the studios it serves. Tactile. Editorial. Quietly precise. Not another rectangle of tabs and toasts.",
+        "We threw out the SaaS playbook on day one. **No purple gradients, no dashboard spaghetti, no AI-as-mascot.** Instead we anchored the system in the language architects already speak: gridlines, plates, sectional cuts, marginalia."
+      ]
+    },
+    "vision": {
+      "label": "The Vision",
+      "titleLine1": "A workspace that respects",
+      "titleLine2": "the",
+      "titleAccent": "craft.",
+      "body": [
+        "Three principles shaped every screen. **One: replace dashboards with documents.** A studio thinks in artifacts, not metrics, so the product treats every project as a living folio you can mark up, not a feed you scroll past.",
+        "**Two: make the chrome quiet.** Toolbars and toasts that earn their pixels. State changes that read as movement, not noise. **Three: keep the tool truthful.** If a number is provisional, say so. If a milestone slipped, show the slippage rather than recolour the badge."
+      ]
+    },
+    "pull": {
+      "attribution": {
+        "name": "Léa Marchand",
+        "role": "Principal",
+        "location": "Atelier Marchand, Lyon"
+      },
+      "act2": [
+        { "text": "“For the first time" },
+        { "text": "the software" },
+        { "text": "respects", "accent": true }
+      ],
+      "act3": [
+        { "text": "the way our studio" },
+        { "text": "actually thinks.”" }
+      ]
+    },
+    "product": {
+      "label": "The Product",
+      "titleLine1": "The dashboard,",
+      "titleLine2": "read like a",
+      "titleAccent": "plate.",
+      "body": [
+        "The dashboard treats every project as an architectural plate. **Sectional header, living grid, margin notes** the right rail is for context, never controls, lifted directly from the way studios annotate drawings.",
+        "Cards align to the 8-pt grid but breathe within it. No two states look identical without reason. Motion is 240ms expo.out, fast enough to feel earned, slow enough to read."
+      ]
+    },
+    "dashboard": {
+      "badge": "Live\nDemo",
+      "figcaption": "Fig. 04 · Studio dashboard · 06 / 24",
+      "image": "/images/work/tasktrox/Dashboard.jpg",
+      "alt": "Tasktrox studio dashboard"
+    },
+    "toggle": {
+      "label": "The Build",
+      "titleLine1": "All",
+      "titleAccent": "screens.",
+      "screens": [
+        {
+          "num": "01",
+          "name": "Marketing landing",
+          "image": "/images/work/tasktrox/Hero.jpg",
+          "color": "#E6F4F8",
+          "description": "Hero composition, scroll-led greeting",
+          "meta": "2400 × 1500"
+        },
+        {
+          "num": "02",
+          "name": "Studio dashboard",
+          "image": "/images/work/tasktrox/Dashboard.jpg",
+          "color": "#FBE4E5",
+          "description": "Sectional header + living grid",
+          "meta": "2400 × 1500"
+        },
+        {
+          "num": "03",
+          "name": "Product surface",
+          "image": "/images/work/tasktrox/Product.jpg",
+          "color": "#FFF0DB",
+          "description": "Card system, 8-pt grid",
+          "meta": "2400 × 1500",
+          "hasGalleryCaption": true
+        },
+        {
+          "num": "04",
+          "name": "Studio profile",
+          "image": "/images/work/tasktrox/About.jpg",
+          "color": "#E8EFEA",
+          "description": "Folio-style team page",
+          "meta": "2400 × 1500",
+          "hasGalleryCaption": true
+        },
+        {
+          "num": "05",
+          "name": "Pricing",
+          "image": "/images/work/tasktrox/Price.jpg",
+          "color": "#ECEFFF",
+          "description": "Three tiers, no asterisks",
+          "meta": "2400 × 1500",
+          "hasGalleryCaption": true
+        },
+        {
+          "num": "06",
+          "name": "Testimonials",
+          "image": "/images/work/tasktrox/testimonials.jpg",
+          "color": "#EFE8D3",
+          "description": "Studio quotes, marginalia",
+          "meta": "2400 × 1500",
+          "hasGalleryCaption": true
+        },
+        {
+          "num": "07",
+          "name": "Footer marquee",
+          "image": "/images/work/tasktrox/footer.jpg",
+          "color": "#F4E8F0",
+          "description": "Closing flourish",
+          "meta": "2400 × 1500",
+          "hasGalleryCaption": true
+        }
+      ]
+    },
+    "outcomes": {
+      "label": "Outcome",
+      "titleLine1": "What changed,",
+      "titleLine2": "in",
+      "titleAccent": "numbers.",
+      "metrics": [
+        { "value": "38", "unit": "+", "title": "Studios", "caption": "onboarded in private beta" },
+        { "value": "2.4", "unit": "×", "title": "Time saved", "caption": "weekly admin hours" },
+        { "value": "94", "unit": "%", "title": "Retention", "caption": "3-month active studios" },
+        { "value": "01", "title": "Tool replaced", "caption": "Notion · Trello · sheets" }
+      ]
+    },
+    "colophon": {
+      "leftLabel": "Colophon",
+      "titleLine1": "Made with a small",
+      "titleAccent": "circle.",
+      "credits": [
+        { "role": "Design Lead", "primary": "Mohed Abbas", "secondary": "Brand · Product · Motion" },
+        { "role": "Engineering", "primary": "Aria Cole", "secondary": "Sven Ortega" },
+        { "role": "Product", "primary": "Mira Tarek", "secondary": "Strategy & PM" },
+        { "role": "Special thanks", "primary": "Atelier Marchand", "secondary": "Studio Petralla, Cadence Works" }
+      ],
+      "rightLabel": "About M.A",
+      "bio": [
+        "Mohed Abbas is an independent designer working at the seam of brand, product and the small motion details that make software feel made. Selected work from 2018 → present.",
+        "Currently taking on one new engagement per quarter, typically a 6 to 14-week sprint covering identity, a flagship surface, and the design system that holds them together."
+      ],
+      "actions": [
+        { "label": "Start a project →" },
+        { "label": "Read approach" },
+        { "label": "All works" }
+      ]
+    },
+    "nextCase": {
+      "slug": "permitto",
+      "counter": "Next case · 02 / 02"
+    }
+  }
+}
