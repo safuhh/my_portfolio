@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useGSAP } from '@gsap/react';
 import { gsap } from '@/lib/gsap';
@@ -33,6 +33,79 @@ export function Navbar() {
     const brand = document.getElementById('navbar-brand');
     if (brand) gsap.set(brand, { clearProps: 'opacity' });
   }, { dependencies: [isHome] });
+
+  // Section-driven theme flip. While any [data-nav-theme="dark"] section
+  // crosses the navbar's y-band, set data-nav-theme="dark" on the navbar
+  // so the CSS dark-state overrides take over (white text/lines, accent
+  // purple unchanged). Direct attribute mutation — no React re-renders
+  // during scroll. Native IntersectionObserver runs off the main thread
+  // and only fires on intersection-change, not per frame.
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav || typeof IntersectionObserver === 'undefined') return;
+
+    let observer: IntersectionObserver | null = null;
+    const intersecting = new Set<Element>();
+
+    const applyTheme = () => {
+      if (intersecting.size > 0) nav.setAttribute('data-nav-theme', 'dark');
+      else nav.removeAttribute('data-nav-theme');
+    };
+
+    const buildObserver = () => {
+      observer?.disconnect();
+      intersecting.clear();
+      // Reset attribute up-front so a rebuild that ends up with zero
+      // targets (e.g., a dark section unmounted) doesn't leave the
+      // navbar stuck in dark mode.
+      applyTheme();
+
+      const rect = nav.getBoundingClientRect();
+      // Clamp to >= 0: IntersectionObserver rejects rootMargin strings
+      // with negative px values ("--12px") as SyntaxError, which would
+      // silently kill the feature. Negative values are reachable on
+      // iOS mid-URL-bar-collapse or any breakpoint where the navbar
+      // sits outside the layout viewport.
+      const top = Math.max(0, rect.top);
+      const bottom = Math.max(0, window.innerHeight - rect.bottom);
+      const rootMargin = `-${top}px 0px -${bottom}px 0px`;
+
+      observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) intersecting.add(entry.target);
+            else intersecting.delete(entry.target);
+          }
+          applyTheme();
+        },
+        { rootMargin, threshold: 0 }
+      );
+
+      document
+        .querySelectorAll('[data-nav-theme="dark"]')
+        .forEach((el) => observer!.observe(el));
+    };
+
+    buildObserver();
+
+    let resizeRaf = 0;
+    const onResize = () => {
+      if (resizeRaf) cancelAnimationFrame(resizeRaf);
+      resizeRaf = requestAnimationFrame(buildObserver);
+    };
+    window.addEventListener('resize', onResize, { passive: true });
+
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener('resize', onResize);
+      if (resizeRaf) cancelAnimationFrame(resizeRaf);
+      // Intentionally do NOT removeAttribute here: on a pathname-change
+      // re-run, this cleanup fires before the new effect's buildObserver,
+      // which would briefly flash the navbar to light mode. The new
+      // buildObserver's applyTheme() call handles the reset cleanly.
+      // On true unmount, the navbar element is going away anyway.
+    };
+  }, [pathname]);
 
   const toggleMenu = useCallback(() => {
     setIsMenuOpen((prev) => {
@@ -155,13 +228,17 @@ export function Navbar() {
         gsap.to(brandWrapper, { opacity: 1, duration: 0.3, ease: 'power2.out', delay: 0.5 });
       }
 
-      // 1. Hamburger Morph back to parallel lines
+      // 1. Hamburger Morph back to parallel lines.
+      // Animate back to the CSS token, then clearProps so the cascade
+      // owns the color from here on — protects against a future GSAP
+      // build resolving var() to a stale RGB snapshot mid-tween.
       gsap.to(line1, {
         rotation: 0,
         y: 0,
-        backgroundColor: 'var(--color-primary-text)',
+        backgroundColor: 'var(--nav-fg)',
         duration: 0.4,
         ease: 'power2.out',
+        onComplete: () => gsap.set(line1, { clearProps: 'backgroundColor' }),
       });
       gsap.to(line2, {
         opacity: 1,
@@ -173,9 +250,10 @@ export function Navbar() {
       gsap.to(line3, {
         rotation: 0,
         y: 0,
-        backgroundColor: 'var(--color-primary-text)',
+        backgroundColor: 'var(--nav-fg)',
         duration: 0.4,
         ease: 'power2.out',
+        onComplete: () => gsap.set(line3, { clearProps: 'backgroundColor' }),
       });
 
       // 2. Text Animation: CLOSE exits down, MENU enters from up
