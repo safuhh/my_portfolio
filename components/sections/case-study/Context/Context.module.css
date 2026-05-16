@@ -64,8 +64,9 @@
 
 .col > p strong {
     font-weight: 700;
-    background: var(--highlight-strong);
+    /* background: var(--highlight-strong); */
     padding: 0 0.04em;
+    color: var(--color-accent-purple);
 }
 
 .lede {

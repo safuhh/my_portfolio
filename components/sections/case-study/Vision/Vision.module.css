@@ -33,12 +33,12 @@
        split-word mask so the strip survives useWordLineReveal's per-word
        wrap (the mask's overflow:hidden would otherwise clip the gradient
        painted on the outer span). */
-    background: linear-gradient(
+    /* background: linear-gradient(
         transparent 78%,
         var(--color-accent-purple) 78%,
         var(--color-accent-purple) 90%,
         transparent 90%
-    );
+    ); */
 }
 
 .titleUnderline {
@@ -70,6 +70,7 @@
 
 .col > p strong {
     font-weight: 700;
-    background: var(--highlight-strong);
+    /* background: var(--highlight-strong); */
     padding: 0 0.04em;
+    color: var(--color-accent-purple);
 }
