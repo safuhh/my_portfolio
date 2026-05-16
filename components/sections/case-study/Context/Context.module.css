@@ -34,7 +34,7 @@
     margin: 0 0 18px;
 }
 
-.fact b {
+.fact :is(b, strong) {
     display: block;
     color: var(--color-primary-text);
     font-weight: 400;
