@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { useBlockFadeIn } from "@/lib/useBlockFadeIn";
 import { useWordLineReveal } from "@/lib/useWordLineReveal";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
@@ -31,6 +31,7 @@ export const Toggle = ({ label, titleLine1, titleAccent, screens }: ToggleConten
   });
 
   const [mode, setMode] = useState<Mode>("list");
+  const eyebrowId = useId();
 
   const selectMode = (target: Mode) => {
     setMode(target);
@@ -95,8 +96,14 @@ export const Toggle = ({ label, titleLine1, titleAccent, screens }: ToggleConten
   // (gallery-height) trigger line. A single refresh after layout
   // settles re-aligns every trigger to the new document height.
   useEffect(() => {
-    const id = requestAnimationFrame(() => ScrollTrigger.refresh());
-    return () => cancelAnimationFrame(id);
+    let id2 = 0;
+    const id1 = requestAnimationFrame(() => {
+      id2 = requestAnimationFrame(() => ScrollTrigger.refresh());
+    });
+    return () => {
+      cancelAnimationFrame(id1);
+      if (id2) cancelAnimationFrame(id2);
+    };
   }, [mode]);
 
   useEffect(() => {
@@ -146,11 +153,11 @@ export const Toggle = ({ label, titleLine1, titleAccent, screens }: ToggleConten
     <section
       ref={sectionRef}
       className={styles.toggle}
-      aria-labelledby="toggle-eyebrow"
+      aria-labelledby={eyebrowId}
     >
       <div className={styles.controls}>
         <div>
-          <SectionLabel id="toggle-eyebrow">{label}</SectionLabel>
+          <SectionLabel id={eyebrowId}>{label}</SectionLabel>
           <h2 ref={titleRef} className={styles.title}>
             {titleLine1}{" "}
             <span className={styles.titleAccent}>{screens.length}</span>{" "}

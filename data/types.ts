@@ -85,7 +85,6 @@ export interface Project {
   badgeColor?: string;
   badgeTextColor?: string;
   badgeShadowColor?: string;
-  caseStudyHref?: string;
 }
 
 export interface ProjectsContent {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useId, useRef } from "react";
 import { useBlockFadeIn } from "@/lib/useBlockFadeIn";
 import { useWordLineReveal } from "@/lib/useWordLineReveal";
 import { animationConfig } from "@/data";
@@ -22,6 +22,7 @@ export const Product = ({
   const eyebrowRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const colRef = useRef<HTMLDivElement>(null);
+  const eyebrowId = useId();
 
   useBlockFadeIn(sectionRef, {
     start: cs.scrollTrigger.early,
@@ -41,13 +42,13 @@ export const Product = ({
     <section
       ref={sectionRef}
       className={styles.product}
-      aria-labelledby="product-eyebrow"
+      aria-labelledby={eyebrowId}
     >
       <div className={styles.head}>
         <div className={styles.row}>
           <SectionLabel
             ref={eyebrowRef}
-            id="product-eyebrow"
+            id={eyebrowId}
             className={styles.eyebrow}
           >
             {label}

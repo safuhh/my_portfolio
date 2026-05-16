@@ -40,7 +40,7 @@ export const NextCase = ({ slug, counter, target }: NextCaseProps) => {
           <Image
             className={styles.image}
             src={target.image}
-            alt={target.alt ?? ""}
+            alt={target.alt}
             width={2400}
             height={1500}
             sizes="(min-width: 1024px) 50vw, 100vw"

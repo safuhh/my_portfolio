@@ -70,8 +70,7 @@
         "themeColor": "#e6f2ff",
         "badgeColor": "#FFB800",
         "badgeTextColor": "#1b2028",
-        "badgeShadowColor": "#1b2028",
-        "caseStudyHref": "/work/tasktrox"
+        "badgeShadowColor": "#1b2028"
       },
       {
         "id": "permitto",

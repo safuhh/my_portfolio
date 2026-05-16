@@ -6,7 +6,7 @@ export const Ledger = ({ entries }: LedgerContent) => {
     <section className={styles.ledger} aria-label="Project vitals">
       <dl className={styles.inner}>
         {entries.map((entry) => (
-          <div key={entry.label} className={styles.cell}>
+          <div key={entry.label} role="group" className={styles.cell}>
             <dt className={styles.label}>{entry.label}</dt>
             <dd className={styles.value}>
               {entry.primary}

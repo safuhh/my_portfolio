@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useId, useRef } from "react";
 import { useBlockFadeIn } from "@/lib/useBlockFadeIn";
 import { useWordLineReveal } from "@/lib/useWordLineReveal";
 import { animationConfig } from "@/data";
@@ -28,6 +28,7 @@ export const Colophon = ({ leftLabel, titleLine1, titleAccent, credits, rightLab
   const rightEyebrowRef = useRef<HTMLDivElement>(null);
   const bioRef = useRef<HTMLDivElement>(null);
   const actionsRef = useRef<HTMLDivElement>(null);
+  const eyebrowId = useId();
 
   useBlockFadeIn(sectionRef, {
     start: cs.scrollTrigger.mid,
@@ -55,13 +56,13 @@ export const Colophon = ({ leftLabel, titleLine1, titleAccent, credits, rightLab
     <section
       ref={sectionRef}
       className={styles.colophon}
-      aria-labelledby="colophon-eyebrow"
+      aria-labelledby={eyebrowId}
     >
       <div className={styles.inner}>
         <div>
           <SectionLabel
             ref={leftEyebrowRef}
-            id="colophon-eyebrow"
+            id={eyebrowId}
             className={styles.eyebrow}
           >
             {leftLabel}
@@ -72,7 +73,7 @@ export const Colophon = ({ leftLabel, titleLine1, titleAccent, credits, rightLab
           </h2>
           <dl ref={creditsRef} className={styles.credits}>
             {credits.map((c) => (
-              <div key={c.role} className={styles.credit}>
+              <div key={c.role} role="group" className={styles.credit}>
                 <dt>{c.role}</dt>
                 <dd>{c.primary}</dd>
                 {c.secondary && <dd>{c.secondary}</dd>}

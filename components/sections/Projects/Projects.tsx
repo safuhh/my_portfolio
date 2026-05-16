@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
+import { Fragment, useRef, useEffect } from 'react';
 import { gsap } from '@/lib/gsap';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -14,8 +14,10 @@ export const Projects = () => {
   const { projects } = content;
 
   useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
     const ctx = gsap.context(() => {
-        const sections = document.querySelectorAll<HTMLElement>(`.${styles.projectSection}`);
+        const sections = container.querySelectorAll<HTMLElement>(`.${styles.projectSection}`);
 
         sections.forEach((section) => {
             const topPart = section.querySelector(`.${styles.textTop}`);
@@ -119,7 +121,14 @@ export const Projects = () => {
                         boxShadow: `5px 5px 0px ${project.badgeShadowColor || 'black'}`
                     }}
                    >
-                       <span dangerouslySetInnerHTML={{__html: project.badge}} />
+                       <span>
+                           {project.badge.split(/<br\s*\/?>/i).map((line, i, arr) => (
+                               <Fragment key={i}>
+                                   {line}
+                                   {i < arr.length - 1 && <br />}
+                               </Fragment>
+                           ))}
+                       </span>
                    </div>
 
                    {/* Text Splitter */}

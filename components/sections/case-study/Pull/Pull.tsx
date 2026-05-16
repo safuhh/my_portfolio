@@ -26,7 +26,11 @@ export const Pull = ({ attribution, act2, act3 }: PullContent) => {
   const attributionSecondary = [attribution.role, attribution.location]
     .filter(Boolean)
     .join(", ");
-  const quoteLabel = [...act2, ...act3].map((line) => line.text).join(" ");
+  const quoteLabel = [...act2, ...act3]
+    .map((line) => line.text)
+    .join(" ")
+    .replace(/^[“”"'']+|[“”"'']+$/g, "")
+    .trim();
 
   return (
     <section

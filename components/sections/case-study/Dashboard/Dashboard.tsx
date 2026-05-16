@@ -160,6 +160,12 @@ export const Dashboard = ({ badge, figcaption, image, alt }: DashboardContent) =
     { scope: sectionRef }
   );
 
+  // A11y: only the <figure> below is announced to assistive tech. The
+  // `slotWrap` div is a measurement-only spacer that preserves the
+  // section's layout height while the figure is body-fixed (position:
+  // fixed in styles.frame). It is aria-hidden + role="presentation" so
+  // screen readers skip it entirely and announce the figure's
+  // figcaption exactly once.
   return (
     <section ref={sectionRef} className={styles.dashboard}>
       <div className={styles.slotWrap} aria-hidden="true">

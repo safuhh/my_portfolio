@@ -13,6 +13,8 @@ import { Outcomes } from '@/components/sections/case-study/Outcomes';
 import { Colophon } from '@/components/sections/case-study/Colophon';
 import { NextCase } from '@/components/sections/case-study/NextCase';
 
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return getCaseStudySlugs().map((slug) => ({ slug }));
 }

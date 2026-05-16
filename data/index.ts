@@ -30,6 +30,16 @@ export const animationConfig: AnimationConfig = animationConfigJson;
 export const features: Features = featuresJson;
 export const caseStudies: CaseStudies = caseStudiesJson;
 
+if (process.env.NODE_ENV !== 'production') {
+  Object.entries(caseStudies).forEach(([slug, cs]) => {
+    if (cs.nextCase && !caseStudies[cs.nextCase.slug]) {
+      console.warn(
+        `[case-studies] "${slug}".nextCase.slug "${cs.nextCase.slug}" has no entry — NextCase will render the non-link branch.`
+      );
+    }
+  });
+}
+
 // Re-export types for convenience
 export type {
   SiteMetadata,
