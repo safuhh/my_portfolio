@@ -4,12 +4,41 @@ import { useRef } from "react";
 import { useBlockFadeIn } from "@/lib/useBlockFadeIn";
 import { useWordLineReveal } from "@/lib/useWordLineReveal";
 import { animationConfig } from "@/data";
+import type { VisionContent } from "@/data";
+import { renderInline } from "@/lib/renderInline";
 import { SectionLabel } from "../SectionLabel";
 import styles from "./Vision.module.css";
 
 const cs = animationConfig.caseStudy;
 
-export function Vision() {
+// titleLine1 carries the word ('respects') that originally lived inside a
+// <span className={styles.titleUnderline}>. The data layer is flat strings,
+// so the underline is re-applied here by wrapping the trailing word of
+// titleLine1 in the underline span. If titleLine1 is a single word, that
+// word receives the underline; otherwise the underline lands on the last
+// word and the preceding text renders plain.
+function renderUnderlinedTitleLine1(line: string) {
+  const lastSpace = line.lastIndexOf(" ");
+  if (lastSpace === -1) {
+    return <span className={styles.titleUnderline}>{line}</span>;
+  }
+  const head = line.slice(0, lastSpace + 1);
+  const tail = line.slice(lastSpace + 1);
+  return (
+    <>
+      {head}
+      <span className={styles.titleUnderline}>{tail}</span>
+    </>
+  );
+}
+
+export const Vision = ({
+  label,
+  titleLine1,
+  titleLine2,
+  titleAccent,
+  body,
+}: VisionContent) => {
   const sectionRef = useRef<HTMLElement>(null);
   const eyebrowRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -41,32 +70,21 @@ export function Vision() {
           id="vision-eyebrow"
           className={styles.eyebrow}
         >
-          The Vision
+          {label}
         </SectionLabel>
         <h2 ref={titleRef} className={styles.title}>
-          A workspace that{" "}
-          <span className={styles.titleUnderline}>respects</span>
+          {renderUnderlinedTitleLine1(titleLine1)}
           <br />
-          the <span className={styles.titleAccent}>craft.</span>
+          {titleLine2}{" "}
+          <span className={styles.titleAccent}>{titleAccent}</span>
         </h2>
       </div>
 
       <div ref={colRef} className={styles.col}>
-        <p>
-          Three principles shaped every screen.{" "}
-          <strong>One: replace dashboards with documents.</strong> A studio
-          thinks in artifacts, not metrics, so the product treats every
-          project as a living folio you can mark up, not a feed you scroll
-          past.
-        </p>
-        <p>
-          <strong>Two: make the chrome quiet.</strong> Toolbars and toasts
-          that earn their pixels. State changes that read as movement, not
-          noise. <strong>Three: keep the tool truthful.</strong> If a number
-          is provisional, say so. If a milestone slipped, show the slippage
-          rather than recolour the badge.
-        </p>
+        {body.map((paragraph, i) => (
+          <p key={i}>{renderInline(paragraph)}</p>
+        ))}
       </div>
     </section>
   );
-}
+};

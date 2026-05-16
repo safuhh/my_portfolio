@@ -26,9 +26,9 @@ export default function TasktroxCaseStudy() {
       <Hero {...cs.hero} />
       {cs.ledger && <Ledger {...cs.ledger} />}
       {cs.context && <Context {...cs.context} />}
-      <Vision />
+      {cs.vision && <Vision {...cs.vision} />}
       <Pull />
-      <Product />
+      {cs.product && <Product {...cs.product} />}
       {cs.dashboard && <Dashboard {...cs.dashboard} />}
       <Toggle />
       <Outcomes />

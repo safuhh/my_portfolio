@@ -4,12 +4,20 @@ import { useRef } from "react";
 import { useBlockFadeIn } from "@/lib/useBlockFadeIn";
 import { useWordLineReveal } from "@/lib/useWordLineReveal";
 import { animationConfig } from "@/data";
+import type { ProductContent } from "@/data";
+import { renderInline } from "@/lib/renderInline";
 import { SectionLabel } from "../SectionLabel";
 import styles from "./Product.module.css";
 
 const cs = animationConfig.caseStudy;
 
-export function Product() {
+export const Product = ({
+  label,
+  titleLine1,
+  titleLine2,
+  titleAccent,
+  body,
+}: ProductContent) => {
   const sectionRef = useRef<HTMLElement>(null);
   const eyebrowRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -42,31 +50,22 @@ export function Product() {
             id="product-eyebrow"
             className={styles.eyebrow}
           >
-            The Product
+            {label}
           </SectionLabel>
           <h2 ref={titleRef} className={styles.title}>
-            The dashboard,
+            {titleLine1}
             <br />
-            read like a <span className={styles.titleAccent}>plate.</span>
+            {titleLine2}{" "}
+            <span className={styles.titleAccent}>{titleAccent}</span>
           </h2>
         </div>
       </div>
 
       <div ref={colRef} className={styles.col}>
-        <p>
-          The dashboard treats every project as an architectural plate.{" "}
-          <strong>
-            Sectional header, living grid, margin notes
-          </strong>{" "}
-          the right rail is for context, never controls, lifted directly
-          from the way studios annotate drawings.
-        </p>
-        <p>
-          Cards align to the 8-pt grid but breathe within it. No two states
-          look identical without reason. Motion is 240ms expo.out, fast
-          enough to feel earned, slow enough to read.
-        </p>
+        {body.map((paragraph, i) => (
+          <p key={i}>{renderInline(paragraph)}</p>
+        ))}
       </div>
     </section>
   );
-}
+};
