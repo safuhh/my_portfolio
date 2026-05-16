@@ -2,20 +2,10 @@
 
 import { useRef } from "react";
 import { useScrubbedActsReveal } from "@/lib/useScrubbedActsReveal";
+import type { PullContent } from "@/data";
 import styles from "./Pull.module.css";
 
-const ACT2_LINES: Array<{ text: string; accent?: boolean }> = [
-  { text: "“For the first time" },
-  { text: "the software" },
-  { text: "respects", accent: true },
-];
-
-const ACT3_LINES: Array<{ text: string; accent?: boolean }> = [
-  { text: "the way our studio" },
-  { text: "actually thinks.”" },
-];
-
-export function Pull() {
+export const Pull = ({ attribution, act2, act3 }: PullContent) => {
   const sectionRef = useRef<HTMLElement>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
   const act1Ref = useRef<HTMLElement>(null);
@@ -29,6 +19,14 @@ export function Pull() {
     act2: act2Ref,
     act3: act3Ref,
   });
+
+  const attributionLabel = [attribution.name, attribution.role, attribution.location]
+    .filter(Boolean)
+    .join(", ");
+  const attributionSecondary = [attribution.role, attribution.location]
+    .filter(Boolean)
+    .join(", ");
+  const quoteLabel = [...act2, ...act3].map((line) => line.text).join(" ");
 
   return (
     <section
@@ -49,21 +47,21 @@ export function Pull() {
           <figcaption
             ref={act1Ref}
             className={styles.act1}
-            aria-label="Léa Marchand, Principal, Atelier Marchand, Lyon"
+            aria-label={attributionLabel}
           >
             <span className={styles.avatar} aria-hidden="true" />
             <span className={styles.attrText}>
-              <b>Léa Marchand</b>
-              <span>Principal, Atelier Marchand, Lyon</span>
+              <b>{attribution.name}</b>
+              <span>{attributionSecondary}</span>
             </span>
           </figcaption>
 
           <blockquote
             className={styles.quote}
-            aria-label="For the first time the software respects the way our studio actually thinks."
+            aria-label={quoteLabel}
           >
             <div ref={act2Ref} className={styles.act2} aria-hidden="true">
-              {ACT2_LINES.map((line, i) => (
+              {act2.map((line, i) => (
                 <span
                   key={i}
                   className={
@@ -77,8 +75,15 @@ export function Pull() {
               ))}
             </div>
             <div ref={act3Ref} className={styles.act3} aria-hidden="true">
-              {ACT3_LINES.map((line, i) => (
-                <span key={i} className={styles.quoteLine}>
+              {act3.map((line, i) => (
+                <span
+                  key={i}
+                  className={
+                    line.accent
+                      ? `${styles.quoteLine} ${styles.accent}`
+                      : styles.quoteLine
+                  }
+                >
                   {line.text}
                 </span>
               ))}
@@ -88,4 +93,4 @@ export function Pull() {
       </figure>
     </section>
   );
-}
+};
