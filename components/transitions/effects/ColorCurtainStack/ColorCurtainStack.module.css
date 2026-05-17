@@ -50,7 +50,12 @@
 .track .wordItalic {
   padding: 0 0.18em;
   font-style: italic;
-  font-family: Georgia, "Instrument Serif", serif;
+  font-family: "PP Neue Montreal", var(--font-sans), sans-serif;
+  /* Pairs the geometric Doppio One (navbar font, used for the roman word)
+   * with PP Neue Montreal (project body font) in italic. PP Neue Montreal
+   * ships only roman faces locally, so the browser synthesizes the slant —
+   * acceptable here as the slant + face-swap together create the contrast.
+   * Keeps the curtain type system fully inside the project palette. */
 }
 
 /* Continuous scroll. Direction set per curtain so the three layers feel
