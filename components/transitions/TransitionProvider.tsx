@@ -169,9 +169,14 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
       if (payload.accent) {
         const palette = getAccentColors();
         const incoming = payload.accent.toLowerCase();
-        const inPalette = palette.some((c) => c.toLowerCase() === incoming);
-        if (inPalette) {
-          document.documentElement.style.setProperty(CSS_VAR, payload.accent);
+        // Find the canonical palette entry so the var always holds the
+        // case-form the palette declares — resolvePanelColor()'s
+        // case-insensitive read then round-trips cleanly. Writing
+        // payload.accent verbatim would leak `#62B6CB`-style mixed-case
+        // values into the var on caller-side typos.
+        const canonical = palette.find((c) => c.toLowerCase() === incoming);
+        if (canonical) {
+          document.documentElement.style.setProperty(CSS_VAR, canonical);
         }
       }
 
@@ -229,6 +234,26 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
         // their offsets against the now-visible document height.
         ScrollTrigger.refresh();
         unlockScroll();
+
+        // Hash handoff: if the original href included an #anchor (e.g.
+        // Menu cross-route from /work/foo → /#projects), scroll the new
+        // page to that anchor. router.push('/#projects') doesn't auto-
+        // scroll when the destination pathname is already showing, so we
+        // do it explicitly here. Native scrollIntoView is intercepted by
+        // Lenis when active, so the scroll picks up the project's smooth
+        // behavior without us depending on the Lenis context.
+        try {
+          const u = new URL(s.href, 'http://_');
+          if (u.hash) {
+            requestAnimationFrame(() => {
+              const el = document.querySelector(u.hash);
+              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+          }
+        } catch {
+          /* malformed href — skip hash scroll */
+        }
+
         setState({ kind: 'idle' });
       }
     },
@@ -239,16 +264,17 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
   //
   // TransitionLink covers click-driven navigation, but a hardware/browser
   // back button doesn't go through it and would otherwise pop straight to
-  // home with no curtain. We trap popstate on /work/* by pushing a sentinel
-  // history entry at the same URL on mount. When the user clicks back, the
-  // sentinel is consumed and popstate fires while the URL stays put — at
-  // which point we re-arm the sentinel and route home via the existing
-  // provider state machine, so the curtain plays as expected.
+  // home with no curtain. We listen for popstate while on /work/* and, if
+  // the pop is *leaving* the case-study namespace, synchronously push the
+  // case-study URL back on top of the history stack (URL bar is restored
+  // before paint) and trigger the curtain home via the provider's normal
+  // state machine.
   //
-  // Trade-off: each /work/* mount adds one history entry. Acceptable in
-  // exchange for a consistent reverse-curtain experience. Forward clicks
-  // through TransitionLink are unaffected because router.push doesn't fire
-  // popstate.
+  // We intentionally do NOT push a sentinel on mount. The earlier design
+  // did, which made `/work/*` mounts pollute history (BL-01) and orphaned
+  // a sentinel on TransitionLink-driven exits — pressing browser-Back from
+  // home would silently bounce the user back to the case study (BL-02).
+  // Reacting only at pop-time avoids both bugs and keeps history clean.
   const pathname = usePathname();
   const triggerRef = useRef(triggerTransition);
   useEffect(() => {
@@ -259,19 +285,39 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
     if (typeof window === 'undefined') return;
     if (!pathname || !pathname.startsWith('/work/')) return;
 
-    const sentinelUrl = window.location.href;
-    const armSentinel = () => {
-      window.history.pushState({ __curtainGuard: true }, '', sentinelUrl);
-    };
-    armSentinel();
+    // Snapshot the URL at-mount; if the user navigates between case
+    // studies, the effect re-runs and a new caseStudyUrl is captured.
+    const caseStudyUrl = window.location.href;
 
     const onPopState = () => {
-      armSentinel();
+      // After popstate, location.pathname reflects the destination of the
+      // pop. If we're still on a /work/* path (e.g., back between case
+      // studies, in-page hash pop), let Next.js handle it natively.
+      if (window.location.pathname.startsWith('/work/')) return;
+
+      // If a transition is mid-flight, the curtain is already covering
+      // the view. Don't double-trigger — let the in-flight transition
+      // complete naturally to wherever it was heading. The user's Back
+      // press was lost; preferable to silently polluting history with a
+      // failed re-arm (CR-01).
+      if (stateRef.current.kind !== 'idle') return;
+
+      // Restore the case-study URL synchronously so the destination
+      // doesn't flash through before the curtain covers it.
+      window.history.pushState(null, '', caseStudyUrl);
+
+      // Read the live accent from the CSS var so cur2 (which resolves
+      // via --color-accent-purple) renders the color the user was
+      // looking at. Direct DOM read avoids hook dep churn that would
+      // re-register the listener on every accent cycle.
+      const live = getComputedStyle(document.documentElement)
+        .getPropertyValue(CSS_VAR)
+        .trim();
       const palette = getAccentColors();
       triggerRef.current({
         href: '/',
         origin: null,
-        payload: { accent: palette[0] },
+        payload: { accent: live || palette[0] },
       });
     };
 
