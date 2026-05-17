@@ -9,8 +9,8 @@
 .pull {
     position: relative;
     padding: 0;
-    border-top: 2px solid var(--color-primary-text);
-    border-bottom: 2px solid var(--color-primary-text);
+    /* border-top: 2px solid var(--color-primary-text);
+    border-bottom: 2px solid var(--color-primary-text); */
 }
 
 .figure {
