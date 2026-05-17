@@ -1,8 +1,6 @@
 export { TransitionProvider } from './TransitionProvider';
 export { TransitionStage } from './TransitionStage';
 export { TransitionLink } from './TransitionLink';
-export { TransitionDebugToggle } from './DebugToggle';
-export { TransitionDebugToggleMount } from './DebugToggleMount';
 export { useTransition } from './useTransition';
 export type {
   TransitionEffect,

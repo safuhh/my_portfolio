@@ -10,7 +10,6 @@ import { Navbar } from "@/components/layout/Navbar";
 import {
   TransitionProvider,
   TransitionStage,
-  TransitionDebugToggleMount,
 } from "@/components/transitions";
 import siteMetadata from "@/data/site-metadata.json";
 
@@ -85,7 +84,6 @@ export default function RootLayout({
               <ThemeToggle />
               {children}
               <TransitionStage />
-              <TransitionDebugToggleMount />
             </TransitionProvider>
           </AccentColorProvider>
         </LenisProvider>
