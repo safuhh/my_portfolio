@@ -9,7 +9,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { ScrollTrigger } from '@/lib/gsap';
 import { transitionsConfig, features, getAccentColors } from '@/data';
 import {
@@ -234,6 +234,50 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
     },
     [router, unlockScroll]
   );
+
+  // ----- browser-back interception on case-study routes -----
+  //
+  // TransitionLink covers click-driven navigation, but a hardware/browser
+  // back button doesn't go through it and would otherwise pop straight to
+  // home with no curtain. We trap popstate on /work/* by pushing a sentinel
+  // history entry at the same URL on mount. When the user clicks back, the
+  // sentinel is consumed and popstate fires while the URL stays put — at
+  // which point we re-arm the sentinel and route home via the existing
+  // provider state machine, so the curtain plays as expected.
+  //
+  // Trade-off: each /work/* mount adds one history entry. Acceptable in
+  // exchange for a consistent reverse-curtain experience. Forward clicks
+  // through TransitionLink are unaffected because router.push doesn't fire
+  // popstate.
+  const pathname = usePathname();
+  const triggerRef = useRef(triggerTransition);
+  useEffect(() => {
+    triggerRef.current = triggerTransition;
+  }, [triggerTransition]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!pathname || !pathname.startsWith('/work/')) return;
+
+    const sentinelUrl = window.location.href;
+    const armSentinel = () => {
+      window.history.pushState({ __curtainGuard: true }, '', sentinelUrl);
+    };
+    armSentinel();
+
+    const onPopState = () => {
+      armSentinel();
+      const palette = getAccentColors();
+      triggerRef.current({
+        href: '/',
+        origin: null,
+        payload: { accent: palette[0] },
+      });
+    };
+
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, [pathname]);
 
   const value = useMemo<InternalContextValue>(
     () => ({
