@@ -1,10 +1,11 @@
 'use client';
 
 import { useRef, useEffect, useCallback } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { gsap } from '@/lib/gsap';
-import { navigation, content } from '@/data';
+import { navigation, content, getAccentColors } from '@/data';
 import { useLenis } from '@/lib/LenisProvider';
+import { useTransition } from '@/components/transitions';
 import styles from './Menu.module.css';
 
 interface MenuProps {
@@ -39,7 +40,7 @@ export function Menu({ isOpen, onClose, onCloseComplete, onRevealStart }: MenuPr
   const isAnimating = useRef(false);
   const { scrollTo } = useLenis();
   const pathname = usePathname();
-  const router = useRouter();
+  const { triggerTransition } = useTransition();
 
   // Lock body scroll when menu is open
   useEffect(() => {
@@ -284,13 +285,17 @@ export function Menu({ isOpen, onClose, onCloseComplete, onRevealStart }: MenuPr
     // case-study route (e.g. /work/tasktrox), Lenis can't resolve the
     // selector against a DOM that doesn't contain those sections, so
     // the unconditional preventDefault + scrollTo silently no-ops and
-    // the menu becomes dead. Detect cross-route and push to `/` + hash
-    // so Next.js handles the navigation; the anchor scroll then resolves
-    // naturally on the home page.
+    // the menu becomes dead. Detect cross-route and trigger the page
+    // transition to `/#hash` so the curtain plays on the way home; the
+    // anchor scroll then resolves naturally once the home page mounts.
     if (href.startsWith('#') && pathname !== '/') {
       e.preventDefault();
       onClose();
-      router.push('/' + href);
+      triggerTransition({
+        href: '/' + href,
+        origin: { x: e.clientX, y: e.clientY },
+        payload: { accent: getAccentColors()[0] },
+      });
       return;
     }
 
@@ -301,7 +306,7 @@ export function Menu({ isOpen, onClose, onCloseComplete, onRevealStart }: MenuPr
     setTimeout(() => {
       scrollTo(href, { duration: 1.8 }); // Lenis smooth scroll with custom duration
     }, 800);
-  }, [onClose, scrollTo, pathname, router]);
+  }, [onClose, scrollTo, pathname, triggerTransition]);
 
   return (
     <div ref={menuRef} id="main-menu" className={`${styles.menu} ${isOpen ? styles.isOpen : ''}`}>

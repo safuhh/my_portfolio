@@ -1,10 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { Fragment, useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { TransitionLink } from "@/components/transitions";
+import { getAccentColors } from "@/data";
 import type { CaseStudyHeroContent } from "@/data";
 import styles from "./Hero.module.css";
 
@@ -576,14 +577,15 @@ export function Hero({
       </span>
       <div className={styles.top}>
         <div ref={metaRef} className={styles.metaRow}>
-          <Link
+          <TransitionLink
             ref={backRef}
             href={backHref ?? "/"}
             className={styles.backLink}
             aria-label="Back to home"
+            payload={{ accent: getAccentColors()[0] }}
           >
             <span aria-hidden="true">←</span>
-          </Link>
+          </TransitionLink>
           {pills?.map((pillText, i) => {
             const isLast = i === pills.length - 1;
             return (
