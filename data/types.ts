@@ -500,3 +500,27 @@ export interface CaseStudy {
 }
 
 export type CaseStudies = Record<string, CaseStudy>;
+
+// ---------------------------------------------------------------------------
+// Transitions
+// ---------------------------------------------------------------------------
+
+export interface TransitionsConfig {
+  /** Registry key of the default page-transition effect. Must match a key in
+   *  components/transitions/registry.ts (e.g. 'iris-bloom'). */
+  defaultEffect: string;
+  /** Default phase durations (seconds). Effects MAY use these for pacing. */
+  durations: {
+    exit: number;
+    enter: number;
+  };
+  /** Fallback strategy when prefers-reduced-motion: reduce is active. */
+  reducedMotionFallback: 'crossfade' | 'none';
+  /** Duration (seconds) of the reduced-motion fallback. */
+  reducedMotionDuration: number;
+  /** Per-effect config namespace. Each effect reads its own block via its
+   *  registry key, so adding an effect cannot break another effect's tuning.
+   *  Shape of each value is effect-specific; the registry key is the source
+   *  of truth for what is valid. */
+  effects?: Record<string, Record<string, unknown>>;
+}

@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import type { ReactNode } from "react";
+import { TransitionLink } from "@/components/transitions";
+import { getProjectThemeColor } from "@/data";
 import type { CaseStudyHeroContent, NextCaseContent } from "@/data";
 import styles from "./NextCase.module.css";
 
@@ -58,9 +59,18 @@ export const NextCase = ({ slug, counter, target }: NextCaseProps) => {
   return (
     <nav className={styles.next} aria-label="Next case study">
       {target ? (
-        <Link href={`/work/${slug}`} className={styles.link}>
+        <TransitionLink
+          href={`/work/${slug}`}
+          className={styles.link}
+          payload={{
+            accent: getProjectThemeColor(slug),
+            title: target.title,
+            slug,
+            year: target.year,
+          }}
+        >
           {inner}
-        </Link>
+        </TransitionLink>
       ) : (
         <div className={styles.link} aria-disabled="true" role="group">
           {inner}

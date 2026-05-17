@@ -7,6 +7,11 @@ import { AccentColorProvider } from "@/lib/AccentColorContext";
 import { LenisProvider } from "@/lib/LenisProvider";
 import { InteractiveBackground } from "@/components/sections/Hero";
 import { Navbar } from "@/components/layout/Navbar";
+import {
+  TransitionProvider,
+  TransitionStage,
+  TransitionDebugToggleMount,
+} from "@/components/transitions";
 import siteMetadata from "@/data/site-metadata.json";
 
 const doppioOne = Doppio_One({
@@ -73,11 +78,15 @@ export default function RootLayout({
         />
         <LenisProvider>
           <AccentColorProvider>
-            <InteractiveBackground />
-            <Navbar />
-            <CustomCursor />
-            <ThemeToggle />
-            {children}
+            <TransitionProvider>
+              <InteractiveBackground />
+              <Navbar />
+              <CustomCursor />
+              <ThemeToggle />
+              {children}
+              <TransitionStage />
+              <TransitionDebugToggleMount />
+            </TransitionProvider>
           </AccentColorProvider>
         </LenisProvider>
       </body>

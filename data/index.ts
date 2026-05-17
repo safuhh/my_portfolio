@@ -10,6 +10,8 @@ import type {
   Features,
   CaseStudy,
   CaseStudies,
+  TransitionsConfig,
+  Project,
 } from './types';
 
 // Import JSON files
@@ -20,6 +22,7 @@ import designTokensJson from './design-tokens.json';
 import animationConfigJson from './animation-config.json';
 import featuresJson from './features.json';
 import caseStudiesJson from './case-studies.json';
+import transitionsJson from './transitions.json';
 
 // Export typed data
 export const siteMetadata: SiteMetadata = siteMetadataJson;
@@ -29,6 +32,7 @@ export const designTokens: DesignTokens = designTokensJson;
 export const animationConfig: AnimationConfig = animationConfigJson;
 export const features: Features = featuresJson;
 export const caseStudies: CaseStudies = caseStudiesJson;
+export const transitionsConfig: TransitionsConfig = transitionsJson as TransitionsConfig;
 
 if (process.env.NODE_ENV !== 'production') {
   Object.entries(caseStudies).forEach(([slug, cs]) => {
@@ -82,6 +86,8 @@ export type {
   ColophonCredit,
   ColophonAction,
   NextCaseContent,
+  TransitionsConfig,
+  Project,
 } from './types';
 
 // Convenience helpers
@@ -109,3 +115,14 @@ export const getFramerMotionEasing = (key: keyof typeof animationConfig.easing.f
 export const getCaseStudy = (slug: string): CaseStudy | undefined => caseStudies[slug];
 
 export const getCaseStudySlugs = (): string[] => Object.keys(caseStudies);
+
+// Project / cross-lookup helpers
+export const getProject = (id: string): Project | undefined =>
+  content.projects.items.find((p) => p.id === id);
+
+/** Convenience: resolve a project's theme color by slug. Falls back to the
+ *  default accent (first palette entry) when the slug has no matching
+ *  project. Used by TransitionLink in places that don't already carry the
+ *  full Project record (e.g. NextCase). */
+export const getProjectThemeColor = (slug: string): string =>
+  getProject(slug)?.themeColor ?? designTokens.colors.accentPalette[0];

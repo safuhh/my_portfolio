@@ -3,7 +3,7 @@
 import { Fragment, useRef, useEffect } from 'react';
 import { gsap } from '@/lib/gsap';
 import Image from 'next/image';
-import Link from 'next/link';
+import { TransitionLink } from '@/components/transitions';
 import styles from './Projects.module.css';
 import { content, getCaseStudySlugs } from '@/data';
 
@@ -158,13 +158,20 @@ export const Projects = () => {
                  data-color={project.themeColor}
                >
                    {caseStudySlugs.has(project.id) ? (
-                       <Link
+                       <TransitionLink
                          href={`/work/${project.id}`}
                          className={styles.projectSticky}
                          aria-label={`Open ${project.title} case study`}
+                         payload={{
+                           accent: project.themeColor,
+                           title: project.title,
+                           slug: project.id,
+                           year: project.year,
+                           category: project.category,
+                         }}
                        >
                            {cardInner}
-                       </Link>
+                       </TransitionLink>
                    ) : (
                        <div className={styles.projectSticky}>
                            {cardInner}

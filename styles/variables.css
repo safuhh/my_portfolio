@@ -68,6 +68,7 @@
     --z-above: 10;
     --z-nav: 100;
     --z-modal: 200;
+    --z-transition: 300;
     --z-cursor: 9999;
 }
 
