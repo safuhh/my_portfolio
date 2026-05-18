@@ -1,10 +1,10 @@
 'use client';
 
 import { Fragment, useCallback, useMemo, useRef, type MouseEvent } from 'react';
-import Link from 'next/link';
 import { useGSAP } from '@gsap/react';
 import { gsap, ScrollTrigger, ANIMATION_CONFIG } from '@/lib/gsap';
 import { useReducedMotion } from '@/lib/useReducedMotion';
+import { TransitionLink } from '@/components/transitions';
 import { content } from '@/data';
 import styles from './Archive.module.css';
 
@@ -304,10 +304,19 @@ export function Archive() {
             <span>{archive.metaRight}</span>
           </div>
 
-          <Link
+          <TransitionLink
             href={archive.ctaHref}
             className={styles.cta}
             aria-label={`${archive.cta} — full index of works`}
+            payload={{
+              // Palette-gated by TransitionProvider — passing the default
+              // accent here means the works index lands at the current accent
+              // without an unwanted forced change.
+              accent: '#62b6cb',
+              title: 'Works',
+              slug: 'works',
+              category: 'Index',
+            }}
           >
             <span className={styles.ctaTextWrap}>
               {/* Base text — primary color, slides up on hover */}
@@ -340,7 +349,7 @@ export function Archive() {
                 <path d="M5 12h14M13 5l7 7-7 7" />
               </svg>
             </span>
-          </Link>
+          </TransitionLink>
         </div>
       </section>
     </div>
