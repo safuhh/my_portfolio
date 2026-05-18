@@ -181,7 +181,7 @@ export const Projects = () => {
            );
        })}
 
-       <div className={styles.spacer}>Fin.</div>
+       <div className={styles.spacer}></div>
     </div>
   );
 };
