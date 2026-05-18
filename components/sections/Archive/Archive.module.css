@@ -1,0 +1,245 @@
+.wrapper {
+  position: relative;
+  z-index: var(--z-above);
+}
+
+.section {
+  min-height: 100vh;
+  padding: 150px 8% 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  position: relative;
+  contain: content;
+  background-color: var(--color-background);
+}
+
+.metaLabel {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: var(--color-accent-purple);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: color 0.6s var(--ease-out-expo);
+}
+
+.starIcon {
+  width: 1.2em;
+  height: 1.2em;
+  flex-shrink: 0;
+}
+
+/* Statement — mirrors RevealText.module.css (uppercase 900, tight, max 1400) */
+.statement {
+  font-size: clamp(2.5rem, 6.5vw, 7rem);
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+  max-width: 1400px;
+  letter-spacing: -0.02em;
+  color: var(--color-primary-text);
+}
+
+.word {
+  display: inline-block;
+}
+
+/* Highlight — recolor the word with the live accent on scroll-in.
+   Color cascades from this container down into .portalLetter. */
+.highlight {
+  color: var(--color-primary-text);
+  transition: color 0.9s var(--ease-out-expo);
+}
+
+.section.hlOn .highlight {
+  color: var(--color-accent-purple);
+}
+
+/* ============================================
+   PORTAL ANIMATION — mirrors RevealText.module.css
+   Each highlight letter is a masked window; the inner
+   letter is what flies in/out of the mask.
+   ============================================ */
+.highlightWord {
+  display: inline-block;
+  opacity: 0; /* Hidden until letter stagger reveals */
+}
+
+.portalMask {
+  display: inline-block;
+  overflow: hidden;
+  position: relative;
+  vertical-align: bottom;
+  cursor: pointer;
+}
+
+.portalLetter {
+  display: inline-block;
+  position: relative;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Foot — pinned to the bottom of the section with margin-top:auto so the
+   statement sits directly under the meta label (small flow gap) and the
+   CTA anchors against the section's lower edge. */
+.foot {
+  margin-top: auto;
+  padding-top: 64px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 5vw;
+  align-items: end;
+  border-top: 1px solid var(--color-grid-line);
+}
+
+.footMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.footMeta span:first-child {
+  color: var(--color-text-muted-strong);
+}
+
+/* CTA — typographic affordance with highlight-bar on hover, no pill/border. */
+.cta {
+  text-decoration: none;
+  color: var(--color-primary-text);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.32em;
+  font-size: clamp(1.6rem, 3.4vw, 3.6rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.015em;
+  line-height: 1;
+  padding: 0 0.04em 0.12em;
+  cursor: pointer;
+}
+
+/* Split-flap text — same pattern as Menu's .socialLink hover.
+   Base layer is the resting text; clone layer (accent) sits at +100%
+   and on hover both translate up by one line-box. */
+.ctaTextWrap {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  line-height: 1;
+  vertical-align: baseline;
+}
+
+.ctaTextBase {
+  display: flex;
+  color: var(--color-primary-text);
+}
+
+.ctaTextClone {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  color: var(--color-accent-purple);
+}
+
+.ctaChar {
+  display: inline-block;
+  transition: transform 0.4s var(--ease-out-expo);
+}
+
+.ctaTextClone .ctaChar {
+  transform: translateY(100%);
+}
+
+.cta:hover .ctaTextBase .ctaChar,
+.cta:focus-visible .ctaTextBase .ctaChar {
+  transform: translateY(-100%);
+}
+
+.cta:hover .ctaTextClone .ctaChar,
+.cta:focus-visible .ctaTextClone .ctaChar {
+  transform: translateY(0);
+}
+
+.ctaArrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  width: 0.7em;
+  height: 0.7em;
+  color: var(--color-primary-text);
+  transition: color 0.4s var(--ease-out-expo);
+}
+
+.ctaArrow svg {
+  width: 100%;
+  height: 100%;
+}
+
+.cta:hover .ctaArrow,
+.cta:focus-visible .ctaArrow {
+  color: var(--color-accent-purple);
+}
+
+/* Responsive — .statement font sizing mirrors RevealText.module.css 1:1
+   across every breakpoint so Philosophy and Archive read at the same scale. */
+@media (max-width: 1024px) {
+  .section {
+    padding: 120px 6% 100px;
+  }
+
+  .statement {
+    font-size: clamp(2rem, 10vw, 5.5rem);
+  }
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 100px 5% 80px;
+    min-height: auto;
+  }
+
+  .metaLabel {
+    font-size: 0.7rem;
+    gap: 8px;
+  }
+
+  .statement {
+    font-size: clamp(1.75rem, 9vw, 5rem);
+    line-height: 1.1;
+    margin-top: 24px;
+  }
+
+  .foot {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding-top: 48px;
+  }
+}
+
+@media (max-width: 480px) {
+  .section {
+    padding: 80px 4% 64px;
+  }
+
+  .statement {
+    font-size: clamp(1.5rem, 12vw, 3.5rem);
+    line-height: 1.15;
+  }
+
+  .starIcon {
+    width: 1em;
+    height: 1em;
+  }
+}

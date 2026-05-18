@@ -85,5 +85,52 @@
         "badgeShadowColor": "#000000"
       }
     ]
+  },
+  "archive": {
+    "label": "The Archive",
+    "statement": "Two doors stand open above. The rest of the work waits in the index, set in motion.",
+    "highlights": ["work", "index", "motion"],
+    "metaLeft": "Every line considered",
+    "metaRight": "Every door, opened",
+    "cta": "Open the Index",
+    "ctaHref": "/work"
+  },
+  "worksIndex": {
+    "topBar": {
+      "mark": "M / A",
+      "breadcrumb": "Index of Works · 2024 → 2026",
+      "lastRevised": "2026 · 05"
+    },
+    "intro": {
+      "headline": "works.",
+      "lede": "An index of selected projects — each one set in motion. Hover a row to lock its accent and pause its ticker. Click to step inside."
+    },
+    "legend": {
+      "number": "№",
+      "project": "Project · in motion",
+      "meta": "Discipline · Year"
+    },
+    "end": {
+      "left": "End of index.",
+      "right": "Last revised"
+    },
+    "projects": [
+      {
+        "id": "tasktrox",
+        "title": "tasktrox",
+        "discipline": "Brand · Product · Web",
+        "year": 2024,
+        "accent": "#62b6cb",
+        "marqueeDurationSec": 24
+      },
+      {
+        "id": "permitto",
+        "title": "permitto",
+        "discipline": "Brand · Product",
+        "year": 2025,
+        "accent": "#da3036",
+        "marqueeDurationSec": 30
+      }
+    ]
   }
 }

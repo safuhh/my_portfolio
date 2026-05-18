@@ -74,6 +74,16 @@ export interface PhilosophyContent {
   highlights: string[];
 }
 
+export interface ArchiveContent {
+  label: string;
+  statement: string;
+  highlights: string[];
+  metaLeft: string;
+  metaRight: string;
+  cta: string;
+  ctaHref: string;
+}
+
 export interface Project {
   id: string;
   title: string;
@@ -92,6 +102,28 @@ export interface ProjectsContent {
   items: Project[];
 }
 
+export interface WorksIndexProject {
+  /** Matches the case-study slug when one exists (gates the TransitionLink). */
+  id: string;
+  /** Display title. Casing is canonical; presentation may lowercase it. */
+  title: string;
+  /** Comma- or interpunct-separated discipline string ("Brand · Product · Web"). */
+  discipline: string;
+  year: number;
+  /** Hex color — must be a member of design-tokens.accentPalette. */
+  accent: string;
+  /** Marquee scroll duration in seconds (per-row cadence). */
+  marqueeDurationSec: number;
+}
+
+export interface WorksIndexContent {
+  topBar: { mark: string; breadcrumb: string; lastRevised: string };
+  intro: { headline: string; lede: string };
+  legend: { number: string; project: string; meta: string };
+  end: { left: string; right: string };
+  projects: WorksIndexProject[];
+}
+
 export interface Content {
   hero: HeroContent;
   skills: SkillsContent;
@@ -99,6 +131,8 @@ export interface Content {
   ui: UIContent;
   philosophy: PhilosophyContent;
   projects: ProjectsContent;
+  archive: ArchiveContent;
+  worksIndex: WorksIndexContent;
 }
 
 // ============================================

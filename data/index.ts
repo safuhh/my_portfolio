@@ -59,6 +59,7 @@ export type {
   SkillsContent,
   WelcomeScreenContent,
   PhilosophyContent,
+  ArchiveContent,
   ColorTokens,
   TypographyTokens,
   DurationConfig,
@@ -88,6 +89,9 @@ export type {
   NextCaseContent,
   TransitionsConfig,
   Project,
+  // Works index
+  WorksIndexContent,
+  WorksIndexProject,
 } from './types';
 
 // Convenience helpers
@@ -126,3 +130,6 @@ export const getProject = (id: string): Project | undefined =>
  *  full Project record (e.g. NextCase). */
 export const getProjectThemeColor = (slug: string): string =>
   getProject(slug)?.themeColor ?? designTokens.colors.accentPalette[0];
+
+// Works index helper
+export const getWorksIndex = () => content.worksIndex;
