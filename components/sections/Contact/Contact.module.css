@@ -1,0 +1,515 @@
+/* ============================================
+   Contact — inline fill-in-the-blank form rendered as an inset, rounded
+   pastel panel that sits on the existing page background.
+
+   Layout:
+     .section (full-bleed, transparent — page bg shows through)
+       .panel (inset rounded, accent-tinted horizontal gradient — pinned)
+         .form
+           .row × 4 (text + inputs/chips)
+           .submit
+
+   Reveal (scroll-scrubbed, see Contact.tsx):
+     • Letters typewriter in per character
+     • Each input's underline draws 0% → 100%
+     • Chip groups fade in after their row's text
+     • Submit appears in the final beat
+   ============================================ */
+
+.wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.section {
+    position: relative;
+    width: 100%;
+    background: transparent;
+    color: var(--color-primary-text);
+}
+
+/* ============================================
+   Panel — full-bleed, viewport-height gradient surface that gets pinned
+   by GSAP. Spans 100vw × 100vh; no rounded corners, no inset margin.
+   ============================================ */
+.panel {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(48px, 7vw, 120px) clamp(28px, 5vw, 96px);
+    color: var(--color-primary-text);
+    overflow: hidden;
+    isolation: isolate;
+    /* Accent-tinted horizontal pastel — picks up the cycling accent color
+       so the panel hue rotates with the rest of the site. */
+    background: linear-gradient(
+        90deg,
+        color-mix(in oklab, var(--color-accent-purple) 30%, #ffffff) 0%,
+        color-mix(in oklab, var(--color-accent-purple) 14%, #ffffff) 100%
+    );
+}
+
+.srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ============================================
+   Form layout
+   ============================================ */
+.form {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: var(--canvas-max-width, 1380px);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(20px, 2.6vw, 44px);
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: clamp(14px, 1.8vw, 32px) clamp(16px, 2vw, 36px);
+    font-family: var(--font-primary);
+    font-size: clamp(22px, 3.2vw, 50px);
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    font-weight: 400;
+    color: var(--color-primary-text);
+}
+
+.text {
+    display: inline-flex;
+    white-space: pre;
+}
+
+/* ============================================
+   Per-character spans
+   ============================================ */
+.char {
+    display: inline-block;
+    opacity: 0;
+    will-change: opacity;
+}
+
+/* ============================================
+   Reveal items (inputs/chips) — start hidden, animated in by GSAP
+   ============================================ */
+.revealItem {
+    opacity: 0;
+    transform: translateY(14px);
+    will-change: opacity, transform;
+}
+
+/* ============================================
+   Inline auto-sizing input
+   ============================================ */
+.inputWrap {
+    position: relative;
+    display: inline-flex;
+    align-items: baseline;
+    min-width: 140px;
+    max-width: 100%;
+    padding-bottom: 4px;
+}
+
+.inputWrapGrow {
+    flex: 1 1 320px;
+}
+
+.inputMirror {
+    position: absolute;
+    visibility: hidden;
+    pointer-events: none;
+    white-space: pre;
+    font: inherit;
+    padding: 0 4px;
+}
+
+.inputWrapGrow .inputMirror {
+    display: none;
+}
+
+.input {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    outline: none;
+    padding: 0 4px;
+    font: inherit;
+    color: var(--color-primary-text);
+    min-width: 120px;
+    max-width: 100%;
+    font-family: var(--font-primary);
+    caret-color: var(--color-primary-text);
+}
+
+.inputWrapGrow .input {
+    flex: 1 1 auto;
+    width: 100%;
+}
+
+.input::placeholder {
+    color: color-mix(in oklab, var(--color-primary-text) 38%, transparent);
+}
+
+.input:focus::placeholder {
+    color: color-mix(in oklab, var(--color-primary-text) 22%, transparent);
+}
+
+/* Animated underline — width is driven by GSAP (0% → 100%). */
+.inputBorder {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 2px;
+    width: 0;
+    background-color: color-mix(in oklab, var(--color-primary-text) 35%, transparent);
+    pointer-events: none;
+}
+
+.inputWrap:focus-within .inputBorder {
+    background-color: var(--color-primary-text);
+}
+
+.inputWrapError .inputBorder {
+    background-color: var(--color-accent-purple);
+}
+
+.inputWrapError {
+    animation: shake 0.32s var(--ease-out-quart);
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+}
+
+/* ============================================
+   Chip buttons (pill, dark border resting, dark fill selected)
+   ============================================ */
+.chipGroup {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: clamp(10px, 1.2vw, 18px);
+}
+
+.chip {
+    appearance: none;
+    cursor: pointer;
+    font-family: var(--font-primary);
+    font-size: clamp(15px, 1.6vw, 26px);
+    font-weight: 400;
+    color: var(--color-primary-text);
+    background: transparent;
+    border: 1.5px solid color-mix(in oklab, var(--color-primary-text) 55%, transparent);
+    border-radius: 999px;
+    padding: clamp(10px, 1vw, 16px) clamp(20px, 2.4vw, 40px);
+    line-height: 1;
+    white-space: nowrap;
+    transition:
+        background-color var(--duration-normal) var(--ease-out-quart),
+        border-color var(--duration-normal) var(--ease-out-quart);
+}
+
+.chip:hover,
+.chip:focus-visible {
+    border-color: var(--color-primary-text);
+}
+
+.chipSelected {
+    background: var(--color-primary-text);
+    color: #ffffff;
+    border-color: var(--color-primary-text);
+}
+
+.chip:focus-visible {
+    outline: 2px solid var(--color-primary-text);
+    outline-offset: 3px;
+}
+
+/* Split-flap text animation on chips — matches the submit button below.
+   Base layer rests in inherited color; clone sits at translateY(100%) in
+   the accent color. On hover the base slides up off-canvas and the clone
+   slides into place, with a per-char delay creating a left-to-right
+   cascade. The wrap clips both layers so the off-canvas one is invisible. */
+.chipTextWrap {
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+    line-height: 1;
+    vertical-align: baseline;
+}
+
+.chipTextBase {
+    display: flex;
+    color: inherit;
+}
+
+.chipTextClone {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    color: var(--color-accent-purple);
+}
+
+.chipChar {
+    display: inline-block;
+    transition: transform 0.4s var(--ease-out-expo);
+}
+
+.chipTextClone .chipChar {
+    transform: translateY(100%);
+}
+
+.chip:hover .chipTextBase .chipChar,
+.chip:focus-visible .chipTextBase .chipChar {
+    transform: translateY(-100%);
+}
+
+.chip:hover .chipTextClone .chipChar,
+.chip:focus-visible .chipTextClone .chipChar {
+    transform: translateY(0);
+}
+
+/* ============================================
+   Submit — large centered label with split-flap split-character hover
+   (matching .cta in Archive.module.css).
+   ============================================ */
+.submit {
+    appearance: none;
+    cursor: pointer;
+    align-self: center;
+    background: transparent;
+    border: 0;
+    padding: clamp(12px, 1.6vw, 24px) clamp(20px, 2.4vw, 36px);
+    margin-top: clamp(16px, 2.4vw, 40px);
+    font-family: var(--font-primary);
+    font-size: clamp(48px, 9vw, 120px);
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.025em;
+    color: var(--color-primary-text);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(14px, 1.6vw, 28px);
+
+    opacity: 0;
+    transform: translateY(20px);
+    will-change: opacity, transform;
+}
+
+.submitTextWrap {
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+    line-height: 1;
+    vertical-align: baseline;
+}
+
+.submitTextBase {
+    display: flex;
+    color: var(--color-primary-text);
+}
+
+.submitTextClone {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    color: var(--color-accent-purple);
+}
+
+.submitChar {
+    display: inline-block;
+    transition: transform 0.4s var(--ease-out-expo);
+}
+
+.submitTextClone .submitChar {
+    transform: translateY(100%);
+}
+
+.submit:hover .submitTextBase .submitChar,
+.submit:focus-visible .submitTextBase .submitChar {
+    transform: translateY(-100%);
+}
+
+.submit:hover .submitTextClone .submitChar,
+.submit:focus-visible .submitTextClone .submitChar {
+    transform: translateY(0);
+}
+
+/* Diagonal ↗ — color tracks the accent token so it cycles with the panel. */
+.submitArrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    width: 0.45em;
+    height: 0.45em;
+    color: var(--color-accent-purple);
+    transition: color 0.4s var(--ease-out-expo), transform 0.4s var(--ease-out-expo);
+}
+
+.submitArrow svg {
+    width: 100%;
+    height: 100%;
+}
+
+.submit:hover .submitArrow,
+.submit:focus-visible .submitArrow {
+    transform: translate(2px, -2px);
+}
+
+.submit:focus-visible {
+    outline: 2px solid var(--color-primary-text);
+    outline-offset: 6px;
+    border-radius: 12px;
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+@media (max-width: 1024px) {
+    .row {
+        font-size: clamp(20px, 3.6vw, 36px);
+    }
+    .chip {
+        font-size: clamp(14px, 1.8vw, 20px);
+    }
+}
+
+@media (max-width: 768px) {
+    .panel {
+        padding: clamp(48px, 12vw, 80px) clamp(20px, 5vw, 40px);
+    }
+
+    .row {
+        font-size: clamp(20px, 4.6vw, 28px);
+        gap: 10px 16px;
+    }
+
+    .text {
+        white-space: normal;
+    }
+
+    .submit {
+        font-size: clamp(40px, 11vw, 64px);
+    }
+}
+
+@media (max-width: 520px) {
+    .row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        font-size: 22px;
+    }
+
+    .chipGroup {
+        width: 100%;
+    }
+
+    .inputWrap,
+    .inputWrapGrow {
+        width: 100%;
+        flex: 1 1 auto;
+    }
+
+    /* Mobile fallback for the submit's split-flap: clipped clone gets stuck
+       on narrow viewports. Drop the split-flap and use a color hover. */
+    .submit {
+        font-size: clamp(34px, 11vw, 52px);
+    }
+
+    .submitTextWrap {
+        overflow: visible;
+    }
+
+    .submitTextBase {
+        transition: color 0.32s var(--ease-out-expo);
+    }
+
+    .submitTextClone {
+        display: none;
+    }
+
+    .submit:hover .submitTextBase,
+    .submit:focus-visible .submitTextBase {
+        color: var(--color-accent-purple);
+    }
+
+    .submit:hover .submitTextBase .submitChar,
+    .submit:focus-visible .submitTextBase .submitChar {
+        transform: none;
+    }
+
+    /* Same fallback for chips: drop the split-flap, fade to accent. */
+    .chipTextWrap {
+        overflow: visible;
+    }
+
+    .chipTextBase {
+        transition: color 0.32s var(--ease-out-expo);
+    }
+
+    .chipTextClone {
+        display: none;
+    }
+
+    .chip:hover .chipTextBase,
+    .chip:focus-visible .chipTextBase {
+        color: var(--color-accent-purple);
+    }
+
+    .chip:hover .chipTextBase .chipChar,
+    .chip:focus-visible .chipTextBase .chipChar {
+        transform: none;
+    }
+}
+
+/* Reduced motion: show everything statically, no transitions. */
+@media (prefers-reduced-motion: reduce) {
+    .char,
+    .revealItem,
+    .submit {
+        opacity: 1;
+        transform: none;
+    }
+
+    .inputBorder {
+        width: 100%;
+    }
+
+    .chip,
+    .submit,
+    .submitArrow,
+    .chipChar,
+    .submitChar {
+        transition: none;
+    }
+
+    .chip:hover,
+    .submit:hover,
+    .submit:hover .submitArrow,
+    .chip:hover .chipChar,
+    .submit:hover .submitChar {
+        transform: none;
+    }
+}

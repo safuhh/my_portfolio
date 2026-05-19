@@ -92,8 +92,37 @@
     "highlights": ["work", "index", "motion"],
     "metaLeft": "Every line considered",
     "metaRight": "Every door, opened",
-    "cta": "Open the Index",
+    "cta": "Checkout My Works",
     "ctaHref": "/work2"
+  },
+  "contact": {
+    "row1": {
+      "greeting": "Hey,",
+      "recipient": "Mohed",
+      "afterName": "! My name is",
+      "between": "and I am from",
+      "nameLabel": "Your Name",
+      "countryLabel": "Country"
+    },
+    "row2": {
+      "lead": "Let's connect about",
+      "options": ["Collaboration", "Potential Project", "Networking"]
+    },
+    "row3": {
+      "lead": "We can talk in more detail at",
+      "emailLabel": "name@website.com",
+      "options": ["WhatsApp / LinkedIn", "Email"],
+      "defaultSelected": "Email"
+    },
+    "row4": {
+      "lead": "In short,",
+      "label": "Type your message"
+    },
+    "submit": "Send a form",
+    "fallback": {
+      "label": "Or just write me at",
+      "email": "hello@mohedabbas.com"
+    }
   },
   "worksIndex": {
     "topBar": {

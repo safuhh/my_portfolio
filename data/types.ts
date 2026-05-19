@@ -124,6 +124,27 @@ export interface WorksIndexContent {
   projects: WorksIndexProject[];
 }
 
+export interface ContactContent {
+  row1: {
+    greeting: string;
+    recipient: string;
+    afterName: string;
+    between: string;
+    nameLabel: string;
+    countryLabel: string;
+  };
+  row2: { lead: string; options: string[] };
+  row3: {
+    lead: string;
+    emailLabel: string;
+    options: string[];
+    defaultSelected: string;
+  };
+  row4: { lead: string; label: string };
+  submit: string;
+  fallback: { label: string; email: string };
+}
+
 export interface Content {
   hero: HeroContent;
   skills: SkillsContent;
@@ -133,6 +154,7 @@ export interface Content {
   projects: ProjectsContent;
   archive: ArchiveContent;
   worksIndex: WorksIndexContent;
+  contact: ContactContent;
 }
 
 // ============================================
