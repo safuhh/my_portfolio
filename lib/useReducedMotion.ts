@@ -11,7 +11,10 @@ const subscribe = (onChange: () => void) => {
   return () => mql.removeEventListener('change', onChange);
 };
 
-const getSnapshot = () => window.matchMedia(QUERY).matches;
+const getSnapshot = () =>
+  typeof window === 'undefined' || !window.matchMedia
+    ? false
+    : window.matchMedia(QUERY).matches;
 const getServerSnapshot = () => false;
 
 export function useReducedMotion(): boolean {

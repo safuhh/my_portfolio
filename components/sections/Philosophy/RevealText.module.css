@@ -38,13 +38,18 @@
   cursor: pointer;
 }
 
-/* The inner letter that moves within the mask */
+/* The inner letter that moves within the mask. Color is driven by the
+ * --highlight-color custom property which is written ONCE per scrub frame on
+ * the .highlightWord ancestor (see RevealText.tsx) instead of writing
+ * el.style.color per letter — N×M inline-style writes per frame collapse to N
+ * CSS-var writes. */
 .portalLetter {
   display: inline-block;
   position: relative;
   will-change: transform;
   backface-visibility: hidden;
   -webkit-font-smoothing: antialiased;
+  color: var(--highlight-color, var(--color-primary-text));
 }
 
 /* Responsive adjustments */

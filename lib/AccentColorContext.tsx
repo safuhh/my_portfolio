@@ -40,30 +40,32 @@ const AccentColorContext = createContext<AccentColorContextType | null>(null);
 
 // Provider component
 export function AccentColorProvider({ children }: { children: ReactNode }) {
-  // Initialize with a function to compute initial state
+  // Initialize with a function to compute initial state. Reads only — the
+  // sessionStorage WRITE that marks "has loaded" happens in an effect below
+  // so that React 18 StrictMode's double-invocation of the initializer
+  // doesn't make first load look like a refresh in dev.
   const [colorIndex, setColorIndex] = useState(() => {
-    // Server-side: always return default
     if (typeof window === 'undefined') {
       return DEFAULT_INDEX;
     }
-
-    // sessionStorage may throw in private mode or when storage is disabled
     try {
       const hasLoaded = sessionStorage.getItem(STORAGE_KEY);
-
-      if (!hasLoaded) {
-        // First load → default color
-        sessionStorage.setItem(STORAGE_KEY, 'true');
-        return DEFAULT_INDEX;
-      }
-
-      // Refresh → random color
+      if (!hasLoaded) return DEFAULT_INDEX;
       return Math.floor(Math.random() * ACCENT_COLORS.length);
     } catch {
-      // Storage unavailable — behave like a first load (in-memory fallback)
       return DEFAULT_INDEX;
     }
   });
+
+  // Mark the session as loaded exactly once, on mount. Side effect lives in
+  // an effect so it survives StrictMode double-render in dev.
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(STORAGE_KEY, 'true');
+    } catch {
+      /* storage unavailable — treat as in-memory fallback */
+    }
+  }, []);
 
   // Update CSS variable on mount and when color changes
   useEffect(() => {

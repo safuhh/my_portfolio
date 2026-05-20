@@ -5,6 +5,20 @@ import { usePathname } from 'next/navigation';
 import Lenis from 'lenis';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
 
+// Snapshot GSAP's lagSmoothing threshold ONCE per page lifetime so that under
+// React 18 StrictMode dev (mount→unmount→remount) the second mount doesn't
+// capture the already-zeroed value and restore `0` on final unmount. Module
+// scope is the only place where StrictMode can't double-run us.
+let originalLagSmoothing: number | null = null;
+function snapshotLagSmoothing(): number {
+  if (originalLagSmoothing === null && typeof window !== 'undefined') {
+    originalLagSmoothing = (
+      gsap.ticker.lagSmoothing as unknown as () => number
+    )();
+  }
+  return originalLagSmoothing ?? 33;
+}
+
 // ============================================
 // LENIS CONTEXT - Allows child components to scroll programmatically
 // ============================================
@@ -57,13 +71,7 @@ export function LenisProvider({ children }: LenisProviderProps) {
         lenis.raf(time * 1000);
       }
     };
-    // Capture so StrictMode dev-mount→unmount→remount doesn't permanently
-    // disable lagSmoothing. Zero-arg getter is supported at runtime but not
-    // in GSAP's d.ts; cast around it. Getter returns the threshold only —
-    // restoring collapses adjustedLag to GSAP default 33.
-    const prevLagSmoothing = (
-      gsap.ticker.lagSmoothing as unknown as () => number
-    )();
+    const prevLagSmoothing = snapshotLagSmoothing();
     gsap.ticker.add(tick);
     gsap.ticker.lagSmoothing(0); // Required by Lenis to keep scroll timing accurate
 
@@ -81,6 +89,9 @@ export function LenisProvider({ children }: LenisProviderProps) {
       gsap.ticker.remove(tick);
       gsap.ticker.lagSmoothing(prevLagSmoothing);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      // Defensive: some lenis versions don't release scroll emitter
+      // subscribers on destroy(), leaking ScrollTrigger.update references.
+      lenis.off('scroll', ScrollTrigger.update);
       lenis.destroy();
       lenisRef.current = null;
     };

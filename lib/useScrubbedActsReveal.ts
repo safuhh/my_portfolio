@@ -179,7 +179,10 @@ export function useScrubbedActsReveal({
             split1.revert();
             split2.revert();
             split3.revert();
-            ScrollTrigger.refresh();
+            // No ScrollTrigger.refresh() here: triggers.kill() releases pin
+            // spacers on its own. A synchronous refresh during route-change
+            // unmount forces every other trigger on the page to re-measure
+            // mid-teardown — visible as transition stutter on slow devices.
           };
         }
       );

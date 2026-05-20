@@ -3,6 +3,7 @@
 import { useRef, useMemo, useCallback, useEffect, Fragment } from 'react';
 import { useGSAP } from '@gsap/react';
 import { gsap, ScrollTrigger, ANIMATION_CONFIG } from '@/lib/gsap';
+import { hexToRgb } from '@/lib/colorUtils';
 import styles from './RevealText.module.css';
 import { useAccentColor } from '@/lib/AccentColorContext';
 
@@ -71,29 +72,25 @@ const triggerPortalLoop = (letterElement: HTMLElement) => {
 // COLOR INTERPOLATION
 // ============================================
 
-const getPrimaryTextColor = (): string => {
+const readPrimaryTextColor = (): string => {
   if (typeof window === 'undefined') return '#1b2028';
   return getComputedStyle(document.documentElement)
     .getPropertyValue('--color-primary-text')
     .trim() || '#1b2028';
 };
 
-// Browsers may canonicalize #RRGGBB to #RGB when read via getComputedStyle.
-const expandHex = (hex: string): string =>
-  hex.length === 3 ? hex.split('').map((c) => c + c).join('') : hex;
+// Pre-parsed [r, g, b] tuple to skip parseInt-per-frame in the scrub onUpdate.
+type Rgb = readonly [number, number, number];
 
-const interpolateColor = (color1: string, color2: string, progress: number): string => {
-  const hex1 = expandHex(color1.replace('#', ''));
-  const hex2 = expandHex(color2.replace('#', ''));
-  const r1 = parseInt(hex1.substring(0, 2), 16);
-  const g1 = parseInt(hex1.substring(2, 4), 16);
-  const b1 = parseInt(hex1.substring(4, 6), 16);
-  const r2 = parseInt(hex2.substring(0, 2), 16);
-  const g2 = parseInt(hex2.substring(2, 4), 16);
-  const b2 = parseInt(hex2.substring(4, 6), 16);
-  const r = Math.round(r1 + (r2 - r1) * progress);
-  const g = Math.round(g1 + (g2 - g1) * progress);
-  const b = Math.round(b1 + (b2 - b1) * progress);
+const colorToRgb = (color: string): Rgb => {
+  const { r, g, b } = hexToRgb(color);
+  return [r, g, b] as const;
+};
+
+const interpolateRgb = (c1: Rgb, c2: Rgb, progress: number): string => {
+  const r = Math.round(c1[0] + (c2[0] - c1[0]) * progress);
+  const g = Math.round(c1[1] + (c2[1] - c1[1]) * progress);
+  const b = Math.round(c1[2] + (c2[2] - c1[2]) * progress);
   return `rgb(${r}, ${g}, ${b})`;
 };
 
@@ -112,6 +109,11 @@ export function RevealText({ text, highlights }: RevealTextProps) {
   const highlightWordsRef = useRef<NodeListOf<Element> | null>(null);
   // PERF: Cache letter elements per highlight word to avoid querySelectorAll on every scroll frame
   const cachedLettersRef = useRef<Map<Element, HTMLElement[]>>(new Map());
+  // PERF: Pre-parsed [r,g,b] tuples for the two interpolation endpoints.
+  // Refreshed only when the accent context changes (or on first mount),
+  // avoiding getComputedStyle + parseInt per scrub frame.
+  const primaryRgbRef = useRef<Rgb>([27, 32, 40]);
+  const accentRgbRef = useRef<Rgb>([98, 182, 203]);
 
   // Split text into words and determine which should be highlighted
   const words = useMemo(() => {
@@ -256,14 +258,19 @@ export function RevealText({ text, highlights }: RevealTextProps) {
     // ============================================
     // PHASE 2: Highlight color interpolation (scroll-scrubbed)
     // ============================================
-    const getAccentColor = (): string => {
-      return getComputedStyle(document.documentElement)
-        .getPropertyValue('--color-accent-purple').trim() || '#62b6cb';
-    };
+    // Endpoints are cached at the module level (not re-read per frame).
+    // The accent endpoint also refreshes via the useEffect below when the
+    // AccentColorContext cycles.
+    primaryRgbRef.current = colorToRgb(readPrimaryTextColor());
+    accentRgbRef.current = colorToRgb(accentColor);
 
     highlightWordsRef.current = highlightWords;
 
-    // PERF: Pre-cache letter elements to avoid querySelectorAll on every scroll frame
+    // PERF: Pre-cache letter elements once. Per-letter inline-style writes
+    // have been replaced by a single CSS variable write per word
+    // (--highlight-color); .portalLetter consumes it via CSS. Letter cache
+    // kept for the accent-change useEffect, which still walks letters when
+    // re-applying mid-scroll without a scrub event.
     cachedLettersRef.current.clear();
     highlightWords.forEach((wordEl) => {
       const letters = Array.from(wordEl.querySelectorAll(`.${styles.portalLetter}`)) as HTMLElement[];
@@ -277,20 +284,18 @@ export function RevealText({ text, highlights }: RevealTextProps) {
       scrub: 2.5,
       onUpdate: (self) => {
         const progress = self.progress;
-        const currentAccent = getAccentColor();
         const totalHighlights = highlightWords.length;
+        const primaryRgb = primaryRgbRef.current;
+        const accentRgb = accentRgbRef.current;
         highlightWords.forEach((wordEl, index) => {
-          // PERF: Use cached letters instead of querySelectorAll
-          const letters = cachedLettersRef.current.get(wordEl) || [];
           const staggerDelay = totalHighlights > 1 ? (index / (totalHighlights - 1)) * 0.3 : 0;
           const adjustedProgress = Math.max(0, Math.min(1, (progress - staggerDelay) / (1 - staggerDelay)));
           const easedProgress = adjustedProgress < 0.5
             ? 2 * adjustedProgress * adjustedProgress
             : 1 - Math.pow(-2 * adjustedProgress + 2, 2) / 2;
-          const color = interpolateColor(getPrimaryTextColor(), currentAccent, easedProgress);
-          letters.forEach((el) => {
-            el.style.color = color;
-          });
+          const color = interpolateRgb(primaryRgb, accentRgb, easedProgress);
+          // One CSS-var write per word instead of N inline-style writes per letter.
+          (wordEl as HTMLElement).style.setProperty('--highlight-color', color);
         });
       },
     });
@@ -304,29 +309,35 @@ export function RevealText({ text, highlights }: RevealTextProps) {
       // Then clear timeouts
       animationIntervals.current.forEach((id) => window.clearTimeout(id));
       animationIntervals.current = [];
+      // Kill any in-flight letter tweens. AbortController only guards
+      // scheduling — without this, portal-loop tweens can keep running for
+      // up to 600ms after unmount.
+      gsap.killTweensOf(highlightLetters);
     };
 
   }, { scope: containerRef, dependencies: [words] });
 
-  // Re-apply highlight colors when accent color changes (e.g. menu close cycles color)
+  // Refresh cached endpoints + re-apply highlight colors when accent changes
+  // (e.g. menu close cycles color). Phase-2 onUpdate then keeps writing the
+  // CSS var using the new accentRgb on the next scrub event.
   useEffect(() => {
+    primaryRgbRef.current = colorToRgb(readPrimaryTextColor());
+    accentRgbRef.current = colorToRgb(accentColor);
     if (!phase2TriggerRef.current || !highlightWordsRef.current) return;
 
     const progress = phase2TriggerRef.current.progress;
     const totalHighlights = highlightWordsRef.current.length;
+    const primaryRgb = primaryRgbRef.current;
+    const accentRgb = accentRgbRef.current;
 
     highlightWordsRef.current.forEach((wordEl, index) => {
-      // PERF: Use cached letters instead of querySelectorAll
-      const letters = cachedLettersRef.current.get(wordEl) || [];
       const staggerDelay = totalHighlights > 1 ? (index / (totalHighlights - 1)) * 0.3 : 0;
       const adjustedProgress = Math.max(0, Math.min(1, (progress - staggerDelay) / (1 - staggerDelay)));
       const easedProgress = adjustedProgress < 0.5
         ? 2 * adjustedProgress * adjustedProgress
         : 1 - Math.pow(-2 * adjustedProgress + 2, 2) / 2;
-      const color = interpolateColor(getPrimaryTextColor(), accentColor, easedProgress);
-      letters.forEach((el) => {
-        el.style.color = color;
-      });
+      const color = interpolateRgb(primaryRgb, accentRgb, easedProgress);
+      (wordEl as HTMLElement).style.setProperty('--highlight-color', color);
     });
   }, [accentColor]);
 
