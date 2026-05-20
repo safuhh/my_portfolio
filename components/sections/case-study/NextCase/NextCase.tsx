@@ -56,9 +56,13 @@ export const NextCase = ({ slug, counter, target }: NextCaseProps) => {
     </>
   );
 
-  return (
-    <nav className={styles.next} aria-label="Next case study">
-      {target ? (
+  // A11y: only expose the `<nav>` landmark when there's actually a link
+  // inside. A nav with no link is announced as an empty navigation landmark
+  // — confusing for screen-reader users. Fall back to a plain <section>
+  // when the next-case target hasn't been published yet.
+  if (target) {
+    return (
+      <nav className={styles.next} aria-label="Next case study">
         <TransitionLink
           href={`/work/${slug}`}
           className={styles.link}
@@ -71,11 +75,15 @@ export const NextCase = ({ slug, counter, target }: NextCaseProps) => {
         >
           {inner}
         </TransitionLink>
-      ) : (
-        <div className={styles.link} aria-disabled="true" role="group">
-          {inner}
-        </div>
-      )}
-    </nav>
+      </nav>
+    );
+  }
+
+  return (
+    <section className={styles.next} aria-label="Next case study (coming soon)">
+      <div className={styles.link} aria-disabled="true" role="group">
+        {inner}
+      </div>
+    </section>
   );
 };

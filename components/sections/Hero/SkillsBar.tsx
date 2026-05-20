@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect } from 'react';
 import { content } from '@/data';
 import { StarIcon } from './StarIcon';
 import styles from './SkillsBar.module.css';
@@ -17,29 +17,26 @@ const skills = [
 
 export function SkillsBar() {
   const contentRef = useRef<HTMLDivElement>(null);
-  const [scrollWidth, setScrollWidth] = useState<number | null>(null);
 
+  // Write --scroll-width as a CSS variable directly instead of going through
+  // setState — measurement has no UI consequence other than the var update,
+  // and resize-driven setState re-renders the whole component including the
+  // 2× skills list.
   useEffect(() => {
     const measureWidth = () => {
-      if (contentRef.current) {
-        // Get all skill items (text + separator pairs in first half)
-        const skillItems = contentRef.current.querySelectorAll(`.${styles.skillItem}`);
-        const halfCount = skills.length;
-        let totalWidth = 0;
-
-        // Measure width of first set of skills (including separators)
-        for (let i = 0; i < halfCount && i < skillItems.length; i++) {
-          const item = skillItems[i] as HTMLElement;
-          totalWidth += item.offsetWidth;
-        }
-
-        // Add gaps between items
-        const computedStyle = getComputedStyle(contentRef.current);
-        const gap = parseFloat(computedStyle.gap) || 0;
-        totalWidth += gap * halfCount;
-
-        setScrollWidth(totalWidth);
+      const node = contentRef.current;
+      if (!node) return;
+      const skillItems = node.querySelectorAll(`.${styles.skillItem}`);
+      const halfCount = skills.length;
+      let totalWidth = 0;
+      for (let i = 0; i < halfCount && i < skillItems.length; i++) {
+        const item = skillItems[i] as HTMLElement;
+        totalWidth += item.offsetWidth;
       }
+      const computedStyle = getComputedStyle(node);
+      const gap = parseFloat(computedStyle.gap) || 0;
+      totalWidth += gap * halfCount;
+      node.style.setProperty('--scroll-width', `${totalWidth}px`);
     };
 
     measureWidth();
@@ -58,20 +55,10 @@ export function SkillsBar() {
   );
 
   return (
-    <div className={styles.skillsBar}>
+    <div className={styles.skillsBar} aria-hidden="true">
       <div className={styles.skillsBarInner}>
         <div className={styles.skillsWrapper}>
-          <div
-            ref={contentRef}
-            className={styles.skillsContent}
-            style={
-              scrollWidth
-                ? ({
-                    '--scroll-width': `${scrollWidth}px`,
-                  } as React.CSSProperties)
-                : undefined
-            }
-          >
+          <div ref={contentRef} className={styles.skillsContent}>
             {skills.map((skill, index) => renderSkillItem(skill, index))}
             {/* Duplicate for seamless loop */}
             {skills.map((skill, index) => renderSkillItem(skill, index, 'dup-'))}

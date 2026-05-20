@@ -623,6 +623,7 @@ export function Hero({
               alt={alt}
               width={2400}
               height={1500}
+              sizes="(min-width: 1512px) 1400px, 90vw"
               priority
             />
           </div>

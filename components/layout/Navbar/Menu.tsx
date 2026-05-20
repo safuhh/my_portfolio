@@ -56,6 +56,93 @@ export function Menu({ isOpen, onClose, onCloseComplete, onRevealStart }: MenuPr
     };
   }, [isOpen]);
 
+  // A11y: inert background, focus trap, focus restoration.
+  //
+  // - Apply `inert` to every direct child of <body> that isn't the menu so
+  //   Tab/AT can't reach background content behind the curtain.
+  // - On open, capture the previously-focused element (typically the hamburger)
+  //   and move focus to the first link inside the menu.
+  // - On close, restore focus to the captured element.
+  // - While open, Tab/Shift+Tab cycle focus inside the menu.
+  const previouslyFocusedRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const menu = menuRef.current;
+    if (!menu) return;
+
+    if (isOpen) {
+      previouslyFocusedRef.current =
+        document.activeElement instanceof HTMLElement
+          ? document.activeElement
+          : null;
+
+      // Mark every body sibling other than the menu as inert. The Menu node
+      // lives somewhere in the tree under <body>; walk up to find which
+      // direct-child ancestor it belongs to and skip that one.
+      const menuAncestor = (() => {
+        let n: Node | null = menu;
+        while (n && n.parentNode && n.parentNode !== document.body) n = n.parentNode;
+        return n as HTMLElement | null;
+      })();
+      const inertedSiblings: HTMLElement[] = [];
+      Array.from(document.body.children).forEach((child) => {
+        if (!(child instanceof HTMLElement)) return;
+        if (child === menuAncestor) return;
+        if (child.hasAttribute('inert')) return;
+        child.setAttribute('inert', '');
+        inertedSiblings.push(child);
+      });
+
+      // Move focus into the menu after the open animation starts so the
+      // first focusable element receives focus. RAF defers past the initial
+      // GSAP set() so the link is interactive.
+      const focusFrame = requestAnimationFrame(() => {
+        const firstLink = menu.querySelector<HTMLElement>(
+          `.${styles.link}, .${styles.backButton}`,
+        );
+        firstLink?.focus({ preventScroll: true });
+      });
+
+      // Focus trap.
+      const FOCUSABLE_SELECTOR =
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"]), input:not([disabled]), textarea:not([disabled]), select:not([disabled])';
+      const handleTrapKey = (e: KeyboardEvent) => {
+        if (e.key !== 'Tab') return;
+        const focusable = Array.from(
+          menu.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
+        ).filter((el) => !el.hasAttribute('disabled') && el.tabIndex !== -1);
+        if (focusable.length === 0) {
+          e.preventDefault();
+          return;
+        }
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        const active = document.activeElement;
+        if (e.shiftKey) {
+          if (active === first || !menu.contains(active)) {
+            e.preventDefault();
+            last.focus({ preventScroll: true });
+          }
+        } else {
+          if (active === last || !menu.contains(active)) {
+            e.preventDefault();
+            first.focus({ preventScroll: true });
+          }
+        }
+      };
+      document.addEventListener('keydown', handleTrapKey);
+
+      return () => {
+        cancelAnimationFrame(focusFrame);
+        document.removeEventListener('keydown', handleTrapKey);
+        inertedSiblings.forEach((el) => el.removeAttribute('inert'));
+        // Restore focus to whatever element opened the menu.
+        previouslyFocusedRef.current?.focus({ preventScroll: true });
+        previouslyFocusedRef.current = null;
+      };
+    }
+  }, [isOpen]);
+
   // Handle escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {

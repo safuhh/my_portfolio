@@ -1,16 +1,19 @@
 'use client';
 
-import Link, { type LinkProps } from 'next/link';
+import Link from 'next/link';
 import { forwardRef, useCallback, type AnchorHTMLAttributes, type MouseEvent } from 'react';
 import { useTransition } from './useTransition';
 import type { TransitionPayload } from './types';
 import type { TransitionEffectName } from './registry';
 
-type Href = LinkProps['href'];
-
 export interface TransitionLinkProps
   extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href' | 'onClick'> {
-  href: Href;
+  /**
+   * Always a string URL. Tightened from `LinkProps['href']` because the
+   * UrlObject branch caused same-path query clicks to be misclassified as
+   * "same page" when no `pathname` was supplied. All call sites pass strings.
+   */
+  href: string;
   payload: TransitionPayload;
   /** Override the default transition effect for this link. */
   effect?: TransitionEffectName;
@@ -58,17 +61,16 @@ export const TransitionLink = forwardRef<HTMLAnchorElement, TransitionLinkProps>
         }
 
         // Same-page nav: let next/link handle it (router noop, scroll behavior intact).
-        const target = typeof href === 'string' ? href : href.pathname ?? '';
         const currentPath = window.location.pathname;
         const targetPath = (() => {
-          try { return new URL(target, window.location.origin).pathname; }
-          catch { return target; }
+          try { return new URL(href, window.location.origin).pathname; }
+          catch { return href; }
         })();
         if (targetPath === currentPath) return;
 
         e.preventDefault();
         triggerTransition({
-          href: typeof href === 'string' ? href : (href.pathname ?? '/'),
+          href,
           origin: { x: e.clientX, y: e.clientY },
           payload,
           effect,
@@ -89,3 +91,5 @@ export const TransitionLink = forwardRef<HTMLAnchorElement, TransitionLinkProps>
     );
   }
 );
+
+TransitionLink.displayName = 'TransitionLink';
