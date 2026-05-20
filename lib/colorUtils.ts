@@ -8,7 +8,13 @@
  * @returns RGB object { r, g, b }
  */
 export function hexToRgb(hex: string): { r: number; g: number; b: number } {
-  const cleanHex = hex.replace('#', '');
+  // Expand 3-char shorthand (e.g. "#fff" → "ffffff"). CSS minifiers
+  // (Turbopack, cssnano) collapse #ffffff to #fff, and getComputedStyle
+  // returns whatever the cascade resolved to — so callers can receive either.
+  let cleanHex = hex.replace('#', '');
+  if (cleanHex.length === 3) {
+    cleanHex = cleanHex.split('').map((c) => c + c).join('');
+  }
 
   return {
     r: parseInt(cleanHex.substring(0, 2), 16),
