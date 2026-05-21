@@ -59,6 +59,8 @@ export type {
   SkillsContent,
   WelcomeScreenContent,
   PhilosophyContent,
+  ServicesContent,
+  ServiceFace,
   ArchiveContent,
   ColorTokens,
   TypographyTokens,
@@ -101,6 +103,8 @@ export const getHeroLetters = () => ({
 });
 
 export const getAccentColors = () => designTokens.colors.accentPalette;
+
+export const getServicesFaces = () => content.services.faces;
 
 export const getAnimationDuration = (key: keyof typeof animationConfig.durations) =>
   animationConfig.durations[key];

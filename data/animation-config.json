@@ -12,7 +12,10 @@
       "outQuart": "power4.out",
       "inOutQuart": "power4.inOut",
       "outBack": "back.out(1.7)",
-      "inOutBack": "back.inOut(1.7)"
+      "inOutBack": "back.inOut(1.7)",
+      "outCubic": "power3.out",
+      "outQuad": "power2.out",
+      "inQuad": "power2.in"
     },
     "css": {
       "outExpo": "cubic-bezier(0.16, 1, 0.3, 1)",

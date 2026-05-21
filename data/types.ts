@@ -74,6 +74,29 @@ export interface PhilosophyContent {
   highlights: string[];
 }
 
+export interface ServiceFace {
+  word: string;
+  rail: string;
+  label: string;
+  /**
+   * Trusted HTML. Only the `<b>` tag is expected for inline emphasis. Rendered
+   * via `dangerouslySetInnerHTML`; do NOT populate from any source other than
+   * checked-in `content.json` without a sanitization pass.
+   */
+  copy: string;
+  tools: string[];
+}
+
+export interface ServicesContent {
+  label: string;
+  headline: { lead: string; accent: string };
+  /**
+   * Trusted HTML. Only the `<b>` tag is expected. See `ServiceFace.copy`.
+   */
+  intro: string;
+  faces: ServiceFace[];
+}
+
 export interface ArchiveContent {
   label: string;
   statement: string;
@@ -151,6 +174,7 @@ export interface Content {
   welcomeScreen: WelcomeScreenContent;
   ui: UIContent;
   philosophy: PhilosophyContent;
+  services: ServicesContent;
   projects: ProjectsContent;
   archive: ArchiveContent;
   worksIndex: WorksIndexContent;

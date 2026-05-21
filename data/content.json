@@ -57,6 +57,41 @@
     "statement": "Building digital systems that balance raw aesthetics with strategic precision to elevate human interaction.",
     "highlights": ["aesthetics", "strategic", "precision", "interaction"]
   },
+  "services": {
+    "label": "Services & Toolkit",
+    "headline": { "lead": "One drum,", "accent": "four faces." },
+    "intro": "The drum is <b>asleep</b> until you scroll it into view — that's when the first face portals in. Keep scrolling and the next faces swap in the same way.",
+    "faces": [
+      {
+        "word": "BRAND.",
+        "rail": "BRAND",
+        "label": "Currently · Brand & Identity",
+        "copy": "<b>Brand identity.</b> Wordmarks, motion identities, and the small rules that make a brand recognisable in motion as well as on paper. Built in Figma, set in Glyphs, finished in After Effects.",
+        "tools": ["Figma", "Illustrator", "After Effects", "Glyphs", "Procreate", "Photoshop"]
+      },
+      {
+        "word": "PRODUCT.",
+        "rail": "PRODUCT",
+        "label": "Currently · UI / UX Design",
+        "copy": "<b>Product design.</b> Surfaces, flows, design systems. Tokens that scale, components that earn their place, prototypes that test their own claims.",
+        "tools": ["Figma", "FigJam", "Tokens Studio", "Linear", "Maze", "Notion"]
+      },
+      {
+        "word": "INTERACTIVE.",
+        "rail": "INTERACTIVE",
+        "label": "Currently · Interactive & Web",
+        "copy": "<b>Interactive web.</b> Marketing sites, portfolios and case-study experiences. Scroll-tied motion, smooth-scrolled cameras, plus-grid backgrounds that bend to the cursor.",
+        "tools": ["Next.js", "React", "TypeScript", "GSAP", "Lenis", "WebGL", "CSS Modules"]
+      },
+      {
+        "word": "STRATEGY.",
+        "rail": "STRATEGY",
+        "label": "Currently · Strategy & Direction",
+        "copy": "<b>Strategy.</b> Naming, positioning, and the slow conversations that turn a brief into a thing worth building. Often the first step. Sometimes the only one.",
+        "tools": ["Miro", "FigJam", "Notion", "Readwise", "Paper", "Pen"]
+      }
+    ]
+  },
   "projects": {
     "label": "Selected Works",
     "items": [
