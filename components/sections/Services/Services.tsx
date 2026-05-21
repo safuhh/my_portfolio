@@ -647,6 +647,10 @@ function DrumServices() {
 
       <div ref={shellRef} className={styles.shell}>
         <div ref={pinRef} className={styles.pin}>
+          <div className={styles.bay}>
+            <h3 ref={bigwordRef} className={styles.bigword} />
+          </div>
+
           <div className={styles.rail}>
             <span className={styles.now}>
               <span className={styles.dot} />
@@ -664,10 +668,6 @@ function DrumServices() {
               ))}
             </span>
             <span ref={nowIdxRef}>{'01 / ' + TOTAL_LABEL}</span>
-          </div>
-
-          <div className={styles.bay}>
-            <h3 ref={bigwordRef} className={styles.bigword} />
           </div>
 
           <div ref={toolsRef} className={styles.tools} />

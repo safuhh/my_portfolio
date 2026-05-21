@@ -72,8 +72,10 @@
   border-bottom: 1px solid var(--color-primary-text);
   overflow: hidden;
   display: grid;
-  grid-template-rows: auto 1fr auto;
-  background: var(--color-background);
+  /* bay grows; rail + tools dock to the bottom in fixed-height bands. */
+  grid-template-rows: 1fr auto auto;
+  /* Transparent so the InteractiveBackground plus-grid shows through. */
+  background: transparent;
 }
 
 .rail {
@@ -81,7 +83,7 @@
   align-items: center;
   gap: 12px;
   padding: 14px clamp(24px, 5vw, 48px);
-  border-bottom: 1px solid var(--color-rule);
+  border-top: 1px solid var(--color-rule);
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -142,7 +144,7 @@
   align-items: baseline;
   font-size: clamp(72px, 15vw, 240px);
   line-height: 0.86;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.04rem;
   font-weight: 700;
   color: var(--color-primary-text);
   white-space: nowrap;
@@ -176,7 +178,8 @@
   gap: clamp(8px, 1.2vw, 18px);
   padding: clamp(20px, 3vh, 32px) clamp(24px, 5vw, 48px);
   border-top: 1px solid var(--color-rule);
-  background: var(--color-background);
+  /* Transparent — same reason as .pin. */
+  background: transparent;
 }
 
 .tool {
@@ -265,7 +268,7 @@
 .stackWord {
   font-size: clamp(56px, 12vw, 160px);
   line-height: 0.9;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.04rem;
   font-weight: 700;
   color: var(--color-primary-text);
   white-space: nowrap;
