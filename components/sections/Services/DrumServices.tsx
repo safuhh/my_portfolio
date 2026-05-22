@@ -387,25 +387,38 @@ export function DrumServices() {
       className={styles.wrapper}
       aria-labelledby={HEADING_ID}
     >
-      <div className={styles.metaLabel}>
-        <Star className={styles.starIcon} />
-        {content.services.label}
-      </div>
-
-      <header className={styles.head}>
-        <h2 id={HEADING_ID}>
-          {content.services.headline.lead}
-          <br />
-          <em>{content.services.headline.accent}</em>
-        </h2>
-        <p dangerouslySetInnerHTML={{ __html: content.services.intro }} />
-      </header>
+      <h2 id={HEADING_ID} className={styles.srOnly}>
+        {content.services.headline.lead} {content.services.headline.accent}
+      </h2>
 
       <div ref={shellRef} className={styles.shell}>
         <div ref={pinRef} className={styles.pin}>
+          <div className={styles.metaLabel}>
+            <Star className={styles.starIcon} />
+            {content.services.label}
+          </div>
+
           <div className={styles.bay}>
             <h3 ref={bigwordRef} className={styles.bigword} />
           </div>
+
+          <section
+            className={styles.descript}
+            aria-labelledby={CURRENT_FACE_ID}
+          >
+            <span
+              id={CURRENT_FACE_ID}
+              ref={descLabelRef}
+              className={styles.which}
+            >
+              {FACES[0].label}
+            </span>
+            <p
+              ref={descCopyRef}
+              className={styles.copy}
+              dangerouslySetInnerHTML={{ __html: FACES[0].copy }}
+            />
+          </section>
 
           <div className={styles.rail}>
             <span className={styles.now}>
@@ -431,24 +444,6 @@ export function DrumServices() {
           </div>
         </div>
       </div>
-
-      <section
-        className={styles.descript}
-        aria-labelledby={CURRENT_FACE_ID}
-      >
-        <span
-          id={CURRENT_FACE_ID}
-          ref={descLabelRef}
-          className={styles.which}
-        >
-          {FACES[0].label}
-        </span>
-        <p
-          ref={descCopyRef}
-          className={styles.copy}
-          dangerouslySetInnerHTML={{ __html: FACES[0].copy }}
-        />
-      </section>
 
       <div
         ref={ariaLiveRef}

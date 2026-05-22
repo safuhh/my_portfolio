@@ -18,19 +18,14 @@ import styles from './Services.module.css';
 export function StaticServices() {
   return (
     <section className={styles.wrapper} aria-labelledby={HEADING_ID}>
+      <h2 id={HEADING_ID} className={styles.srOnly}>
+        {content.services.headline.lead} {content.services.headline.accent}
+      </h2>
+
       <div className={styles.metaLabel}>
         <Star className={styles.starIcon} />
         {content.services.label}
       </div>
-
-      <header className={styles.head}>
-        <h2 id={HEADING_ID}>
-          {content.services.headline.lead}
-          <br />
-          <em>{content.services.headline.accent}</em>
-        </h2>
-        <p dangerouslySetInnerHTML={{ __html: content.services.intro }} />
-      </header>
 
       <ol className={styles.stack}>
         {FACES.map((face, i) => (

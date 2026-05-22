@@ -7,7 +7,7 @@
   position: relative;
   z-index: var(--z-above);
   /* Projects below uses margin-top: -315px (tuned for Philosophy's parallax
-     exit). Absorb that pull so the descript clears cleanly. */
+     exit). Absorb that pull so it lands flush with the drum's bottom edge. */
   margin-bottom: 315px;
 }
 
@@ -29,53 +29,34 @@
   flex-shrink: 0;
 }
 
-.head {
-  margin: 0 8% 48px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 48px;
-  align-items: end;
-}
-
-.head h2 {
-  font-size: clamp(36px, 6vw, 96px);
-  line-height: 0.94;
-  letter-spacing: -0.03em;
-  font-weight: 600;
-  color: var(--color-primary-text);
-}
-
-.head h2 em {
-  font-style: normal;
-  color: var(--color-accent-purple);
-}
-
-.head p {
-  font-size: 15px;
-  line-height: 1.55;
-  color: var(--color-text-muted-strong);
-  max-width: 42ch;
-}
-
-.head p :global(b) {
-  color: var(--color-primary-text);
-  font-weight: 600;
-}
-
 .shell {
   position: relative;
 }
 
 .pin {
+  position: relative;
   height: 100vh;
-  border-top: 1px solid var(--color-primary-text);
-  border-bottom: 1px solid var(--color-primary-text);
+  /* border-top: 1px solid var(--color-primary-text);
+  border-bottom: 1px solid var(--color-primary-text); */
   overflow: hidden;
   display: grid;
-  /* bay grows; rail + tools dock to the bottom in fixed-height bands. */
+  /* bay grows; rail + tools dock to the bottom in fixed-height bands.
+     metaLabel + descript are position:absolute children and do not
+     participate in this row track. */
   grid-template-rows: 1fr auto auto;
   /* Transparent so the InteractiveBackground plus-grid shows through. */
   background: transparent;
+}
+
+/* Meta label inside the pin: top-left, clear of the navbar's hamburger.
+   Static across face changes — content is set once and never repainted. */
+.pin > .metaLabel {
+  position: absolute;
+  top: clamp(72px, 9vh, 110px);
+  left: clamp(24px, 5vw, 74px);
+  margin: 0;
+  z-index: var(--z-above);
+  pointer-events: none;
 }
 
 .rail {
@@ -259,12 +240,22 @@
   }
 }
 
+/* Description card inside the pin: bottom-right, clear of the rail +
+   tools band that dock below. Copy is right-aligned so the label and
+   paragraph trail off toward the screen edge. */
 .descript {
-  padding: 48px 8% 120px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 48px;
-  align-items: start;
+  position: absolute;
+  right: clamp(24px, 5vw, 74px);
+  /* Clear of rail (~40px) + tools band (~80px) + tools margin-bottom (30px). */
+  bottom: clamp(150px, 18vh, 210px);
+  max-width: min(38ch, 40vw);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  text-align: left;
+  z-index: var(--z-above);
+  pointer-events: none;
 }
 
 /* Visually hidden but exposed to assistive technology. Used for the
@@ -388,14 +379,6 @@
 }
 
 @media (max-width: 768px) {
-  .head {
-    grid-template-columns: 1fr;
-  }
-
-  .descript {
-    grid-template-columns: 1fr;
-  }
-
   .glyph {
     font-size: 11px;
   }

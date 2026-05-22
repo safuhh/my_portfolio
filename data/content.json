@@ -66,29 +66,61 @@
         "word": "INTERFACES.",
         "rail": "INTERFACES",
         "label": "Currently · Interfaces & UI",
-        "copy": "<b>Interfaces.</b> Production UI in React, Vue and Next/Nuxt — typed end to end, accessible by default, animated with restraint. Design systems, component libraries, and scroll-tied motion that ships at 60 fps.",
-        "tools": ["Next.js", "React", "Vue", "Nuxt", "TypeScript", "Tailwind", "GSAP"]
+        "copy": "<b>Interfaces.</b> Production UI in React, Vue and Next/Nuxt typed end to end, accessible by default, animated with restraint. Design systems, component libraries, and scroll-tied motion that ships at 60 fps.",
+        "tools": [
+          "Next.js",
+          "React",
+          "Vue",
+          "Nuxt",
+          "TypeScript",
+          "Tailwind",
+          "GSAP"
+        ]
       },
       {
         "word": "SYSTEMS.",
         "rail": "SYSTEMS",
         "label": "Currently · Systems & APIs",
         "copy": "<b>Systems & APIs.</b> REST and GraphQL endpoints, auth, background jobs, and the boring contracts that hold a product together. Node and Python services backed by Postgres, Redis, and a clear data model.",
-        "tools": ["Node.js", "NestJS", "Python", "PostgreSQL", "Prisma", "Redis", "GraphQL"]
+        "tools": [
+          "Node.js",
+          "NestJS",
+          "Python",
+          "PostgreSQL",
+          "Prisma",
+          "Redis",
+          "GraphQL"
+        ]
       },
       {
         "word": "INFRA.",
         "rail": "INFRA",
         "label": "Currently · Infrastructure & Cloud",
         "copy": "<b>Infrastructure.</b> Dockerised services, CI pipelines that fail loudly, and deployments that don't wake anyone up. AWS and Vercel for the runtime; GitHub Actions and Terraform for the path that gets you there.",
-        "tools": ["Docker", "AWS", "Vercel", "GitHub Actions", "Terraform", "Nginx", "Cloudflare"]
+        "tools": [
+          "Docker",
+          "AWS",
+          "Vercel",
+          "GitHub Actions",
+          "Terraform",
+          "Nginx",
+          "Cloudflare"
+        ]
       },
       {
         "word": "MISC.",
         "rail": "MISC",
         "label": "Currently · Cross-cutting & Other",
         "copy": "<b>Miscellaneous.</b> Design systems that catch up to the brand, prototypes that prove the claim, observability that catches bugs before users do. The cross-cutting work that doesn't fit a layer diagram but still ships the product.",
-        "tools": ["Figma", "Storybook", "Playwright", "Vitest", "Sentry", "Linear", "PostHog"]
+        "tools": [
+          "Figma",
+          "Storybook",
+          "Playwright",
+          "Vitest",
+          "Sentry",
+          "Linear",
+          "PostHog"
+        ]
       }
     ]
   },
