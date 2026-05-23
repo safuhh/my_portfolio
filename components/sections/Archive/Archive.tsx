@@ -18,6 +18,14 @@ type Direction = 'up' | 'down' | 'left' | 'right';
 const DIRECTIONS: Direction[] = ['up', 'down', 'left', 'right'];
 const PORTAL_DISTANCE = 110;
 
+// Archive hold: once the section fills the viewport, pin it for this many
+// viewport-heights of scroll, then release toward Contact. The statement and
+// foot stay PUT during the hold (no scroll-linked drift) — the only motion is
+// the portal-letter loops, which run on their own timers. Smoothness on
+// entry/exit comes from anticipatePin + this runway, not a scrubbed tween.
+// Tunable. See .planning/projects-archive-handoff/PLAN-v5-stacked.md.
+const ARCHIVE_PIN_VH = 1.0;
+
 const getRandomDirection = (): Direction =>
   DIRECTIONS[Math.floor(Math.random() * DIRECTIONS.length)];
 
@@ -221,7 +229,30 @@ export function Archive() {
         ease: 'power3.out',
       });
 
+      // Pin the Archive once it fills the viewport, then release toward Contact.
+      // Animation-free pin: the statement and foot stay exactly in place while
+      // pinned (an earlier scrubbed parallax made the statement appear to float
+      // with the scroll). Smoothness on entry/exit comes from anticipatePin +
+      // the runway, not from a scrubbed tween. pinType fixed + invalidateOnRefresh
+      // match the repo convention.
+      const archivePin = ScrollTrigger.create({
+        trigger: section,
+        start: 'top top',
+        end: () => '+=' + window.innerHeight * ARCHIVE_PIN_VH,
+        pin: section,
+        pinSpacing: true,
+        pinType: 'fixed',
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+      });
+
       return () => {
+        // Preserve scroll across teardown: killing the pin removes its spacer,
+        // which shortens the document and makes the browser clamp scrollY —
+        // visible as a page jump on route-change / StrictMode remount. Capture
+        // once around the whole cleanup and restore at the end (same pattern as
+        // ServicesV2's pin cleanup).
+        const savedScrollY = window.scrollY;
         // Block any in-flight callbacks from re-arming after teardown.
         mounted = false;
         // Kill the post-reveal scheduler so it can't fire startAsyncLoops
@@ -235,13 +266,15 @@ export function Archive() {
         if (footTween.scrollTrigger) footTween.scrollTrigger.kill();
         revealTrigger.kill();
         colorTrigger.kill();
+        archivePin.kill();
+        if (window.scrollY !== savedScrollY) window.scrollTo(0, savedScrollY);
       };
     },
     { scope: wrapperRef, dependencies: [reducedMotion, words] }
   );
 
   return (
-    <div ref={wrapperRef} className={styles.wrapper}>
+    <div ref={wrapperRef} id="archive-wrapper" className={styles.wrapper}>
       <section ref={sectionRef} className={styles.section} id="archive">
         <div ref={labelRef} className={styles.metaLabel}>
           <svg

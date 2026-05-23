@@ -1,22 +1,69 @@
 'use client';
 
-import { Fragment, useRef, useEffect } from 'react';
-import { gsap } from '@/lib/gsap';
+import { Fragment, useRef } from 'react';
+import { useGSAP } from '@gsap/react';
+import { gsap, ScrollTrigger } from '@/lib/gsap';
 import Image from 'next/image';
 import { TransitionLink } from '@/components/transitions';
+import { useReducedMotion } from '@/lib/useReducedMotion';
 import styles from './Projects.module.css';
 import { content, getCaseStudySlugs } from '@/data';
 
 const caseStudySlugs = new Set(getCaseStudySlugs());
 
+// Last-card handoff tuning (see .planning/projects-archive-handoff/PLAN.md).
+// The split runs on its OWN scrubbed trigger over a fixed scroll distance,
+// DECOUPLED from the long handoff pin. The pin is a separate, animation-free
+// ScrollTrigger that just holds the open card while the Archive rises over it.
+// (The old approach appended an inert HOLD to the split timeline and let the
+// whole thing scrub across the long pin — which compressed the split into the
+// pin's early fraction and played it ~4x too fast.)
+//
+// SPLIT_RUNWAY_VH: viewport-heights the split plays across. 1.4 matches the
+// other cards' feel (their 250vh sections split over ~1.5vh). It MUST stay
+// under the pre-overlap runway (last-section height − 55vh overlap − 100vh
+// viewport) so the card is fully open before the Archive overlaps. Tune with
+// the last-section height in Projects.module.css.
+const SPLIT_RUNWAY_VH = 1.4;
+
+// Match the other cards' scrub (2.5) so the last split has identical smoothing.
+const HANDOFF_SCRUB = 2.5;
+
 export const Projects = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const reducedMotion = useReducedMotion();
   const { projects } = content;
   const featuredProjects = projects.items.filter((project) => project.featured);
 
-  useEffect(() => {
+  useGSAP(() => {
     const container = containerRef.current;
     if (!container) return;
+
+    // The Projects → Archive pinned-overlap handoff. The LAST card stays pinned
+    // while the Archive section scrolls up over it and fades out as the Archive
+    // covers the viewport (separate trigger below) — it never visibly unpins.
+    // Requires the Archive mounted (same page) and motion allowed; otherwise the
+    // last card keeps the default per-section behavior and the sections stack.
+    // Target the wrapper by id, NOT archiveSection.parentElement: the Archive's
+    // own pin (a layout effect) wraps the section in a GSAP .pin-spacer, so
+    // parentElement would be that spacer — putting data-overlap and the
+    // endTrigger on the wrong node.
+    const archiveWrapper = document.getElementById('archive-wrapper');
+    const overlapEnabled = !reducedMotion && !!archiveWrapper && featuredProjects.length > 0;
+
+    // Apply the overlap layout toggles BEFORE creating any ScrollTrigger so the
+    // pins here — AND the Archive's own pin, whose layout effect now runs right
+    // after this one (Projects also uses useGSAP) — measure the FINAL geometry:
+    // the -55vh Archive overlap, the last section grown to 320vh, and the
+    // collapsed trailing spacer. A data-* change that alters layout via CSS does
+    // not auto-refresh, so we also refresh once it settles (below); otherwise the
+    // cold-load overlap timing is off by the margin/height delta until some
+    // incidental refresh fires.
+    if (overlapEnabled) {
+      if (archiveWrapper) archiveWrapper.dataset.overlap = 'true';
+      container.dataset.overlapActive = 'true';
+    }
+
     const ctx = gsap.context(() => {
         const sections = container.querySelectorAll<HTMLElement>(`.${styles.projectSection}`);
 
@@ -30,15 +77,55 @@ export const Projects = () => {
             const metaLabel = section.querySelector(`.${styles.metaLabel}`); // null on non-first projects
             const stickyContainer = section.querySelector(`.${styles.projectSticky}`);
 
-            const tl = gsap.timeline({
-                scrollTrigger: {
+            const isLast = section.dataset.last === 'true';
+            const handoff = isLast && overlapEnabled;
+
+            // Last card: a dedicated, animation-free pin holds the (already
+            // open) card fixed from its own top until the Archive fully covers
+            // the viewport, so it never visibly unpins — it just fades out
+            // (separate trigger below) as the Archive rises, and is hidden
+            // behind the opaque Archive by full coverage. endTrigger is the
+            // Archive WRAPPER (not the section) to stay decoupled from the
+            // Archive's own pin. pinSpacing:true keeps the in-flow rest position
+            // equal to the fixed position at release → no snap. Keeping this pin
+            // ANIMATION-FREE (no scrub/tweens) is what lets the split below run
+            // at its own controlled speed instead of being compressed into the
+            // pin's early fraction.
+            if (handoff && stickyContainer) {
+                ScrollTrigger.create({
                     trigger: section,
                     start: "top top",
-                    end: "bottom bottom",
-                    scrub: 2.5,
+                    endTrigger: archiveWrapper,
+                    end: "top top",
                     pin: stickyContainer,
-                    // No background color changes - InteractiveBackground shows through entirely
-                }
+                    pinSpacing: true,
+                    pinType: "fixed",
+                    anticipatePin: 1,
+                    invalidateOnRefresh: true,
+                });
+            }
+
+            const tl = gsap.timeline({
+                scrollTrigger: handoff
+                    ? {
+                        // Split only — fixed scroll distance, NO pin (the pin
+                        // above owns that). Same scrub as the other cards so the
+                        // open animation reads at the same speed; ends before the
+                        // Archive overlaps so the card is fully open first.
+                        trigger: section,
+                        start: "top top",
+                        end: () => "+=" + window.innerHeight * SPLIT_RUNWAY_VH,
+                        scrub: HANDOFF_SCRUB,
+                        invalidateOnRefresh: true,
+                    }
+                    : {
+                        trigger: section,
+                        start: "top top",
+                        end: "bottom bottom",
+                        scrub: 2.5,
+                        pin: stickyContainer,
+                        // No background color changes - InteractiveBackground shows through entirely
+                    }
             });
 
             // 0. META LABEL EXIT — slide up and fade as THE SNAP begins, so
@@ -104,16 +191,59 @@ export const Projects = () => {
                 force3D: true,
                 duration: 0.2
             }, "start+=0.4");
+
+            // 6. SLOW FADE (last card only) — a SEPARATE scroll-linked tween:
+            //    the card fades out gradually from when the Archive has covered
+            //    65% of the viewport (`top 35%`) to full coverage (`top top`,
+            //    where the pin also ends). By full coverage the card is both
+            //    invisible and hidden behind the opaque Archive.
+            if (handoff && stickyContainer) {
+                gsap.to(stickyContainer, {
+                    opacity: 0,
+                    ease: "none",
+                    scrollTrigger: {
+                        trigger: archiveWrapper,
+                        start: "top 35%", // Archive has covered 65% of the screen
+                        end: "top top",   // Archive fully covers the viewport
+                        scrub: true,
+                        invalidateOnRefresh: true,
+                    },
+                });
+            }
         });
     }, containerRef);
 
-    return () => ctx.revert();
-  }, [projects]);
+    // The data-* toggles above changed layout via CSS after the pins measured;
+    // refresh once the next frame's layout settles so the cross-component
+    // endTrigger / Archive-pin start are correct on the cold first paint
+    // (invalidateOnRefresh only helps once some refresh actually fires).
+    let rafId = 0;
+    if (overlapEnabled) {
+        rafId = requestAnimationFrame(() => ScrollTrigger.refresh());
+    }
+
+    return () => {
+        // Preserve scroll across teardown: reverting kills the pins and removes
+        // their spacers, shortening the document; if we are scrolled past the new
+        // max the browser clamps scrollY → a visible jump on route-change /
+        // StrictMode remount. ctx is our OWN context (useGSAP's context only holds
+        // this cleanup, not the triggers), so its pins are still alive here — we
+        // capture scrollY first, then revert, then restore. Same guard Archive and
+        // ServicesV2 use.
+        const savedScrollY = window.scrollY;
+        if (rafId) cancelAnimationFrame(rafId);
+        ctx.revert();
+        if (archiveWrapper) delete archiveWrapper.dataset.overlap;
+        delete container.dataset.overlapActive;
+        if (window.scrollY !== savedScrollY) window.scrollTo(0, savedScrollY);
+    };
+  }, { scope: containerRef, dependencies: [projects, reducedMotion, featuredProjects.length], revertOnUpdate: true });
 
   return (
     <div ref={containerRef} className={styles.section} id='projects'>
        {featuredProjects.map((project, index) => {
            const isFirst = index === 0;
+           const isLast = index === featuredProjects.length - 1;
            const cardInner = (
                <>
                    {isFirst && (
@@ -143,8 +273,7 @@ export const Projects = () => {
                                 src={project.image}
                                 alt={project.title}
                                 fill
-                                // unoptimized
-                                style={{ objectFit: 'cover', objectPosition: 'top', objectViewBox: '0 0 800 600' }}
+                                style={{ objectFit: 'cover', objectPosition: 'top' }}
                                 sizes="(max-width: 768px) 100vw, 80vw"
                                 priority={false}
                              />
@@ -194,7 +323,7 @@ export const Projects = () => {
                <div
                  key={project.id}
                  className={styles.projectSection}
-                 data-color={project.themeColor}
+                 data-last={isLast ? 'true' : undefined}
                >
                    {caseStudySlugs.has(project.id) ? (
                        <TransitionLink

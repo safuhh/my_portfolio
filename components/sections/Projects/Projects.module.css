@@ -205,3 +205,55 @@ a.projectSticky {
     border-radius: 50px;
     background-color: var(--color-background);
 }
+
+/* ============================================================
+   PROJECTS → ARCHIVE PINNED-OVERLAP HANDOFF (last card only)
+   See .planning/projects-archive-handoff/PLAN.md
+   ============================================================ */
+
+/* GSAP owns the pin for the last card (pinSpacing:true, extended into the
+   Archive). CSS sticky would otherwise release at this section's bottom and
+   fight the extended pin — disable it so GSAP is the sole pin mechanism. */
+.projectSection[data-last='true'] .projectSticky {
+    position: relative;
+}
+
+/* When the Archive overlaps the held card, collapse the trailing spacer so
+   there is no dead gap at the seam. The attribute is only set by the effect
+   when the handoff is active (JS on, motion allowed), so the default/static
+   layout keeps its 50vh spacer. */
+.section[data-overlap-active='true'] .spacer {
+    height: 0;
+}
+
+/* Give the last card a longer pin runway so its split plays over the same
+   scroll distance as the other cards (their 250vh sections split over ~1.5vh)
+   AND still finishes before the Archive overlaps. Pre-overlap runway =
+   height − 55vh overlap − 100vh viewport ≈ 165vh, comfortably above
+   SPLIT_RUNWAY_VH (1.4) in Projects.tsx. Gated to the active handoff so the
+   static / reduced-motion fallback keeps the normal 250vh. */
+.section[data-overlap-active='true'] .projectSection[data-last='true'] {
+    height: 320vh;
+}
+
+/* No-JS fallback. The image, badge and meta start hidden and are revealed by
+   the GSAP scroll timeline; with JS disabled that timeline never runs, so the
+   card would render with those elements invisible. Reveal them at their resting
+   end-state in CSS so the card reads as a normal static layout. `scripting:
+   none` matches only when scripting is unavailable, so the JS-on path keeps its
+   hidden initial state and animates in with no flash. */
+@media (scripting: none) {
+    .imageCard {
+        opacity: 1;
+        transform: none;
+    }
+
+    .funkyBadge {
+        transform: scale(1);
+    }
+
+    .projectMeta {
+        opacity: 1;
+        transform: none;
+    }
+}
