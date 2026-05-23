@@ -137,7 +137,8 @@
         "themeColor": "#e6f2ff",
         "badgeColor": "#FFB800",
         "badgeTextColor": "#1b2028",
-        "badgeShadowColor": "#1b2028"
+        "badgeShadowColor": "#1b2028",
+        "featured": true
       },
       {
         "id": "permitto",
@@ -149,7 +150,8 @@
         "themeColor": "#fff0f5",
         "badgeColor": "#62B6CB",
         "badgeTextColor": "#ffffff",
-        "badgeShadowColor": "#000000"
+        "badgeShadowColor": "#000000",
+        "featured": true
       }
     ]
   },

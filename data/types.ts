@@ -118,6 +118,8 @@ export interface Project {
   badgeColor?: string;
   badgeTextColor?: string;
   badgeShadowColor?: string;
+  /** When true, the project is shown in the home page Projects section. Order-independent. */
+  featured?: boolean;
 }
 
 export interface ProjectsContent {

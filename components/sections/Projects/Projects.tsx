@@ -12,6 +12,7 @@ const caseStudySlugs = new Set(getCaseStudySlugs());
 export const Projects = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { projects } = content;
+  const featuredProjects = projects.items.filter((project) => project.featured);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -111,7 +112,7 @@ export const Projects = () => {
 
   return (
     <div ref={containerRef} className={styles.section} id='projects'>
-       {projects.items.map((project, index) => {
+       {featuredProjects.map((project, index) => {
            const isFirst = index === 0;
            const cardInner = (
                <>
