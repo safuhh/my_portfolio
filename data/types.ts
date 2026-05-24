@@ -596,11 +596,6 @@ export interface TransitionsConfig {
   /** Registry key of the default page-transition effect. Must match a key in
    *  components/transitions/registry.ts (e.g. 'iris-bloom'). */
   defaultEffect: string;
-  /** Default phase durations (seconds). Effects MAY use these for pacing. */
-  durations: {
-    exit: number;
-    enter: number;
-  };
   /** Fallback strategy when prefers-reduced-motion: reduce is active. */
   reducedMotionFallback: 'crossfade' | 'none';
   /** Duration (seconds) of the reduced-motion fallback. */

@@ -12,6 +12,7 @@ import {
 import { usePathname, useRouter } from 'next/navigation';
 import { ScrollTrigger } from '@/lib/gsap';
 import { transitionsConfig, features, getAccentColors } from '@/data';
+import { useScrollLock } from '@/lib/useScrollLock';
 import {
   isKnownEffect,
   TRANSITION_EFFECT_NAMES,
@@ -120,28 +121,60 @@ const normalizePath = (href: string): string => {
 export function TransitionProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<State>({ kind: 'idle' });
   const router = useRouter();
-  const scrollLockedRef = useRef(false);
+  const pathname = usePathname();
 
-  // ----- scroll lock helpers -----
-  const lockScroll = useCallback(() => {
-    if (scrollLockedRef.current) return;
-    scrollLockedRef.current = true;
-    document.body.style.overflow = 'hidden';
-  }, []);
-  const unlockScroll = useCallback(() => {
-    if (!scrollLockedRef.current) return;
-    scrollLockedRef.current = false;
-    document.body.style.overflow = '';
-  }, []);
+  // Keep the live pathname in a ref so triggerTransition's same-target guard
+  // can read it without listing `pathname` in the callback's deps (which would
+  // re-create the callback — and re-register the popstate listener that holds
+  // it via triggerRef — on every navigation).
+  const pathnameRef = useRef(pathname);
+  useEffect(() => {
+    pathnameRef.current = pathname;
+  }, [pathname]);
 
-  // Safety net: if the user navigates somewhere we're not tracking
-  // (browser back button during transition), release the lock on unmount.
-  useEffect(() => () => unlockScroll(), [unlockScroll]);
+  // ----- scroll lock (derived from state) -----
+  // Locking is DERIVED from the machine state rather than driven imperatively.
+  // The shared ref-counted hook acquires on `active` true (state non-idle) and
+  // releases on false / unmount, so the body overflow can never desync even if
+  // an effect throws or an onComplete never fires (E-CR-02). The watchdog and
+  // same-target guard below ensure the state itself always returns to idle.
+  useScrollLock(state.kind !== 'idle', { compensateScrollbar: true });
+
+  // ----- watchdog (E-CR-01) -----
+  // Last line of defence: if any non-idle state fails to advance (an effect
+  // that never calls onComplete, a route push that never moves the pathname
+  // to our target, etc.), force-reset to idle after a budget well above the
+  // longest exit+pending+enter run. Resetting state to idle releases the
+  // derived scroll lock (E-CR-02) and tears down the overlay; we also refresh
+  // ScrollTrigger so any half-applied pin offsets recompute. Re-armed on each
+  // state.kind change and cleared when we return to idle / on unmount.
+  useEffect(() => {
+    if (state.kind === 'idle') return;
+    const t = setTimeout(() => {
+      ScrollTrigger.refresh();
+      setState({ kind: 'idle' });
+    }, 6000);
+    return () => clearTimeout(t);
+  }, [state.kind]);
 
   // ----- public trigger -----
   const triggerTransition = useCallback(
     ({ href, origin = null, payload, effect }: TriggerTransitionArgs) => {
       if (state.kind !== 'idle') return; // running flag — second clicks no-op
+
+      // Same-target guard (E-CR-01): the machine only advances pending → idle
+      // once TransitionStage derives phase === 'enter', which requires
+      // usePathname() to change to our normalized target. If the destination
+      // normalizes to the path we're already on (a programmatic same-path
+      // call, or a hash/query-only nav that normalizePath collapses), the
+      // pathname never changes, the enter tween never runs, and the overlay
+      // would stay up with scroll locked forever. There's no curtain to play
+      // for a non-navigation, so just push and bail without entering a
+      // transition. Genuine cross-path navs (different pathname) fall through.
+      if (normalizePath(href) === normalizePath(pathnameRef.current ?? '/')) {
+        router.push(href);
+        return;
+      }
 
       const resolved: TransitionEffectName = (() => {
         // 1. Per-link override (highest priority)
@@ -180,7 +213,6 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      lockScroll();
       setState({
         kind: 'exit',
         effect: resolved,
@@ -190,12 +222,12 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
         payload,
       });
     },
-    [state.kind, router, lockScroll]
+    [state.kind, router]
   );
 
   // ----- effect-driven phase advancement -----
   //
-  // Side effects (router.push, ScrollTrigger.refresh, unlockScroll) must NOT
+  // Side effects (router.push, ScrollTrigger.refresh) must NOT
   // run inside a setState updater. React 18+ may invoke updaters during a
   // concurrent render, which would trigger a setState on Router *while
   // TransitionProvider is mid-render* — surfaced as the "Cannot update a
@@ -231,9 +263,10 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
 
       if (phase === 'enter' && s.kind === 'pending') {
         // Refresh ScrollTrigger so the new page's pinned sections compute
-        // their offsets against the now-visible document height.
+        // their offsets against the now-visible document height. The scroll
+        // lock releases automatically when we set state to idle below, via
+        // the derived useScrollLock above (E-CR-02).
         ScrollTrigger.refresh();
-        unlockScroll();
 
         // Hash handoff: if the original href included an #anchor (e.g.
         // Menu cross-route from /work/foo → /#projects), scroll the new
@@ -257,7 +290,7 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
         setState({ kind: 'idle' });
       }
     },
-    [router, unlockScroll]
+    [router]
   );
 
   // ----- browser-back interception on case-study routes -----
@@ -275,7 +308,6 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
   // a sentinel on TransitionLink-driven exits — pressing browser-Back from
   // home would silently bounce the user back to the case study (BL-02).
   // Reacting only at pop-time avoids both bugs and keeps history clean.
-  const pathname = usePathname();
   const triggerRef = useRef(triggerTransition);
   useEffect(() => {
     triggerRef.current = triggerTransition;
@@ -314,10 +346,16 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
         .getPropertyValue(CSS_VAR)
         .trim();
       const palette = getAccentColors();
+      // Ultimate fallback to the project's primary text color so `accent` is
+      // never undefined even for a misconfigured/empty palette (E-WR-02).
+      // The E-CR-01 same-target guard inside triggerTransition also protects
+      // this caller: if the user is already on '/', normalizePath('/') equals
+      // the current pathname, so it router.push-es and returns without arming
+      // a transition that could never advance to enter.
       triggerRef.current({
         href: '/',
         origin: null,
-        payload: { accent: live || palette[0] },
+        payload: { accent: live || palette[0] || '#1b2028' },
       });
     };
 

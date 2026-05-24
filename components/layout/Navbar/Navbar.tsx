@@ -313,12 +313,12 @@ export function Navbar() {
           <div className={styles.navTextContainer}>
             <span className={`${styles.navTextItem} ${styles.navTextMenu}`}>
               {'MENU'.split('').map((char, i) => (
-                <span key={`m-${i}`} className={styles.navChar}>{char}</span>
+                <span key={`m-${char}-${i}`} className={styles.navChar}>{char}</span>
               ))}
             </span>
             <span className={`${styles.navTextItem} ${styles.navTextClose}`}>
               {'CLOSE'.split('').map((char, i) => (
-                <span key={`c-${i}`} className={styles.navChar}>{char}</span>
+                <span key={`c-${char}-${i}`} className={styles.navChar}>{char}</span>
               ))}
             </span>
           </div>

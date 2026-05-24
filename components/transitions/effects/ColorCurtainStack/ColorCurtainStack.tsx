@@ -57,6 +57,38 @@ function Star({ variant }: { variant: 'outline' | 'filled' }) {
 
 const INK = '#1b2028';
 
+// Label-fade timing literals, shared by the exit (fade-in) and enter
+// (fade-out) branches of the timeline. Hoisted so the six `tl.to` label
+// tweens stay in lock-step if any value is tuned.
+const LABEL_FADE_IN = 0.45; // duration of each label's fade-in on exit
+const LABEL_STAGGER = 0.08; // per-label stagger within a curtain on exit
+const LABEL_FADE_OUT = 0.2; // duration of each label's fade-out on enter
+const LABEL_OFFSET = 0.35; // delay from a curtain's slide-in to its label fade-in
+
+/** Tiny deterministic PRNG (mulberry32) so the back-to-home skill sample is
+ *  stable for a given transition without calling `Math.random()` during
+ *  render (which would be impure and a SSR/client hydration hazard). */
+function mulberry32(seed: number): () => number {
+  let a = seed >>> 0;
+  return () => {
+    a += 0x6d2b79f5;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/** Hash a string into a 32-bit int seed (FNV-1a variant). */
+function hashString(str: string): number {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i += 1) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return h >>> 0;
+}
+
 /** Read the current site accent (the one the home-screen cycle is showing
  *  right now) from --color-accent-purple. Validate it's a palette entry so
  *  we never paint a stray inline value on the panel; otherwise fall back to
@@ -85,19 +117,22 @@ interface CurtainConfig {
 }
 
 /** Sample three distinct skills from content.skills.marqueeItems for the
- *  back-to-home curtain. Pulled at-build-time via useMemo([payload]) so the
- *  picks are stable across the exit → hold → enter phases of a single
- *  transition but vary across separate transitions for visual freshness. */
-function sampleSkills(): [string, string, string] {
+ *  back-to-home curtain. The shuffle is seeded deterministically from a
+ *  stable transition identifier (slug/accent), so the picks are stable across
+ *  the exit → hold → enter phases of a single transition AND pure during
+ *  render (no `Math.random()` — no SSR/client hydration mismatch), while still
+ *  varying across separate transitions for visual freshness. */
+function sampleSkills(seed: number): [string, string, string] {
   const all = content.skills.marqueeItems;
   if (all.length < 3) {
     // Degenerate fallback — pad with whatever is available.
     return [all[0] ?? 'DESIGN', all[1] ?? 'CODE', all[2] ?? 'CRAFT'];
   }
+  const rand = mulberry32(seed);
   // Fisher–Yates partial shuffle, take 3.
   const pool = [...all];
   for (let i = pool.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(rand() * (i + 1));
     [pool[i], pool[j]] = [pool[j], pool[i]];
   }
   return [pool[0], pool[1], pool[2]];
@@ -112,7 +147,11 @@ function buildCurtains(payload: TransitionEffectProps['payload']): CurtainConfig
   // Show one skill from the home SkillsBar per curtain so the transition
   // previews the breadth of work the user is landing on.
   if (!hasTitle) {
-    const [s1, s2, s3] = sampleSkills();
+    // Seed the sample from a stable identifier so the same transition always
+    // yields the same skills (the back paths pass no title; slug/accent are
+    // the stable fields). Falls back to a fixed seed if none are present.
+    const seedSource = payload.slug || payload.accent || 'back-to-home';
+    const [s1, s2, s3] = sampleSkills(hashString(seedSource));
     return [
       {
         background: INK,
@@ -215,9 +254,24 @@ export function ColorCurtainStack({
     onCompleteRef.current = onComplete;
   }, [onComplete]);
 
+  // Snapshot the reduced-motion mode at the START of a transition (the exit
+  // phase) and reuse it for the enter phase. Reading the LIVE value per phase
+  // is a bug: if the user toggles OS reduced-motion mid-transition, the enter
+  // branch could animate panels the (reduced-motion) exit never positioned,
+  // peeling them off their CSS default position and revealing the page with
+  // no covering panels. One transition must play one consistent motion mode.
+  const reduceMotionSnapshotRef = useRef<boolean | null>(null);
+
   useLayoutEffect(() => {
     const root = rootRef.current;
     if (!root) return;
+
+    // First phase (exit) seeds the snapshot; enter reuses it. Reset on the
+    // enter phase so the next transition re-snapshots from scratch.
+    if (phase === 'exit' || reduceMotionSnapshotRef.current === null) {
+      reduceMotionSnapshotRef.current = reduceMotion;
+    }
+    const reduceMotionForTransition = reduceMotionSnapshotRef.current;
 
     const cur1 = root.querySelector<HTMLDivElement>(`.${styles.cur1}`);
     const cur2 = root.querySelector<HTMLDivElement>(`.${styles.cur2}`);
@@ -232,7 +286,7 @@ export function ColorCurtainStack({
     const animations: Array<gsap.core.Tween | gsap.core.Timeline> = [];
 
     // ---------- Reduced-motion: simple crossfade ----------
-    if (reduceMotion) {
+    if (reduceMotionForTransition) {
       const tween = phase === 'exit'
         ? gsap.fromTo(
             root,
@@ -271,13 +325,13 @@ export function ColorCurtainStack({
       animations.push(tl);
 
       tl.to(cur1, { yPercent: 0, duration: slide, ease }, 0);
-      tl.to(labelsOf(cur1), { opacity: 1, y: 0, duration: 0.45, stagger: 0.08 }, 0.35);
+      tl.to(labelsOf(cur1), { opacity: 1, y: 0, duration: LABEL_FADE_IN, stagger: LABEL_STAGGER }, LABEL_OFFSET);
 
       tl.to(cur2, { xPercent: 0, duration: slide, ease }, cfg.stagger);
-      tl.to(labelsOf(cur2), { opacity: 1, y: 0, duration: 0.45, stagger: 0.08 }, cfg.stagger + 0.35);
+      tl.to(labelsOf(cur2), { opacity: 1, y: 0, duration: LABEL_FADE_IN, stagger: LABEL_STAGGER }, cfg.stagger + LABEL_OFFSET);
 
       tl.to(cur3, { yPercent: 0, duration: slide, ease }, cfg.stagger * 2);
-      tl.to(labelsOf(cur3), { opacity: 1, y: 0, duration: 0.45, stagger: 0.08 }, cfg.stagger * 2 + 0.35);
+      tl.to(labelsOf(cur3), { opacity: 1, y: 0, duration: LABEL_FADE_IN, stagger: LABEL_STAGGER }, cfg.stagger * 2 + LABEL_OFFSET);
 
       // Hold while the three are stacked — covers router.push and the
       // React re-render of the destination route.
@@ -293,16 +347,23 @@ export function ColorCurtainStack({
 
       // Peel off in reverse: cur3 (top of stack) lifts first.
       tl.to(cur3, { yPercent: -101, duration: enterSlide, ease }, 0);
-      tl.to(labelsOf(cur3), { opacity: 0, duration: 0.2 }, 0);
+      tl.to(labelsOf(cur3), { opacity: 0, duration: LABEL_FADE_OUT }, 0);
 
       tl.to(cur2, { xPercent: -101, duration: enterSlide, ease }, cfg.stagger * 0.6);
-      tl.to(labelsOf(cur2), { opacity: 0, duration: 0.2 }, cfg.stagger * 0.6);
+      tl.to(labelsOf(cur2), { opacity: 0, duration: LABEL_FADE_OUT }, cfg.stagger * 0.6);
 
       tl.to(cur1, { yPercent: 101, duration: enterSlide, ease }, cfg.stagger * 1.2);
-      tl.to(labelsOf(cur1), { opacity: 0, duration: 0.2 }, cfg.stagger * 1.2);
+      tl.to(labelsOf(cur1), { opacity: 0, duration: LABEL_FADE_OUT }, cfg.stagger * 1.2);
     }
 
-    return () => animations.forEach((a) => a.kill());
+    return () => {
+      animations.forEach((a) => a.kill());
+      // Enter is the final phase of a transition; clear the snapshot so the
+      // next transition re-snapshots reduced-motion from its exit phase.
+      if (phase === 'enter') {
+        reduceMotionSnapshotRef.current = null;
+      }
+    };
   }, [phase, reduceMotion]);
 
   const renderTrack = (
@@ -336,7 +397,7 @@ export function ColorCurtainStack({
         const labelToneCls = c.labelTone === 'ink' ? styles.labelOnAccent : styles.labelOnInk;
         return (
           <div
-            key={i}
+            key={`curtain-${i}`}
             className={cls}
             style={{ background: c.background }}
           >

@@ -9,9 +9,14 @@ import type { TransitionEffectName } from './registry';
 export interface TransitionLinkProps
   extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href' | 'onClick'> {
   /**
-   * Always a string URL. Tightened from `LinkProps['href']` because the
-   * UrlObject branch caused same-path query clicks to be misclassified as
-   * "same page" when no `pathname` was supplied. All call sites pass strings.
+   * Always a string URL (tightened from `LinkProps['href']`; the UrlObject
+   * branch is unused since all call sites pass strings).
+   *
+   * Same-page semantics: a click whose target pathname equals the current
+   * pathname (regardless of hash/query) is treated as in-page navigation and
+   * skips the transition — hash anchors like `/#projects` fall through to
+   * next/link for smooth-scroll, and query-only changes don't meaningfully
+   * exist in this static site. Only cross-pathname clicks animate the curtain.
    */
   href: string;
   payload: TransitionPayload;
@@ -39,7 +44,7 @@ function isModifiedClick(e: MouseEvent<HTMLAnchorElement>): boolean {
  * Drop-in replacement for `next/link` that plays a registered transition
  * before navigating. Falls back to standard navigation on:
  *   - modified clicks (cmd/ctrl/shift/alt, middle/right)
- *   - same-pathname clicks (no route change)
+ *   - same-pathname clicks (ignoring hash/query — treated as in-page nav)
  *   - explicit preventDefault from onBeforeTransition
  */
 export const TransitionLink = forwardRef<HTMLAnchorElement, TransitionLinkProps>(
@@ -60,7 +65,9 @@ export const TransitionLink = forwardRef<HTMLAnchorElement, TransitionLinkProps>
           return;
         }
 
-        // Same-page nav: let next/link handle it (router noop, scroll behavior intact).
+        // In-page nav: compare pathname only (ignoring hash/query). A same-pathname
+        // click — including hash anchors like `/#projects` — is left to next/link so
+        // smooth-scroll / scroll behavior stays intact. Only cross-pathname clicks animate.
         const currentPath = window.location.pathname;
         const targetPath = (() => {
           try { return new URL(href, window.location.origin).pathname; }

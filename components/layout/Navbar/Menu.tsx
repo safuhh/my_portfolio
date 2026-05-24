@@ -7,6 +7,7 @@ import { navigation, content } from '@/data';
 import { useLenis } from '@/lib/LenisProvider';
 import { useAccentColor } from '@/lib/AccentColorContext';
 import { useTransition } from '@/components/transitions';
+import { useScrollLock } from '@/lib/useScrollLock';
 import styles from './Menu.module.css';
 
 interface MenuProps {
@@ -44,17 +45,23 @@ export function Menu({ isOpen, onClose, onCloseComplete, onRevealStart }: MenuPr
   const { triggerTransition } = useTransition();
   const { color: currentAccent } = useAccentColor();
 
-  // Lock body scroll when menu is open
+  // Lock body scroll when menu is open. Shared ref-counted lock so Menu,
+  // WelcomeScreen and TransitionProvider can't race each other for
+  // document.body.style.overflow.
+  useScrollLock(isOpen);
+
+  // Tracks the deferred post-close scroll so it can be cancelled on unmount
+  // or before a new schedule (prevents scrolling a stale DOM after the menu
+  // is gone or reopened).
+  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
     return () => {
-      document.body.style.overflow = '';
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+        scrollTimeoutRef.current = null;
+      }
     };
-  }, [isOpen]);
+  }, []);
 
   // A11y: inert background, focus trap, focus restoration.
   //
@@ -394,8 +401,12 @@ export function Menu({ isOpen, onClose, onCloseComplete, onRevealStart }: MenuPr
     // On-home: preserve smooth-scroll behaviour.
     e.preventDefault();
     onClose();
-    // Delay scroll to allow menu close animation
-    setTimeout(() => {
+    // Delay scroll to allow menu close animation. Track the timer so a
+    // second open/close or an unmount cancels it — otherwise it fires
+    // against a stale DOM. Clear any pending one before scheduling anew.
+    if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    scrollTimeoutRef.current = setTimeout(() => {
+      scrollTimeoutRef.current = null;
       scrollTo(href, { duration: 1.8 }); // Lenis smooth scroll with custom duration
     }, 800);
   }, [onClose, scrollTo, pathname, triggerTransition, currentAccent]);
@@ -446,7 +457,7 @@ export function Menu({ isOpen, onClose, onCloseComplete, onRevealStart }: MenuPr
                     <span className={styles.socialTextBase}>
                       {social.label.split('').map((char, index) => (
                         <span
-                          key={index}
+                          key={`${char}-${index}`}
                           className={styles.socialChar}
                           style={{ transitionDelay: `${index * 0.025}s` }}
                         >
@@ -458,7 +469,7 @@ export function Menu({ isOpen, onClose, onCloseComplete, onRevealStart }: MenuPr
                     <span className={styles.socialTextClone} aria-hidden="true">
                       {social.label.split('').map((char, index) => (
                         <span
-                          key={index}
+                          key={`${char}-${index}`}
                           className={styles.socialChar}
                           style={{ transitionDelay: `${index * 0.025}s` }}
                         >
@@ -503,7 +514,7 @@ export function Menu({ isOpen, onClose, onCloseComplete, onRevealStart }: MenuPr
               <span className={styles.backTextBase}>
                 {BACK_BUTTON_TEXT.split('').map((char, index) => (
                   <span
-                    key={index}
+                    key={`${char}-${index}`}
                     className={styles.backChar}
                     style={{ transitionDelay: `${index * 0.025}s` }}
                   >
@@ -514,7 +525,7 @@ export function Menu({ isOpen, onClose, onCloseComplete, onRevealStart }: MenuPr
               <span className={styles.backTextClone} aria-hidden="true">
                 {BACK_BUTTON_TEXT.split('').map((char, index) => (
                   <span
-                    key={index}
+                    key={`${char}-${index}`}
                     className={styles.backChar}
                     style={{ transitionDelay: `${index * 0.025}s` }}
                   >

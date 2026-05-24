@@ -8,6 +8,8 @@
  *      or pass `effect="your-key"` on a `<TransitionLink />`.
  */
 
+import type { TransitionEffectName } from './registry';
+
 export type TransitionPhase = 'exit' | 'enter';
 
 /** Data the destination route needs the transition to know about. */
@@ -48,8 +50,12 @@ export interface TriggerTransitionArgs {
   href: string;
   origin?: { x: number; y: number } | null;
   payload: TransitionPayload;
-  /** Override the default effect for this single transition. */
-  effect?: string;
+  /** Override the default effect for this single transition. Deliberately
+   *  wider than `TransitionEffectName`: the value is resolved/validated at
+   *  runtime via `isKnownEffect` (so dev/localStorage overrides and other
+   *  arbitrary strings are accepted, then ignored if unknown). The
+   *  `(string & {})` keeps editor autocomplete for the known names. */
+  effect?: TransitionEffectName | (string & {});
 }
 
 export interface TransitionContextValue {
