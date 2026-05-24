@@ -232,9 +232,16 @@ export function Archive() {
       // Pin the Archive once it fills the viewport, then release toward Contact.
       // Animation-free pin: the statement and foot stay exactly in place while
       // pinned (an earlier scrubbed parallax made the statement appear to float
-      // with the scroll). Smoothness on entry/exit comes from anticipatePin +
-      // the runway, not from a scrubbed tween. pinType fixed + invalidateOnRefresh
-      // match the repo convention.
+      // with the scroll). pinType fixed + invalidateOnRefresh match the repo
+      // convention.
+      //
+      // anticipatePin is intentionally 0. It engages the pin early scaled by
+      // scroll velocity, but our velocity is Lenis-smoothed (LenisProvider drives
+      // Lenis off gsap.ticker, no normalizeScroll) — so at the Projects→Archive
+      // seam the prediction overshot and snapped the opaque section up to top:0 a
+      // few frames before the scroll arrived (the "magnet pull"). With it off the
+      // section locks exactly when its top reaches the viewport top; the overlap
+      // runway alone carries the entry, so there is no early yank.
       const archivePin = ScrollTrigger.create({
         trigger: section,
         start: 'top top',
@@ -242,7 +249,7 @@ export function Archive() {
         pin: section,
         pinSpacing: true,
         pinType: 'fixed',
-        anticipatePin: 1,
+        anticipatePin: 0,
         invalidateOnRefresh: true,
       });
 
