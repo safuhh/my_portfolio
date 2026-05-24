@@ -28,6 +28,14 @@
    by GSAP. Spans 100vw × 100vh; no rounded corners, no inset margin.
    ============================================ */
 .panel {
+    /* The panel is ALWAYS a light pastel gradient, in both themes — so lock the
+       ink token to its light value here. Otherwise dark mode flips
+       --color-primary-text to #fff and the form text, underlines, placeholders
+       and the white-on-dark selected-chip text all vanish on the light surface.
+       Everything inside derives from this token (muted text via color-mix, the
+       selected-chip fill, the caret), so this single override covers them all.
+       --color-accent-purple is theme-agnostic, so the accent keeps cycling. */
+    --color-primary-text: #1b2028;
     position: relative;
     width: 100%;
     min-height: 100vh;

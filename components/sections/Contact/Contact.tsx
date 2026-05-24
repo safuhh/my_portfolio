@@ -105,8 +105,13 @@ export function Contact() {
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: panel,
-        start: 'top top',
-        end: '+=400%',
+        // Last section. The scrubbed reveal is spread across this whole pin
+        // distance, and pinSpacing adds it to the document, so an over-long pin
+        // means the page keeps scrolling on a fully-revealed panel before it
+        // ends. 150% (≈1.5 screens) reveals all four rows + submit at a brisk,
+        // legible pace and lets the page bottom out right as the form completes.
+        // Tunable — raise for a slower reveal, lower for a tighter ending.
+        end: '+=150%',
         pin: panel,
         pinSpacing: true,
         scrub: 1,
