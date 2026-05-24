@@ -20,7 +20,12 @@ type Direction = (typeof DIRECTIONS)[number];
 const randomDirection = (): Direction =>
   DIRECTIONS[Math.floor(Math.random() * DIRECTIONS.length)];
 
-const directionOffset = (dir: Direction, distance = 110) => {
+/* Off-stage portal travel for each bigword letter, in percent of its own
+   box. Sole source of truth — the two portal helpers below rely on this as
+   the `directionOffset` default rather than re-passing the literal. */
+const PORTAL_DIST = 110;
+
+const directionOffset = (dir: Direction, distance = PORTAL_DIST) => {
   switch (dir) {
     case 'up':
       return { x: 0, y: -distance };
@@ -225,7 +230,7 @@ export function ledeRevealOut(container: HTMLElement, ledeWordInner: string): nu
    random off-stage position then tweens back to (0,0). Returns total duration. */
 export function portalBigWordIn(letters: HTMLSpanElement[]): number {
   letters.forEach((el, i) => {
-    const start = directionOffset(randomDirection(), 110);
+    const start = directionOffset(randomDirection());
     gsap.set(el, { x: `${start.x}%`, y: `${start.y}%` });
     gsap.to(el, {
       x: '0%',
@@ -241,7 +246,7 @@ export function portalBigWordIn(letters: HTMLSpanElement[]): number {
 /* Portal-OUT — fire-and-forget per-letter scatter. Returns total duration. */
 export function portalBigWordOut(letters: HTMLSpanElement[]): number {
   letters.forEach((el, i) => {
-    const off = directionOffset(randomDirection(), 110);
+    const off = directionOffset(randomDirection());
     gsap.to(el, {
       x: `${off.x}%`,
       y: `${off.y}%`,

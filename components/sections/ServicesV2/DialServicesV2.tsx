@@ -8,11 +8,17 @@ import { Star } from '../Services/Star';
 import {
   BAR_MAX_FRACTION,
   BAR_MIN_SCALE,
+  BAR_OPACITY_MIN,
+  BAR_OPACITY_RANGE,
   GAP_PX,
   HEADING_ID,
   LABEL_RIDE_GAP_PX,
+  LABEL_SCALE_GAIN,
+  NEEDLE_FALLOFF,
   PIN_RUNWAY_VH,
   PIN_SCRUB,
+  TOOL_OPACITY_MIN,
+  TOOL_OPACITY_RANGE,
   ZONES,
   formatZoneIndex,
   zoneRail,
@@ -140,6 +146,24 @@ export function DialServicesV2() {
         notchesEl.appendChild(notchEl);
       });
 
+      /* Per-cell last-written-value caches for the applyDial hot path. Each
+         scroll tick the style strings only change visibly when their rounded
+         value moves; we cache the rounded ints and skip the style write (and
+         its string allocation) when nothing changed since the last frame.
+         Quantised to integers via the *_Q scales below — sub-quantum changes
+         are visually indistinguishable, so skipping them can't alter the
+         rendered output. NaN initial values force a write on the first frame. */
+      const lastBarScaleQ = new Array<number>(cells.length).fill(NaN);
+      const lastBarOpacityQ = new Array<number>(cells.length).fill(NaN);
+      const lastToolOpacityQ = new Array<number>(cells.length).fill(NaN);
+      const lastToolTranslateQ = new Array<number>(cells.length).fill(NaN);
+      const lastToolScaleQ = new Array<number>(cells.length).fill(NaN);
+      /* Quantisation scales. Opacity/scale to 1/1000 (3 decimals), the label
+         translate to whole-px — finer than a pixel/0.001 is below perceptible
+         and below sub-pixel raster precision, so rounding here is safe. */
+      const OPACITY_Q = 1000;
+      const SCALE_Q = 1000;
+
       /* Cache the dialwrap centre offset so the per-frame hot path can avoid
          getBoundingClientRect (which forces synchronous layout). Recomputed
          only when the wrap actually resizes — observed via ResizeObserver,
@@ -180,15 +204,27 @@ export function DialServicesV2() {
          finishes — same shape as DrumServices' `swapping/pendingTarget`. */
       let zoneAnimating = false;
       let pendingZoneIdx: number | null = null;
-      /* Closure-scoped target marker for the gate in applyDial. Previously
-         lived on bigwordEl.dataset.zone, which made the gate read like
-         "currently displayed zone" while actually meaning "latest target
-         we've called transitionZone for" — a semantic mismatch that
-         confused review. dataset.zone is now written only when the new
-         content is actually swapped in (inside swapDelay), so external
-         readers (a11y tools, tests, devtools) see the honest current
-         state; the gate state lives here. */
-      let lastTargetZoneIdx = 0;
+      /* The zone whose IN is currently running (or whose OUT is running on the
+         way to it) — i.e. the zone that WILL be displayed once the in-flight
+         transition settles. null when idle. `bigwordEl.dataset.zone` is the
+         zone CURRENTLY painted (written inside swapDelay the instant the new
+         content lands in the DOM); it lags `inFlightZoneIdx` during the OUT
+         phase because the swap hasn't fired yet.
+
+         The applyDial gate compares the needle against the EFFECTIVE target
+         `pendingZoneIdx ?? inFlightZoneIdx ?? displayed` so it never re-fires
+         a transition that's already heading to the right zone, and always
+         re-fires when the needle lands somewhere the dial isn't already going.
+         The endDelay reconciliation closes the loop by re-checking the latched
+         pending target against the now-displayed dataset.zone.
+
+         Why this kills the A→B→A desync: needle A→B starts a B transition
+         (inFlight=B, dataset still A). Needle snaps back to A mid-OUT; the gate
+         sees effective=B≠A and latches pendingZoneIdx=A. B's swap paints
+         dataset.zone=B; B's IN finishes and endDelay sees pending=A≠displayed=B
+         and dispatches A. The dial converges on A instead of stranding B on
+         screen while the needle/indicator/aria-live all read A. */
+      let inFlightZoneIdx: number | null = null;
 
       /* aria-live debounce. Each scroll tick that crosses a zone boundary
          calls paintZoneAffordances which would otherwise mutate the live
@@ -233,6 +269,7 @@ export function DialServicesV2() {
           return;
         }
         zoneAnimating = true;
+        inFlightZoneIdx = zoneIdx;
         const zone = ZONES[zoneIdx];
 
         const bwOutEnd = portalBigWordOut(
@@ -276,9 +313,20 @@ export function DialServicesV2() {
               gsap.delayedCall(Math.max(bwInEnd, ledeInEnd), () => {
                 pendingDelays.delete(endDelay);
                 zoneAnimating = false;
-                const next = pendingZoneIdx;
+                inFlightZoneIdx = null;
+                /* Reconcile against the ACTUALLY-DISPLAYED zone (dataset.zone,
+                   set in swapDelay above), not the just-finished `zoneIdx` and
+                   not an optimistic marker. If a newer target was latched
+                   mid-IN, use it; otherwise fall back to the displayed zone
+                   (self-compare → no-op). The compare is `next !== displayed`,
+                   so a pending target is dispatched whenever it differs from
+                   what's on screen — and is correctly dropped only when it
+                   already matches the display. This is what self-corrects the
+                   A→B→A case: displayed=B, pending=A ⇒ dispatch A. */
+                const displayed = Number(bigwordEl.dataset.zone);
+                const next = pendingZoneIdx ?? displayed;
                 pendingZoneIdx = null;
-                if (next !== null && next !== zoneIdx) transitionZone(next);
+                if (next !== displayed) transitionZone(next);
               }),
             );
           }),
@@ -287,10 +335,17 @@ export function DialServicesV2() {
 
       /* Single scroll-driven function. Per-frame work:
            - 1 transform write (strip + notches share the same x via gsap.set)
-           - N opacity + N transform writes (N ≈ realCount, all composited)
-           - 0 layout reads — `centerOffset` is cached via ResizeObserver
-         The bigword/lede portal swap is gated by `dataset.zone` so it only
-         fires when the nearest cell crosses a zone boundary. */
+           - up to N opacity + N transform writes (N ≈ realCount, composited)
+         Not allocation-free: each style write builds a string (the DOM API
+         only takes strings). We DO minimise it — per cell we cache the last
+         rounded value and skip the write (and its `String(...)`/template
+         allocation) entirely when the rounded value is unchanged from the
+         previous frame. At rest almost every cell short-circuits; during a
+         scrub only the cells near the moving needle actually re-write.
+         0 layout reads — `centerOffset`/`bandHeight` are cached via the
+         ResizeObserver. The bigword/lede portal swap is gated on
+         `dataset.zone` (the displayed zone) so it only fires when the nearest
+         cell crosses into a zone different from what's on screen. */
       const applyDial = (progress: number) => {
         const idxFloat = indexAtNeedle(progress, realCount);
         const x = centerOffset - (idxFloat + 0.5) * GAP_PX;
@@ -300,35 +355,70 @@ export function DialServicesV2() {
           const el = toolEls[i];
           if (!el) continue;
           const dist = Math.abs(i - idxFloat);
-          const t = Math.max(0, 1 - dist / 2.4);
+          const t = Math.max(0, 1 - dist / NEEDLE_FALLOFF);
           /* smoothstep — crisper peak than linear `t` so the bar locks onto
              the needle like a tuner rather than fading off in a wide hump. */
           const eased = t * t * (3 - 2 * t);
           const s = BAR_MIN_SCALE + (1 - BAR_MIN_SCALE) * eased;
 
-          /* Bar: GPU-composited scaleY + opacity, no layout read. */
+          /* Bar: GPU-composited scaleY + opacity, no layout read. Skip the
+             write when the rounded value matches last frame. */
           const bar = barEls[i];
           if (bar) {
-            bar.style.transform = `scaleY(${s})`;
-            bar.style.opacity = String(0.22 + eased * 0.78);
+            const barScaleQ = Math.round(s * SCALE_Q);
+            if (barScaleQ !== lastBarScaleQ[i]) {
+              lastBarScaleQ[i] = barScaleQ;
+              bar.style.transform = `scaleY(${barScaleQ / SCALE_Q})`;
+            }
+            const barOpacityQ = Math.round((BAR_OPACITY_MIN + eased * BAR_OPACITY_RANGE) * OPACITY_Q);
+            if (barOpacityQ !== lastBarOpacityQ[i]) {
+              lastBarOpacityQ[i] = barOpacityQ;
+              bar.style.opacity = String(barOpacityQ / OPACITY_Q);
+            }
           }
 
           /* Opacity-only, not color: the dial-tool base color is set via
              CSS var (light + dark themes resolve independently). Writing
              `rgba(27,32,40,...)` here would lock the tool to the light
              palette and disappear under dark mode. */
-          el.style.opacity = String(0.3 + t * 0.7);
+          const toolOpacityQ = Math.round((TOOL_OPACITY_MIN + t * TOOL_OPACITY_RANGE) * OPACITY_Q);
+          if (toolOpacityQ !== lastToolOpacityQ[i]) {
+            lastToolOpacityQ[i] = toolOpacityQ;
+            el.style.opacity = String(toolOpacityQ / OPACITY_Q);
+          }
           /* Label rides the bar's scaled visual top: bandHeight (cached) ×
              the resting fraction × the live scale, plus a fixed gap, so the
-             label tracks the crest as the bar grows toward the needle. */
+             label tracks the crest as the bar grows toward the needle. The
+             translate is quantised to whole px and the scale to 1/1000; we
+             only rebuild the transform string when either component moves. */
           const barTopPx = bandHeight * BAR_MAX_FRACTION * s;
-          el.style.transform = `translateY(${-(barTopPx + LABEL_RIDE_GAP_PX)}px) scale(${1 + t * 0.18})`;
+          const toolTranslateQ = Math.round(-(barTopPx + LABEL_RIDE_GAP_PX));
+          const toolScaleQ = Math.round((1 + t * LABEL_SCALE_GAIN) * SCALE_Q);
+          if (toolTranslateQ !== lastToolTranslateQ[i] || toolScaleQ !== lastToolScaleQ[i]) {
+            lastToolTranslateQ[i] = toolTranslateQ;
+            lastToolScaleQ[i] = toolScaleQ;
+            el.style.transform = `translateY(${toolTranslateQ}px) scale(${toolScaleQ / SCALE_Q})`;
+          }
         }
 
         const nearest = tunedAt(idxFloat, cells);
         if (!nearest) return;
-        if (nearest.zoneIdx !== lastTargetZoneIdx) {
-          lastTargetZoneIdx = nearest.zoneIdx;
+        /* Gate on the EFFECTIVE target zone, not an optimistic marker:
+             pendingZoneIdx — a target already latched behind an in-flight swap
+             inFlightZoneIdx — the zone the current swap is heading toward
+             dataset.zone   — the zone actually painted (idle case)
+           Firing whenever the needle differs from this composite means we
+           never re-dispatch a transition that's already converging on the
+           needle, and we always latch a new target when the needle moves
+           somewhere the dial isn't already going. transitionZone routes the
+           call to pendingZoneIdx when a swap is mid-flight; the endDelay
+           reconciliation then closes the loop against dataset.zone. Together
+           this self-corrects the A→B→A fast scroll (see the inFlightZoneIdx
+           comment above) instead of stranding the displayed word out of sync
+           with the needle/indicator/aria-live. */
+        const effectiveZone =
+          pendingZoneIdx ?? inFlightZoneIdx ?? Number(bigwordEl.dataset.zone);
+        if (nearest.zoneIdx !== effectiveZone) {
           transitionZone(nearest.zoneIdx);
         }
       };
@@ -345,6 +435,13 @@ export function DialServicesV2() {
       const trigger = ScrollTrigger.create({
         trigger: shellEl,
         start: 'top top',
+        /* Runway length is viewport-relative BY DESIGN: it scales the pin
+           distance with screen height so the per-gesture cell travel stays
+           constant across devices (see PIN_RUNWAY_VH in constants.ts for the
+           derivation). Do NOT switch this to a content-relative value (e.g. a
+           fixed px or an element's height) without keeping the
+           ScrollTrigger.refresh() below — the imperative cell build and the
+           sibling layout swap both depend on a post-create remeasure. */
         end: () => `+=${window.innerHeight * PIN_RUNWAY_VH}`,
         pin: pinEl,
         pinSpacing: true,
@@ -372,6 +469,20 @@ export function DialServicesV2() {
           applyDial(self.progress);
         },
       });
+
+      /* One global refresh after the trigger exists and the first paint /
+         applyDial(0) have run. This satisfies two findings at once:
+           - The ~30+ cells + split bigword/lede were injected imperatively
+             BEFORE create(), so the pin start/end were measured against the
+             pre-build layout; refresh remeasures with the real strip in place.
+           - When a reduced-motion / coarse-pointer change swaps
+             StaticServicesV2 ⇄ DialServicesV2, this dial's new pin-spacer is
+             inserted into the document flow. A global refresh reconciles the
+             sibling triggers (Hero/Philosophy/Projects) whose start/end would
+             otherwise hold stale measurements taken before the spacer existed.
+         Global (not trigger.refresh()) on purpose — only the global form
+         remeasures the other sections. */
+      ScrollTrigger.refresh();
 
       return () => {
         /* Order matters: kill tweens FIRST so any delayedCall about to fire
