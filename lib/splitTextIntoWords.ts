@@ -117,6 +117,12 @@ export function splitTextIntoWords(
     }
   }
 
+  // INVARIANT: revert() re-inserts the *same* original Text node instances
+  // captured at split time. This is correct only while the root subtree is not
+  // otherwise mutated between split and revert (true for all current consumers,
+  // which split static content). If a future consumer splits text that React
+  // can re-render with new content while a split is active, re-read the live
+  // textContent here instead of re-inserting the captured nodes.
   const revert = () => {
     replacements.forEach(({ original, replacement }) => {
       const first = replacement[0];

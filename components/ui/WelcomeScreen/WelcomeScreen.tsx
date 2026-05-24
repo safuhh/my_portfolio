@@ -1,9 +1,10 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { gsap } from '@/lib/gsap';
 import { useGSAP } from '@gsap/react';
 import { useReducedMotion } from '@/lib/useReducedMotion';
+import { useScrollLock } from '@/lib/useScrollLock';
 import { content, features } from '@/data';
 import styles from './WelcomeScreen.module.css';
 
@@ -17,18 +18,33 @@ export const WelcomeScreen = () => {
   const aRef = useRef<HTMLSpanElement>(null);
   const reducedMotion = useReducedMotion();
 
+  // "Welcome is showing" — the single source of truth for the body scroll
+  // lock. Starts locked (the overlay covers the screen from first paint, as
+  // the old synchronous lockScroll() did) and is released the moment the
+  // welcome ends through ANY path: skip-on-return, reduced-motion, normal
+  // timeline completion, bailOut(), or unmount. Routing the lock through the
+  // shared ref-counted hook keeps Menu / WelcomeScreen / TransitionProvider
+  // from racing each other for document.body.style.overflow, and the gutter
+  // compensation (full-screen overlay) is preserved via compensateScrollbar.
+  const [welcomeActive, setWelcomeActive] = useState(true);
+  useScrollLock(welcomeActive, { compensateScrollbar: true });
+
   useGSAP(() => {
     // Skip greeting on Next.js client-side navigation. The inline script in
     // app/layout.tsx sets window.__freshLoad on every full document load
     // (cold visit + F5 refresh) — it never re-runs on Link clicks, so its
     // absence here means we got here via in-app navigation.
     if (features.welcomeScreen.skipOnReturn && !window.__freshLoad) {
+      // Return visit: no greeting, so release the scroll lock immediately.
+      setWelcomeActive(false);
       if (containerRef.current) {
         containerRef.current.setAttribute('aria-hidden', 'true');
         containerRef.current.style.display = 'none';
       }
       const handoffTimer = setTimeout(() => {
+        window.__welcomeHandoff = true;
         window.dispatchEvent(new CustomEvent('welcome-handoff'));
+        window.__welcomeComplete = true;
         window.dispatchEvent(new CustomEvent('welcome-complete'));
       }, 0);
       return () => clearTimeout(handoffTimer);
@@ -37,31 +53,20 @@ export const WelcomeScreen = () => {
     // return visit (no re-greeting).
     delete window.__freshLoad;
 
-    // Helper to handle scrollbar lock without layout shift
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-
-    const lockScroll = () => {
-        document.body.style.overflow = 'hidden';
-        if (scrollbarWidth > 0) {
-            document.body.style.paddingRight = `${scrollbarWidth}px`;
-        }
-    };
-
-    const unlockScroll = () => {
-        document.body.style.overflow = '';
-        document.body.style.paddingRight = '';
-    };
-
     // Reduced-motion path: skip flash + flight; hide welcome and dispatch
     // handoff/complete events so Hero & HeroText proceed normally.
     if (reducedMotion) {
+      // No animation runs, so release the scroll lock immediately.
+      setWelcomeActive(false);
       if (containerRef.current) {
         containerRef.current.setAttribute('aria-hidden', 'true');
         containerRef.current.style.display = 'none';
       }
       // Defer to next tick so sibling components have attached their listeners.
       const handoffTimer = setTimeout(() => {
+        window.__welcomeHandoff = true;
         window.dispatchEvent(new CustomEvent('welcome-handoff'));
+        window.__welcomeComplete = true;
         window.dispatchEvent(new CustomEvent('welcome-complete'));
       }, 0);
       return () => clearTimeout(handoffTimer);
@@ -77,29 +82,37 @@ export const WelcomeScreen = () => {
     // Failure handler — guarantees we don't leave scroll locked or the rest
     // of the app waiting on handoff/complete events if timeline setup throws.
     const bailOut = (err: unknown) => {
+      // Genuine production error worth surfacing: setup failure leaves the
+      // greeting broken, so this stays ungated (the warns below are gated).
       console.error('[WelcomeScreen] Animation setup failed, bailing out:', err);
-      unlockScroll();
+      // Releasing the lock via state still works on the bail path: the hook's
+      // effect runs the release on the next commit, and the unmount-cleanup
+      // release is also guaranteed — so scroll is never left locked.
+      setWelcomeActive(false);
       if (containerRef.current) {
         containerRef.current.setAttribute('aria-hidden', 'true');
         containerRef.current.style.display = 'none';
       }
+      window.__welcomeHandoff = true;
       window.dispatchEvent(new CustomEvent('welcome-handoff'));
+      window.__welcomeComplete = true;
       window.dispatchEvent(new CustomEvent('welcome-complete'));
     };
 
     const tl = gsap.timeline({
       onComplete: () => {
-        unlockScroll();
+        setWelcomeActive(false);
         // Note: Don't call flightCtx.revert() here - animations are done
         // revert() would reset elements to pre-animation state causing visual glitch
         if (containerRef.current) {
           containerRef.current.style.display = 'none';
         }
+        window.__welcomeComplete = true;
         window.dispatchEvent(new CustomEvent('welcome-complete'));
       }
     });
 
-    lockScroll(); // Lock immediately
+    // Scroll is already locked via the welcomeActive state (initialised true).
 
     try {
 
@@ -170,17 +183,23 @@ export const WelcomeScreen = () => {
 
         // Validate targets exist with helpful error message
         if (!targetM || !targetA) {
-          console.warn('[WelcomeScreen] Target elements not found:', {
-            targetM: !!targetM,
-            targetA: !!targetA
-          });
+          if (process.env.NODE_ENV !== 'production') {
+            console.warn('[WelcomeScreen] Target elements not found:', {
+              targetM: !!targetM,
+              targetA: !!targetA
+            });
+          }
           // Dispatch handoff anyway to prevent UI from being stuck
+          window.__welcomeHandoff = true;
           window.dispatchEvent(new CustomEvent('welcome-handoff'));
           return;
         }
 
         if (!mRef.current || !aRef.current) {
-          console.warn('[WelcomeScreen] Letter refs not available');
+          if (process.env.NODE_ENV !== 'production') {
+            console.warn('[WelcomeScreen] Letter refs not available');
+          }
+          window.__welcomeHandoff = true;
           window.dispatchEvent(new CustomEvent('welcome-handoff'));
           return;
         }
@@ -244,6 +263,7 @@ export const WelcomeScreen = () => {
         // Kept OUTSIDE flightCtx (revert() would kill it) but captured in
         // handoffCall so the cleanup path can kill it on unmount.
         handoffCall = gsap.delayedCall(flightDuration - handoffDuration, () => {
+          window.__welcomeHandoff = true;
           window.dispatchEvent(new CustomEvent('welcome-handoff'));
         });
       }, [], "flightStart");
@@ -254,12 +274,12 @@ export const WelcomeScreen = () => {
       bailOut(err);
     }
 
-    // Cleanup on unmount
+    // Cleanup on unmount. The scroll lock itself is released by useScrollLock's
+    // own effect cleanup (ref-counted), so we don't touch body styles here.
     return () => {
       handoffCall?.kill();
       tl.kill();
       flightCtx.revert();
-      unlockScroll();
     };
   }, { scope: containerRef, dependencies: [reducedMotion] });
 

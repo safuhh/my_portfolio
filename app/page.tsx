@@ -1,6 +1,5 @@
 import { Hero } from '@/components/sections/Hero';
 import { Philosophy } from '@/components/sections/Philosophy';
-import { Services } from '@/components/sections/Services';
 import { ServicesV2 } from '@/components/sections/ServicesV2';
 import { Projects } from '@/components/sections/Projects';
 import { Archive } from '@/components/sections/Archive';
@@ -13,7 +12,6 @@ export default function Home() {
       <WelcomeScreen />
       <Hero />
       <Philosophy />
-      {/* <Services /> */}
       <ServicesV2 />
       <Projects />
       <Archive />

@@ -3,8 +3,14 @@
 import { useRef, useCallback } from 'react';
 import { useGSAP } from '@gsap/react';
 import { gsap } from '@/lib/gsap';
+import { useReducedMotion } from '@/lib/useReducedMotion';
 import { content, getHeroLetters } from '@/data';
 import { cursorBus } from '@/lib/cursorBus';
+import {
+  getRandomDirection,
+  getDirectionTransform,
+  triggerPortalLoop,
+} from '@/lib/portalAnimation';
 import styles from './HeroText.module.css';
 
 // ============================================
@@ -26,80 +32,6 @@ const TAGLINE_HIDDEN_WORDS = content.hero.taglineHidden;
 // Spotlight cursor size (radius in px)
 const SPOTLIGHT_SIZE = 80;
 
-// Portal animation directions
-type Direction = 'up' | 'down' | 'left' | 'right';
-const DIRECTIONS: Direction[] = ['up', 'down', 'left', 'right'];
-
-// Get random direction
-const getRandomDirection = (): Direction => {
-  return DIRECTIONS[Math.floor(Math.random() * DIRECTIONS.length)];
-};
-
-// Get transform values for a direction
-const getDirectionTransform = (direction: Direction, distance: number = 100) => {
-  switch (direction) {
-    case 'up':
-      return { x: 0, y: -distance };
-    case 'down':
-      return { x: 0, y: distance };
-    case 'left':
-      return { x: -distance, y: 0 };
-    case 'right':
-      return { x: distance, y: 0 };
-  }
-};
-
-// Get opposite direction
-const getOppositeDirection = (direction: Direction): Direction => {
-  switch (direction) {
-    case 'up': return 'down';
-    case 'down': return 'up';
-    case 'left': return 'right';
-    case 'right': return 'left';
-  }
-};
-
-// ============================================
-// PORTAL ANIMATION FUNCTION
-// ============================================
-
-/**
- * Triggers the infinite portal loop animation on a letter element
- * 1. Slide out in random direction (Power2.in - accelerating)
- * 2. Instantly teleport to opposite side
- * 3. Slide back in (Power2.out - decelerating snap)
- */
-const triggerPortalLoop = (letterElement: HTMLElement) => {
-  // Prevent overlapping animations
-  if (gsap.isTweening(letterElement)) return;
-
-  const direction = getRandomDirection();
-  const exitTransform = getDirectionTransform(direction, 110); // 110% to fully exit
-  const entryTransform = getDirectionTransform(getOppositeDirection(direction), 110);
-
-  const tl = gsap.timeline();
-
-  // Phase 1: Slide OUT (accelerating exit)
-  tl.to(letterElement, {
-    x: exitTransform.x + '%',
-    y: exitTransform.y + '%',
-    duration: 0.25,
-    ease: 'power2.in',
-  })
-  // Phase 2: Instant teleport to opposite side
-  .set(letterElement, {
-    x: entryTransform.x + '%',
-    y: entryTransform.y + '%',
-  })
-  // Phase 3: Slide back IN (decelerating snap)
-  .to(letterElement, {
-    x: '0%',
-    y: '0%',
-    duration: 0.35,
-    ease: 'power2.out',
-  });
-};
-
 // ============================================
 // COMPONENT
 // ============================================
@@ -111,14 +43,17 @@ export function HeroText() {
   const taglineRef = useRef<HTMLDivElement>(null);
   const taglineContainerRef = useRef<HTMLDivElement>(null);
   const taglineHiddenRef = useRef<HTMLParagraphElement>(null);
+  const reducedMotion = useReducedMotion();
 
   // Handle hover on portal letters
   const handleLetterHover = useCallback((e: React.MouseEvent<HTMLSpanElement>) => {
+    // Reduced motion: no portal loop on hover.
+    if (reducedMotion) return;
     const portalLetter = e.currentTarget.querySelector(`.${styles.portalLetter}`) as HTMLElement;
     if (portalLetter) {
       triggerPortalLoop(portalLetter);
     }
-  }, []);
+  }, [reducedMotion]);
 
   const cachedRect = useRef<DOMRect | null>(null);
   // PERF: Track spotlight ticker state - only run when hovering tagline
@@ -281,6 +216,16 @@ export function HeroText() {
     gsap.set([targetM, targetA], { opacity: 0 });
 
     const startAnimation = () => {
+      // Reduced motion: jump every target straight to its final visible state,
+      // skipping the cross-dissolve, portal slide-ins, and tagline tweens.
+      if (reducedMotion) {
+        gsap.set([targetM, targetA], { opacity: 1 });
+        gsap.set([mohedExpansionMasks, abbasExpansionMasks], { opacity: 1 });
+        gsap.set([...mohedExpansionLetters, ...abbasExpansionLetters], { x: '0%', y: '0%' });
+        gsap.set(taglineWords, { opacity: 1, y: 0, rotateX: 0, scale: 1 });
+        return;
+      }
+
       const tl = gsap.timeline({
         defaults: { ease: 'power3.out' },
       });
@@ -352,15 +297,22 @@ export function HeroText() {
       );
     };
 
-    // Listen for 'welcome-handoff' to start the animation
-    window.addEventListener('welcome-handoff', startAnimation);
+    // Start the entrance animation. Idempotent: if the one-shot handoff already
+    // fired before this mounted (HMR, route re-entry, StrictMode/Suspense
+    // remount), run immediately off the durable flag so the hero name + tagline
+    // never get stranded at opacity:0; otherwise wait for the event.
+    if (window.__welcomeHandoff) {
+      startAnimation();
+    } else {
+      window.addEventListener('welcome-handoff', startAnimation, { once: true });
+    }
     return () => window.removeEventListener('welcome-handoff', startAnimation);
-  }, { scope: sectionRef });
+  }, { scope: sectionRef, dependencies: [reducedMotion] });
 
   return (
     <section ref={sectionRef} className={styles.textAndArm}>
       {/* MOHED Text */}
-      <h1 ref={mohedRef} className={`${styles.heroText} ${styles.heroTextMohed}`}>
+      <h1 ref={mohedRef} data-hero-mohed className={`${styles.heroText} ${styles.heroTextMohed}`}>
         {MOHED_LETTERS.map((letter, index) => {
           const isTarget = index === 0;
 
@@ -392,7 +344,7 @@ export function HeroText() {
       </h1>
 
       {/* ABBAS Text */}
-      <h1 ref={abbasRef} className={`${styles.heroText} ${styles.heroTextAbbas}`}>
+      <h1 ref={abbasRef} data-hero-abbas className={`${styles.heroText} ${styles.heroTextAbbas}`}>
         {ABBAS_LETTERS_CONFIG.map((item, index) => {
           const isTarget = index === 0;
           const colorClass = item.color === 'purple' ? styles.textPurple : styles.textDark;
@@ -427,6 +379,7 @@ export function HeroText() {
       {/* Tagline with Spotlight Effect */}
       <div
         ref={taglineContainerRef}
+        data-tagline
         className={styles.taglineContainer}
         onMouseEnter={handleTaglineMouseEnter}
         onMouseLeave={handleTaglineMouseLeave}

@@ -21,11 +21,6 @@
       "outExpo": "cubic-bezier(0.16, 1, 0.3, 1)",
       "outQuart": "cubic-bezier(0.25, 1, 0.5, 1)",
       "inOutQuart": "cubic-bezier(0.76, 0, 0.24, 1)"
-    },
-    "framerMotion": {
-      "outExpo": [0.16, 1, 0.3, 1],
-      "outQuart": [0.25, 1, 0.5, 1],
-      "inOutQuart": [0.76, 0, 0.24, 1]
     }
   },
   "stagger": {

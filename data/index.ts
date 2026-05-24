@@ -25,7 +25,10 @@ import caseStudiesJson from './case-studies.json';
 import transitionsJson from './transitions.json';
 
 // Export typed data
-export const siteMetadata: SiteMetadata = siteMetadataJson;
+// `as SiteMetadata`: TS widens JSON string literals (e.g. openGraph.type) to
+// `string`, so the narrowed union types in SiteMetadata need an assertion at
+// this single boundary — same pattern as transitionsConfig below.
+export const siteMetadata: SiteMetadata = siteMetadataJson as SiteMetadata;
 export const content: Content = contentJson;
 export const navigation: Navigation = navigationJson;
 export const designTokens: DesignTokens = designTokensJson;
@@ -106,26 +109,13 @@ export const getAccentColors = () => designTokens.colors.accentPalette;
 
 export const getServicesFaces = () => content.services.faces;
 
-export const getAnimationDuration = (key: keyof typeof animationConfig.durations) =>
-  animationConfig.durations[key];
-
-// Type-safe easing getters for each format
-export const getGsapEasing = (key: keyof typeof animationConfig.easing.gsap) =>
-  animationConfig.easing.gsap[key];
-
-export const getCssEasing = (key: keyof typeof animationConfig.easing.css) =>
-  animationConfig.easing.css[key];
-
-export const getFramerMotionEasing = (key: keyof typeof animationConfig.easing.framerMotion) =>
-  animationConfig.easing.framerMotion[key];
-
 // Case study helpers
 export const getCaseStudy = (slug: string): CaseStudy | undefined => caseStudies[slug];
 
 export const getCaseStudySlugs = (): string[] => Object.keys(caseStudies);
 
 // Project / cross-lookup helpers
-export const getProject = (id: string): Project | undefined =>
+const getProject = (id: string): Project | undefined =>
   content.projects.items.find((p) => p.id === id);
 
 /** Convenience: resolve a project's theme color by slug. Falls back to the

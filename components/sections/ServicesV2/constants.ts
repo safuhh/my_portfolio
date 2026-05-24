@@ -7,10 +7,10 @@ import type { ServiceFace } from '@/data';
 export const ZONES: ReadonlyArray<ServiceFace> = getServicesFaces();
 
 /* Width of one tool cell on the dial strip, in CSS pixels. Doubles as the
-   notch spacing. Mirrors the GAP constant in services-stack-drum-dial-v3.html.
-   Kept as a JS constant (not a CSS var) because applyDial() multiplies it by
-   a fractional cell index to position the strip; a single source of truth
-   avoids drift between layout and the scroll-driven translateX. */
+   notch spacing. Kept as a JS constant (not a CSS var) because applyDial()
+   multiplies it by a fractional cell index to position the strip; a single
+   source of truth avoids drift between layout and the scroll-driven
+   translateX. */
 export const GAP_PX = 220;
 
 /* Padding cells at each end of the dial strip so the first and last real
@@ -18,10 +18,19 @@ export const GAP_PX = 220;
    Three is enough for the natural eased ease-in/ease-out at the boundaries. */
 export const PAD_CELLS = 3;
 
-/* Pin runway, in viewport heights. The mockup uses 10 — long enough that a
-   1vh wheel burst pans ~0.36 cells, so no individual gesture skips a zone.
-   See the inline comment at the bottom of services-stack-drum-dial-v3.html
-   for the math; reproduced here so future tuning has the rationale. */
+/* Pin runway, in viewport heights — how far you scroll (past the pin start)
+   to pan the dial from progress 0 to 1. 10vh is long enough that a single
+   1vh wheel burst pans only a fraction of a cell, so no individual gesture
+   can skip a zone.
+
+   Derivation: the trigger end is `+=window.innerHeight * PIN_RUNWAY_VH`, so
+   the full progress sweep costs 10 viewport heights of scroll. With ~28 real
+   cells spread across that sweep, one cell ≈ 10/28 ≈ 0.36vh of travel, i.e.
+   a 1vh burst advances ~1/0.36 ≈ 2.8 cells worth of progress before the
+   PIN_SCRUB lerp — comfortably under a zone width, which is several cells.
+   Note: this end is viewport-relative BY DESIGN (it scales with screen
+   height); see the matching note in DialServicesV2 before switching it to a
+   content-relative value. */
 export const PIN_RUNWAY_VH = 10;
 
 /* ScrollTrigger `scrub` value. With the longer pin runway above, a sharper
@@ -80,3 +89,29 @@ export const BAR_MIN_SCALE = 0.05;
 
 /* Px gap between a bar's scaled visual top and its riding label. */
 export const LABEL_RIDE_GAP_PX = 14;
+
+/* Dial hot-path falloff/gain constants. These shape how each cell responds to
+   its distance from the centred needle inside applyDial. Hoisted out of the
+   per-frame loop so the magic numbers have names and live next to the meter
+   constants they pair with. */
+
+/* Needle proximity falloff divisor. A cell's normalised proximity is
+   `1 - dist / NEEDLE_FALLOFF` (clamped at 0), where `dist` is the cell's
+   distance from the needle in cell-index units. Larger = wider, softer peak;
+   2.4 keeps the lit band ~2-3 cells wide on each side of the needle. */
+export const NEEDLE_FALLOFF = 2.4;
+
+/* Bar opacity ramp: opacity = BAR_OPACITY_MIN + eased * BAR_OPACITY_RANGE,
+   so far bars rest at 0.22 and the on-needle bar reaches 1.0. */
+export const BAR_OPACITY_MIN = 0.22;
+export const BAR_OPACITY_RANGE = 0.78;
+
+/* Tool-label opacity ramp: opacity = TOOL_OPACITY_MIN + t * TOOL_OPACITY_RANGE,
+   so far labels rest at 0.3 and the on-needle label reaches 1.0. Uses the raw
+   proximity `t` (not the smoothstepped `eased`) for a gentler text fade. */
+export const TOOL_OPACITY_MIN = 0.3;
+export const TOOL_OPACITY_RANGE = 0.7;
+
+/* Extra scale applied to the on-needle tool label: scale = 1 + t * LABEL_SCALE_GAIN,
+   so the centred label grows by up to 18% as it locks onto the needle. */
+export const LABEL_SCALE_GAIN = 0.18;

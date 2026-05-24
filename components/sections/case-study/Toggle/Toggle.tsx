@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { useBlockFadeIn } from "@/lib/useBlockFadeIn";
 import { useWordLineReveal } from "@/lib/useWordLineReveal";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { animationConfig } from "@/data";
 import type { ToggleContent, ToggleScreen } from "@/data";
@@ -33,6 +34,9 @@ export const Toggle = ({ label, titleLine1, titleAccent, screens }: ToggleConten
   const [mode, setMode] = useState<Mode>("list");
   const eyebrowId = useId();
 
+  // NOTE (F-IN-08): The rAF focus call assumes both mode buttons are always
+  // mounted. Roving-tabindex focus management breaks if either button is
+  // conditionally unmounted — keep both rendered at all times.
   const selectMode = (target: Mode) => {
     setMode(target);
     requestAnimationFrame(() => modeButtonsRef.current[target]?.focus());
@@ -69,7 +73,8 @@ export const Toggle = ({ label, titleLine1, titleAccent, screens }: ToggleConten
   );
   const xToRef = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
   const yToRef = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
-  const reducedMotionRef = useRef(false);
+  // useSyncExternalStore — correct at render time; no one-frame lag on first hover.
+  const reducedMotion = useReducedMotion();
 
   useBlockFadeIn(sectionRef, {
     start: cs.scrollTrigger.early,
@@ -106,33 +111,32 @@ export const Toggle = ({ label, titleLine1, titleAccent, screens }: ToggleConten
     };
   }, [mode]);
 
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    reducedMotionRef.current = mq.matches;
-    const onChange = (e: MediaQueryListEvent) => {
-      reducedMotionRef.current = e.matches;
-    };
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
-
+  // Cleanup quickTo tweens on unmount. Instances are created lazily on first
+  // hover (see ensureQuickTo) so this handles the case where hover occurred.
   useEffect(() => {
     const el = previewRef.current;
-    if (!el) return;
-    xToRef.current = gsap.quickTo(el, "left", { duration: 0.55, ease: "power3" });
-    yToRef.current = gsap.quickTo(el, "top", { duration: 0.55, ease: "power3" });
     return () => {
-      gsap.killTweensOf(el);
+      if (el) gsap.killTweensOf(el);
       xToRef.current = null;
       yToRef.current = null;
     };
   }, []);
 
+  // Create quickTo instances on first hover so they're never used before
+  // the previewRef element is available (avoids a race with useEffect([])).
+  const ensureQuickTo = () => {
+    if (!xToRef.current && previewRef.current) {
+      xToRef.current = gsap.quickTo(previewRef.current, "left", { duration: 0.55, ease: "power3" });
+      yToRef.current = gsap.quickTo(previewRef.current, "top",  { duration: 0.55, ease: "power3" });
+    }
+  };
+
   // `snap` short-circuits the spring by passing quickTo's optional
   // startValue equal to the target — collapses the tween to zero
   // duration so the first appearance doesn't swoosh in from origin.
   const movePreview = (clientX: number, clientY: number, snap = false) => {
-    if (snap || reducedMotionRef.current) {
+    ensureQuickTo();
+    if (snap || reducedMotion) {
       xToRef.current?.(clientX, clientX);
       yToRef.current?.(clientY, clientY);
     } else {
@@ -165,6 +169,12 @@ export const Toggle = ({ label, titleLine1, titleAccent, screens }: ToggleConten
           </h2>
         </div>
 
+        {/*
+          NOTE (F-IN-08): Both buttons must remain mounted unconditionally.
+          selectMode() uses modeButtonsRef to programmatically focus the
+          newly-active radio; conditional rendering would leave one ref null
+          and break roving-tabindex keyboard navigation.
+        */}
         <div
           ref={modesRef}
           className={styles.modes}

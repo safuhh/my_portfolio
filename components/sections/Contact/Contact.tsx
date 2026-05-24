@@ -35,6 +35,10 @@ const TIMING = {
 // tweened independently. Whitespace is rendered as a non-breaking space so it
 // doesn't collapse when each char is `display: inline-block` and the parent
 // switches to `white-space: normal` at mobile breakpoints.
+//
+// NOTE (F-IN-01): key={i} (index) is used intentionally. The input is always
+// a static string from the JSON import (see SPLITS at module scope) — the
+// character list never reorders or partially updates, so index keys are safe.
 function splitChars(text: string): ReactNode {
   return Array.from(text).map((ch, i) => (
     <span key={i} className={styles.char}>
@@ -68,6 +72,11 @@ export function Contact() {
   const [topic, setTopic] = useState<string | null>(null);
   const [channel, setChannel] = useState<string | null>(c.row3.defaultSelected);
   const [emailError, setEmailError] = useState(false);
+  const [mailtoLengthError, setMailtoLengthError] = useState(false);
+
+  // Maximum mailto: URL length before most OS / mail-client combinations
+  // silently fail (empirically ~2 000 chars; 1 800 gives comfortable headroom).
+  const MAILTO_MAX_LENGTH = 1800;
 
   useGSAP(() => {
     if (!sectionRef.current || !panelRef.current || !formRef.current) return;
@@ -179,31 +188,50 @@ export function Contact() {
     e.preventDefault();
 
     const trimmedEmail = email.trim();
-    const emailOk = /^\S+@\S+\.\S+$/.test(trimmedEmail);
+
+    // Use the browser's native email validator (type="email" input validity)
+    // rather than a hand-rolled regex — it handles edge cases that simple
+    // /^\S+@\S+\.\S+$/ patterns miss (missing TLD, IP literals, etc.).
+    const inputEl = formRef.current?.querySelector<HTMLInputElement>('input[name="email"]');
+    const emailOk = inputEl ? inputEl.validity.valid && trimmedEmail.length > 0 : trimmedEmail.includes('@');
     if (!emailOk) {
       setEmailError(true);
       return;
     }
     setEmailError(false);
+    setMailtoLengthError(false);
 
     const trimmedName = name.trim();
     const trimmedCountry = country.trim();
     const trimmedMessage = message.trim();
 
-    const subject = encodeURIComponent(`${topic ?? 'New message'} — ${trimmedName || 'A friend'}`);
+    // Use the same fallback in both subject and body so they're consistent.
+    const resolvedTopic = topic ?? 'New message';
+
+    const subject = encodeURIComponent(`${resolvedTopic} — ${trimmedName || 'A friend'}`);
     // CRLF is required by RFC 6068; Outlook collapses LF-only into one paragraph.
     const body = encodeURIComponent(
       [
         `Hi ${c.row1.recipient},`,
         '',
         `I'm ${trimmedName || '—'}, reaching out from ${trimmedCountry || '—'}.`,
-        `Topic: ${topic ?? '—'}.`,
+        `Topic: ${resolvedTopic}.`,
         `Best channel: ${channel ?? '—'} (${trimmedEmail || '—'}).`,
         '',
         trimmedMessage || '—',
       ].join('\r\n')
     );
-    window.location.href = `mailto:${c.fallback.email}?subject=${subject}&body=${body}`;
+
+    const href = `mailto:${c.fallback.email}?subject=${subject}&body=${body}`;
+
+    // Guard against OS / mail-client URL length limits. A URL that silently
+    // exceeds the limit produces no error and no email — surface it instead.
+    if (href.length > MAILTO_MAX_LENGTH) {
+      setMailtoLengthError(true);
+      return;
+    }
+
+    window.location.href = href;
   }
 
   return (
@@ -285,6 +313,8 @@ export function Contact() {
             />
           </div>
 
+          {/* NOTE (F-IN-01): key={i} on SUBMIT_CHARS is intentional — the array
+              is built once from the static c.submit string and never mutates. */}
           <button type="submit" className={styles.submit}>
             <span className={styles.submitTextWrap}>
               <span className={styles.submitTextBase}>
@@ -322,6 +352,18 @@ export function Contact() {
               </svg>
             </span>
           </button>
+
+          {/* Length-cap error: surfaced when the assembled mailto: URL would
+              silently exceed OS / mail-client limits (~1 800 chars). Ask the
+              user to shorten their message before retrying. */}
+          {mailtoLengthError && (
+            <p className={styles.fallback} role="alert" aria-live="polite">
+              Your message is too long for the email link. Please shorten it and try again, or email directly:{' '}
+              <a className={styles.fallbackLink} href={`mailto:${c.fallback.email}`}>
+                {c.fallback.email}
+              </a>
+            </p>
+          )}
 
           {/* Fallback for users without a configured mail handler. */}
           <p className={styles.fallback}>
@@ -429,6 +471,9 @@ function Chip({ label, selected, onSelect }: ChipProps) {
   // delay creating a left-to-right cascade. The clone is aria-hidden so it
   // doesn't duplicate the accessible name; visible base spans concatenate
   // into the button name automatically.
+  //
+  // NOTE (F-IN-01): key={i} on chars is intentional — chip labels come from
+  // the static JSON import (c.row2.options / c.row3.options) and never reorder.
   const chars = Array.from(label);
   return (
     <button

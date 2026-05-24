@@ -1,10 +1,15 @@
 import { ImageResponse } from "next/og";
 import siteMetadata from "@/data/site-metadata.json";
+import designTokens from "@/data/design-tokens.json";
 
 export const dynamic = "force-static";
 export const alt = siteMetadata.openGraph.title;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
+
+const ogBackground = designTokens.colors.ogBackground;
+const textColor = designTokens.colors.text.primary;
+const accentColor = designTokens.colors.accent.teal;
 
 export default function OpengraphImage() {
   return new ImageResponse(
@@ -17,8 +22,8 @@ export default function OpengraphImage() {
           flexDirection: "column",
           justifyContent: "space-between",
           padding: "80px",
-          background: "#f5f3ee",
-          color: "#1b2028",
+          background: ogBackground,
+          color: textColor,
           fontFamily: "system-ui, sans-serif",
         }}
       >
@@ -30,7 +35,7 @@ export default function OpengraphImage() {
             letterSpacing: "0.15em",
             textTransform: "uppercase",
             fontWeight: 600,
-            color: "#62B6CB",
+            color: accentColor,
           }}
         >
           MOHED ABBAS · DESIGNER
@@ -63,7 +68,7 @@ export default function OpengraphImage() {
               alignSelf: "flex-end",
             }}
           >
-            ABB<span style={{ color: "#62B6CB" }}>A</span>S
+            ABB<span style={{ color: accentColor }}>A</span>S
           </div>
         </div>
         <div

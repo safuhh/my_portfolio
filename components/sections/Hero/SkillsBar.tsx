@@ -5,15 +5,13 @@ import { content } from '@/data';
 import { StarIcon } from './StarIcon';
 import styles from './SkillsBar.module.css';
 
-// Build repeating skills array from base items
+// Build repeating skills array from base items.
+// Duplicate the whole base list so the marquee tail is derived generically
+// (no hardcoded indices) and stays well-defined for any data size. The render
+// then duplicates `skills` once more, so the content is laid out twice and the
+// seam-accurate loop distance is exactly scrollWidth / 2.
 const baseSkills = content.skills.marqueeItems;
-const skills = [
-  ...baseSkills,
-  baseSkills[1], // UI/UX
-  baseSkills[0], // INTERACTIVE
-  baseSkills[2], // BRAND STRATEGY
-  baseSkills[1], // UI/UX
-];
+const skills = [...baseSkills, ...baseSkills];
 
 export function SkillsBar() {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -26,17 +24,10 @@ export function SkillsBar() {
     const measureWidth = () => {
       const node = contentRef.current;
       if (!node) return;
-      const skillItems = node.querySelectorAll(`.${styles.skillItem}`);
-      const halfCount = skills.length;
-      let totalWidth = 0;
-      for (let i = 0; i < halfCount && i < skillItems.length; i++) {
-        const item = skillItems[i] as HTMLElement;
-        totalWidth += item.offsetWidth;
-      }
-      const computedStyle = getComputedStyle(node);
-      const gap = parseFloat(computedStyle.gap) || 0;
-      totalWidth += gap * halfCount;
-      node.style.setProperty('--scroll-width', `${totalWidth}px`);
+      // Measure the true loop distance directly. The content is rendered twice
+      // (skills + duplicate), so half the laid-out width is exactly one loop —
+      // seam-accurate with no integer-rounded offsetWidth + gap accumulation.
+      node.style.setProperty('--scroll-width', `${node.scrollWidth / 2}px`);
     };
 
     measureWidth();
@@ -55,7 +46,7 @@ export function SkillsBar() {
   );
 
   return (
-    <div className={styles.skillsBar} aria-hidden="true">
+    <div data-skills className={styles.skillsBar} aria-hidden="true">
       <div className={styles.skillsBarInner}>
         <div className={styles.skillsWrapper}>
           <div ref={contentRef} className={styles.skillsContent}>

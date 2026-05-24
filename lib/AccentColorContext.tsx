@@ -24,7 +24,10 @@ import { designTokens, features } from '@/data';
 // Color palette from design tokens
 const ACCENT_COLORS = designTokens.colors.accentPalette;
 
-const DEFAULT_INDEX = features.accentColorRotation.defaultColorIndex;
+const DEFAULT_INDEX = Math.min(
+  features.accentColorRotation.defaultColorIndex,
+  ACCENT_COLORS.length - 1
+);
 const STORAGE_KEY = features.welcomeScreen.storageKey;
 const CSS_VAR_NAME = features.accentColorRotation.cssVariableName;
 
@@ -42,7 +45,7 @@ const AccentColorContext = createContext<AccentColorContextType | null>(null);
 export function AccentColorProvider({ children }: { children: ReactNode }) {
   // Initialize with a function to compute initial state. Reads only — the
   // sessionStorage WRITE that marks "has loaded" happens in an effect below
-  // so that React 18 StrictMode's double-invocation of the initializer
+  // so that React StrictMode (dev)'s double-invocation of the initializer
   // doesn't make first load look like a refresh in dev.
   const [colorIndex, setColorIndex] = useState(() => {
     if (typeof window === 'undefined') {
@@ -58,7 +61,7 @@ export function AccentColorProvider({ children }: { children: ReactNode }) {
   });
 
   // Mark the session as loaded exactly once, on mount. Side effect lives in
-  // an effect so it survives StrictMode double-render in dev.
+  // an effect so it survives React StrictMode (dev) double-render.
   useEffect(() => {
     try {
       sessionStorage.setItem(STORAGE_KEY, 'true');
@@ -69,10 +72,19 @@ export function AccentColorProvider({ children }: { children: ReactNode }) {
 
   // Update CSS variable on mount and when color changes
   useEffect(() => {
-    document.documentElement.style.setProperty(
-      CSS_VAR_NAME,
-      ACCENT_COLORS[colorIndex]
-    );
+    const root = document.documentElement;
+    const prev = root.style.getPropertyValue(CSS_VAR_NAME);
+    const next = ACCENT_COLORS[colorIndex];
+    if (next) {
+      root.style.setProperty(CSS_VAR_NAME, next);
+    }
+    return () => {
+      if (prev) {
+        root.style.setProperty(CSS_VAR_NAME, prev);
+      } else {
+        root.style.removeProperty(CSS_VAR_NAME);
+      }
+    };
   }, [colorIndex]);
 
   // Cycle to next color (for menu open)

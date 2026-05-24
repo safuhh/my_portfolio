@@ -48,6 +48,10 @@ const DPR_CAP_DESKTOP = 2;
 const DPR_CAP_MOBILE = 1.5;
 const MOBILE_BREAKPOINT = 768;
 const FAR = -100000;
+// Off-screen sentinel test, derived from FAR so retuning FAR can't silently
+// break the `< OFFSCREEN` comparisons. FAR/2 is still far more negative than
+// any real on-screen coordinate.
+const OFFSCREEN = FAR / 2;
 
 const computeGridSpacing = (vw: number) =>
   Math.max(BASE_GRID_SPACING, Math.min(40, Math.round(vw / 96)));
@@ -138,7 +142,9 @@ function compileShader(
   gl.shaderSource(sh, src);
   gl.compileShader(sh);
   if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
-    console.error('[InteractiveBackground] shader compile:', gl.getShaderInfoLog(sh));
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('[InteractiveBackground] shader compile:', gl.getShaderInfoLog(sh));
+    }
     gl.deleteShader(sh);
     return null;
   }
@@ -216,7 +222,9 @@ export function InteractiveBackground() {
       const gl = (canvas.getContext('webgl', opts) ||
         canvas.getContext('experimental-webgl', opts)) as WebGLRenderingContext | null;
       if (!gl) {
-        console.info('[InteractiveBackground] mode=fallback reason=no-webgl');
+        if (process.env.NODE_ENV !== 'production') {
+          console.info('[InteractiveBackground] mode=fallback reason=no-webgl');
+        }
         return false;
       }
       vert = compileShader(gl, gl.VERTEX_SHADER, VERT_SRC);
@@ -228,7 +236,9 @@ export function InteractiveBackground() {
       gl.attachShader(program, frag);
       gl.linkProgram(program);
       if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-        console.error('[InteractiveBackground] link:', gl.getProgramInfoLog(program));
+        if (process.env.NODE_ENV !== 'production') {
+          console.error('[InteractiveBackground] link:', gl.getProgramInfoLog(program));
+        }
         return false;
       }
       gl.useProgram(program);
@@ -265,9 +275,14 @@ export function InteractiveBackground() {
         uHoverBoost: gl.getUniformLocation(program, 'uHoverBoost'),
       };
       glRef.current = gl;
-      const dbg = gl.getExtension('WEBGL_debug_renderer_info');
-      const renderer = dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : 'unknown';
-      console.info(`[InteractiveBackground] mode=webgl renderer="${renderer}"`);
+      // Use the standard RENDERER param. WEBGL_debug_renderer_info is
+      // deprecated in Firefox (its UNMASKED_* values are a fingerprinting
+      // surface); RENDERER may be masked in some browsers, which is fine for
+      // this dev-only diagnostic.
+      if (process.env.NODE_ENV !== 'production') {
+        const renderer = gl.getParameter(gl.RENDERER) || 'unknown';
+        console.info(`[InteractiveBackground] mode=webgl renderer="${renderer}"`);
+      }
       return true;
     };
 
@@ -336,14 +351,18 @@ export function InteractiveBackground() {
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-      // Pause once cursor is gone, eased mouse has reached the far sentinel,
-      // and the warp has fully decayed. The preserveDrawingBuffer canvas keeps
-      // the at-rest grid visible until the next mousemove wakes the ticker.
-      if (
-        !isHoveringRef.current &&
-        e.x < -1000 &&
-        moveFactorRef.current < 0.001
-      ) {
+      // Pause once the warp has fully decayed AND the eased cursor has
+      // converged on its target (no pending easing), so the ticker stops
+      // redrawing an identical at-rest grid every frame. Two cases reach the
+      // at-rest state:
+      //   - leave/blur: target is FAR, eased slides off past OFFSCREEN.
+      //   - hover-but-idle: cursor sits motionless inside the window; eased
+      //     converges on the (motionless) cursor and the warp decays to ~0.
+      // onMove/onLeave/onResize call startTicker(), so motion resumes for free.
+      // The preserveDrawingBuffer canvas keeps the last frame visible meanwhile.
+      const converged =
+        Math.abs(tx - e.x) < 0.01 && Math.abs(ty - e.y) < 0.01;
+      if (converged && moveFactorRef.current < 0.001) {
         moveFactorRef.current = 0;
         stopTicker();
       }
@@ -351,7 +370,7 @@ export function InteractiveBackground() {
     animateRef.current = animate;
 
     const onMove = (ev: MouseEvent) => {
-      if (easedRef.current.x < -1000) {
+      if (easedRef.current.x < OFFSCREEN) {
         // Coming back on-screen: seed eased to cursor so the warp appears
         // here instead of sliding in from off-screen.
         easedRef.current.x = ev.clientX;
@@ -380,7 +399,9 @@ export function InteractiveBackground() {
       // webglcontextrestored on recovery. Stop the ticker; keep the canvas
       // mounted so it can rebind on restore.
       ev.preventDefault();
-      console.warn('[InteractiveBackground] WebGL context lost — awaiting restore');
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn('[InteractiveBackground] WebGL context lost — awaiting restore');
+      }
       stopTicker();
       glRef.current = null;
       program = null;
@@ -390,7 +411,9 @@ export function InteractiveBackground() {
       uniformsRef.current = {};
     };
     const onRestored = () => {
-      console.info('[InteractiveBackground] WebGL context restored — rebuilding');
+      if (process.env.NODE_ENV !== 'production') {
+        console.info('[InteractiveBackground] WebGL context restored — rebuilding');
+      }
       if (!setupGL()) {
         setMode('fallback');
         return;
@@ -433,14 +456,18 @@ export function InteractiveBackground() {
   useEffect(() => {
     const { r, g, b } = hexToRgb(accentColor);
     const norm: [number, number, number] = [r / 255, g / 255, b / 255];
+    // Update the ref in every mode so a later GL mount reads the current accent.
     accentRgbRef.current = norm;
+    // GL-only work below; in fallback mode there is no context to push to and
+    // startTicker() would be a no-op (animateRef is null).
+    if (effectiveMode !== 'gl') return;
     const gl = glRef.current;
     const u = uniformsRef.current.uAccent;
     if (gl && u) {
       gl.uniform3f(u, norm[0], norm[1], norm[2]);
       startTicker();
     }
-  }, [accentColor, startTicker]);
+  }, [accentColor, effectiveMode, startTicker]);
 
   if (effectiveMode === 'fallback') {
     return (

@@ -9,6 +9,21 @@ import { useAccentColor } from "@/lib/AccentColorContext";
 import type { CaseStudyHeroContent } from "@/data";
 import styles from "./Hero.module.css";
 
+// ── Animation tuning constants (file-local; do not export) ──
+// Total scroll distance of the pinned grow phase, in viewport heights.
+// 0.25 intro fade-out + 1.0 grow + 0.1 hold tail = 1.35 TL units ≈ 1.35 vh.
+const HERO_PIN_VH = 1.35;
+// Badge fade trigger ends at this fraction of vh (badge gone halfway through pin).
+const HERO_BADGE_FADE_VH = 0.5;
+// Exit phase: card travels from pin-end to this offset in vh (pin-end + 1 vh).
+const HERO_EXIT_END_VH = 2.35;
+// Max parallax offset for the image inner on mouse move (pixels, ±).
+const HERO_PARALLAX_PX = 6;
+// Per-letter stagger duration for the title portal entrance (seconds).
+const HERO_LETTER_STAGGER = 0.08;
+// yPercent used to hide lede word-inners before they reveal.
+const HERO_LEDE_HIDE_YPCT = 110;
+
 // Portal-entry directions (matches landing hero — letter slides in from
 // outside its own mask along one of four cardinal axes).
 const PORTAL_DIRECTIONS = [
@@ -84,7 +99,7 @@ export function Hero({
           yPercent: 0,
           duration: 0.6,
           ease: "power2.out",
-          stagger: 0.08,
+          stagger: HERO_LETTER_STAGGER,
           delay: 0.1,
         });
 
@@ -159,7 +174,7 @@ export function Hero({
             .sort(([a], [b]) => a - b)
             .map(([, els]) => els);
 
-          gsap.set(ledeInners, { yPercent: 110 });
+          gsap.set(ledeInners, { yPercent: HERO_LEDE_HIDE_YPCT });
 
           ledeTL = gsap.timeline({ delay: 0.4 });
           lineGroups.forEach((group, lineIdx) => {
@@ -215,8 +230,8 @@ export function Hero({
           const handleMove = (e: MouseEvent) => {
             const nx = (e.clientX / window.innerWidth) * 2 - 1;
             const ny = (e.clientY / window.innerHeight) * 2 - 1;
-            xTo(nx * 6);
-            yTo(ny * 6);
+            xTo(nx * HERO_PARALLAX_PX);
+            yTo(ny * HERO_PARALLAX_PX);
           };
 
           window.addEventListener("mousemove", handleMove, { passive: true });
@@ -271,7 +286,7 @@ export function Hero({
 
         const placeholder = document.createElement("div");
         placeholder.className = card.className;
-        // WR-02: placeholder carries the image semantics so screen-reader
+        // Placeholder carries the image semantics so screen-reader
         // reading order stays inside the section. The body-fixed card
         // below is marked aria-hidden as the decorative visual.
         placeholder.setAttribute("role", "img");
@@ -288,8 +303,8 @@ export function Hero({
         placeholder.style.boxShadow = "none";
         placeholder.style.borderRadius = "0";
         placeholder.style.pointerEvents = "none";
-        // WR-03: .imageCard sets will-change to 5 props; inheriting that
-        // on a measurement-only div pins a permanent compositor layer for
+        // .imageCard sets will-change to 5 props; inheriting that on a
+        // measurement-only div pins a permanent compositor layer for
         // nothing. The placeholder never animates, so opt out explicitly.
         placeholder.style.willChange = "auto";
         if (originalParent) {
@@ -327,13 +342,13 @@ export function Hero({
           margin: 0,
           zIndex: 5,
           autoAlpha: 0,
-          // UI-BLOCKER: the body-fixed card has no interactive children
-          // (the back link lives in .metaCol, not inside the figure), and
-          // after the exit timeline translates the card to top:-vh its
-          // lower edge sits flush with y=0 of the viewport — intercepting
-          // clicks on downstream sections (e.g. Toggle's "List" button at
-          // scroll ≈ 7560px). Drop pointer-events from the start so the
-          // figure is purely decorative w.r.t. hit-testing.
+          // The body-fixed card has no interactive children (the back link
+          // lives in .metaCol, not inside the figure). After the exit
+          // timeline translates the card to top:-vh its lower edge sits
+          // flush with y=0 of the viewport — intercepting clicks on
+          // downstream sections (e.g. Toggle's "List" button at scroll
+          // ≈ 7560px). Drop pointer-events from the start so the figure is
+          // purely decorative w.r.t. hit-testing.
           pointerEvents: "none",
           "--card-radius": initialRadiusPx + "px",
         });
@@ -439,7 +454,7 @@ export function Hero({
         ScrollTrigger.create({
           trigger: section,
           start: "top top",
-          end: () => "+=" + window.innerHeight * 1.35,
+          end: () => "+=" + window.innerHeight * HERO_PIN_VH,
           pin: true,
           pinType: "fixed",
           scrub: 0.5,
@@ -468,7 +483,7 @@ export function Hero({
         ScrollTrigger.create({
           trigger: section,
           start: "top top",
-          end: () => "+=" + window.innerHeight * 0.5,
+          end: () => "+=" + window.innerHeight * HERO_BADGE_FADE_VH,
           scrub: 0.5,
           animation: badgeFadeTL,
           invalidateOnRefresh: true,
@@ -504,8 +519,8 @@ export function Hero({
 
         ScrollTrigger.create({
           trigger: section,
-          start: () => window.innerHeight * 1.35,
-          end: () => window.innerHeight * 2.35,
+          start: () => window.innerHeight * HERO_PIN_VH,
+          end: () => window.innerHeight * HERO_EXIT_END_VH,
           scrub: true,
           animation: exitTL,
           invalidateOnRefresh: true,
@@ -533,17 +548,16 @@ export function Hero({
         return () => {
           ScrollTrigger.removeEventListener("refresh", onRefresh);
           cardEntranceTween.kill();
-          // WR-01: st.kill() defaults to false and leaves masterTL,
-          // badgeFadeTL, and exitTL (plus their nested tweens with refs
-          // into the card / meta / title / lede DOM) in memory across
-          // mount/unmount cycles. Pass true so the bound animations get
-          // killed alongside their triggers.
+          // st.kill() defaults to false and leaves masterTL, badgeFadeTL,
+          // and exitTL (plus their nested tweens with refs into the card /
+          // meta / title / lede DOM) in memory across mount/unmount cycles.
+          // Pass true so the bound animations get killed alongside their triggers.
           ScrollTrigger.getAll().forEach((st) => {
             if (st.trigger === section || st.pin === card) st.kill(true);
           });
           gsap.set(card, { clearProps: "all" });
-          // WR-02: drop the AT-hiding attributes we stamped on the card
-          // so the next mount cycle starts from a clean slate.
+          // Drop the AT-hiding attributes we stamped on the card so the
+          // next mount cycle starts from a clean slate.
           card.removeAttribute("aria-hidden");
           card.removeAttribute("role");
           if (placeholder.isConnected) {
@@ -552,10 +566,10 @@ export function Hero({
           if (originalParent?.isConnected && card.parentElement !== originalParent) {
             originalParent.appendChild(card);
           } else if (card.parentElement === document.body) {
-            // CR-01: original slot is gone (section unmounted — route
-            // change, hot reload, matchMedia revocation). Without this
-            // branch the card stays parented to <body> for the rest of
-            // the page lifetime as an orphan fixed-position figure.
+            // Original slot is gone (section unmounted — route change,
+            // hot reload, matchMedia revocation). Without this branch the
+            // card stays parented to <body> for the rest of the page
+            // lifetime as an orphan fixed-position figure.
             card.remove();
           }
         };
@@ -570,6 +584,7 @@ export function Hero({
           inline-block structure so its rendered width matches the
           visible title to the pixel. See .titleSizer in CSS. */}
       <span className={styles.titleSizer} aria-hidden="true">
+        {/* key={i}: source is `title` — a static build-time prop, never reordered. */}
         {title.split("").map((letter, i) => (
           <span key={i} className={styles.titleLetter}>
             {letter}
@@ -604,6 +619,7 @@ export function Hero({
           })}
         </div>
         <p ref={ledeRef} className={styles.lede}>
+          {/* key={i}: source is `lede` — a static build-time prop split at spaces, never reordered. */}
           {ledeWords.map((word, i) => (
             <Fragment key={i}>
               <span className={styles.ledeWord}>
@@ -641,6 +657,7 @@ export function Hero({
       </div>
 
       <h1 ref={titleRef} className={styles.titleText} aria-label={title}>
+        {/* key={index}: source is `title` — a static build-time prop, never reordered. */}
         {title.split("").map((letter, index) => (
           <span
             key={index}

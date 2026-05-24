@@ -1,10 +1,11 @@
 'use client';
 
-import { type CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { gsap, ANIMATION_CONFIG } from '@/lib/gsap';
 import { content, getCaseStudy, getCaseStudySlugs } from '@/data';
 import { useReducedMotion } from '@/lib/useReducedMotion';
 import { useAccentColor } from '@/lib/AccentColorContext';
+import { cssVars } from '@/lib/cssVars';
 import { TransitionLink } from '@/components/transitions';
 import { WorksStickerList } from '@/components/sections/works-stickers/WorksStickerList';
 import { WorksPreview, type WorksPreviewEntry } from '@/components/sections/works-stickers/WorksPreview';
@@ -27,9 +28,8 @@ export function WorksStickersPage() {
   const [cursorHovered, setCursorHovered] = useState(false);
   const [cursorAccent, setCursorAccent] = useState<string | null>(null);
 
-  // Build a stable list of previewable projects — only those with a
-  // resolvable case-study hero image. The preview slider mounts all of
-  // these once; the active card is chosen by index, not by re-mount.
+  // Previewable projects — only those with a resolvable case-study hero
+  // image. Mounted once; active card selected by index, not by re-mount.
   const previewEntries = useMemo<WorksPreviewEntry[]>(() => {
     return worksIndex.projects.flatMap((project) => {
       const cs = getCaseStudy(project.id);
@@ -43,9 +43,9 @@ export function WorksStickersPage() {
     });
   }, [worksIndex.projects]);
 
-  // Index lookup: project.id → slot in previewEntries. -1 means "no
-  // preview for this project". Latched: we don't reset it on hover-end
-  // so the slider doesn't snap back to slot 0 mid-hide.
+  // Index lookup: project.id → slot in previewEntries.
+  // undefined means "no preview for this project" (Map.get miss).
+  // Latched: we don't reset on hover-end so the slider doesn't snap.
   const [previewIndex, setPreviewIndex] = useState(0);
   const [previewVisible, setPreviewVisible] = useState(false);
 
@@ -86,9 +86,7 @@ export function WorksStickersPage() {
     return () => ctx.revert();
   }, [reduced]);
 
-  const rootStyle: CSSProperties | undefined = cursorAccent
-    ? { ['--accent' as string]: cursorAccent }
-    : undefined;
+  const rootStyle = cursorAccent ? cssVars({ '--accent': cursorAccent }) : undefined;
 
   const count = String(worksIndex.projects.length).padStart(2, '0');
 

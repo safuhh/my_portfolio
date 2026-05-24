@@ -4,17 +4,20 @@ import { useSyncExternalStore } from 'react';
 
 const QUERY = '(prefers-reduced-motion: reduce)';
 
+let mql: MediaQueryList | null = null;
+const getMql = () =>
+  typeof window !== 'undefined' && window.matchMedia
+    ? (mql ??= window.matchMedia(QUERY))
+    : null;
+
 const subscribe = (onChange: () => void) => {
-  if (typeof window === 'undefined' || !window.matchMedia) return () => {};
-  const mql = window.matchMedia(QUERY);
-  mql.addEventListener('change', onChange);
-  return () => mql.removeEventListener('change', onChange);
+  const m = getMql();
+  if (!m) return () => {};
+  m.addEventListener('change', onChange);
+  return () => m.removeEventListener('change', onChange);
 };
 
-const getSnapshot = () =>
-  typeof window === 'undefined' || !window.matchMedia
-    ? false
-    : window.matchMedia(QUERY).matches;
+const getSnapshot = () => getMql()?.matches ?? false;
 const getServerSnapshot = () => false;
 
 export function useReducedMotion(): boolean {

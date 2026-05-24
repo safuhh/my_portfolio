@@ -3,6 +3,7 @@
 import { useRef, useEffect, useState } from 'react';
 import { useGSAP } from '@gsap/react';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
+import { useReducedMotion } from '@/lib/useReducedMotion';
 import { content } from '@/data';
 import { HeroText } from './HeroText';
 import { SkillsBar } from './SkillsBar';
@@ -10,15 +11,38 @@ import styles from './Hero.module.css';
 
 const INITIALS = content.welcomeScreen.initials;
 
+// Scroll range for the initials-to-navbar handoff, expressed in viewport heights.
+const SCROLL_RANGE_VH = 1;
+// Timeline tuning constants.
+const SCRUB_SMOOTHING = 1.75;
+const SKILLS_EXIT_YPERCENT = 300;
+
 export function Hero() {
   const heroRef = useRef<HTMLElement>(null);
   const spacerRef = useRef<HTMLDivElement>(null);
   const flyingMRef = useRef<HTMLSpanElement>(null);
   const flyingARef = useRef<HTMLSpanElement>(null);
-  const [welcomeDone, setWelcomeDone] = useState(false);
+  // Idempotent: if welcome already completed before this mounted (HMR, route
+  // re-entry, StrictMode/Suspense remount), the one-shot event has already
+  // fired. Read the durable flag at init so we never call setState
+  // synchronously inside the effect. SSR-safe (window-guarded) and never used
+  // in render, so no hydration mismatch.
+  const [welcomeDone, setWelcomeDone] = useState(
+    () => typeof window !== 'undefined' && window.__welcomeComplete === true
+  );
+  const reducedMotion = useReducedMotion();
 
   // Listen for welcome animation completion before enabling scroll animation
   useEffect(() => {
+    if (welcomeDone) return;
+
+    // Covers the flag flipping between this component's render and its effect.
+    // Deferred so the setState is never synchronous in the effect body.
+    if (window.__welcomeComplete) {
+      queueMicrotask(() => setWelcomeDone(true));
+      return;
+    }
+
     const onComplete = () => setWelcomeDone(true);
     window.addEventListener('welcome-complete', onComplete, { once: true });
 
@@ -31,7 +55,7 @@ export function Hero() {
     }
 
     return () => window.removeEventListener('welcome-complete', onComplete);
-  }, []);
+  }, [welcomeDone]);
 
   // Scroll-driven initials-to-navbar animation
   useGSAP(() => {
@@ -44,7 +68,7 @@ export function Hero() {
 
     // Set spacer height: hero visible height + scroll range for animation
     // Tighter range so Philosophy enters right as initials land in navbar
-    const scrollRange = window.innerHeight * 1.0;
+    const scrollRange = window.innerHeight * SCROLL_RANGE_VH;
     spacer.style.height = `${hero.offsetHeight + scrollRange}px`;
 
     // Query target elements (navbar is at page level, query from document)
@@ -56,11 +80,25 @@ export function Hero() {
 
     if (!targetM || !targetA || !navBrand || !navBrandM || !navBrandA) return;
 
-    // Query hero content to fade out
-    const mohedExps = hero.querySelectorAll('[class*="heroTextMohed"] .portal-expansion');
-    const abbasExps = hero.querySelectorAll('[class*="heroTextAbbas"] .portal-expansion');
-    const taglineContainer = hero.querySelector('[class*="taglineContainer"]');
-    const skillsBar = hero.querySelector('[class*="skillsBar"]');
+    // Query hero content to fade out. Keyed on stable data attributes — CSS-module
+    // substring selectors break under Next 16 + Turbopack hashed class names.
+    const mohedExps = hero.querySelectorAll('[data-hero-mohed] .portal-expansion');
+    const abbasExps = hero.querySelectorAll('[data-hero-abbas] .portal-expansion');
+    const taglineContainer = hero.querySelector('[data-tagline]');
+    const skillsBar = hero.querySelector('[data-skills]');
+
+    // Reduced motion: build the final resting state with no animated FLIP.
+    // Spacer height is still set above so scroll length/layout stay correct.
+    if (reducedMotion) {
+      gsap.set([flyingM, flyingA], { opacity: 0 });
+      gsap.set(navBrand, { opacity: 1 });
+      gsap.set([targetM, targetA], { opacity: 0 });
+      if (mohedExps.length > 0) gsap.set(mohedExps, { opacity: 0 });
+      if (abbasExps.length > 0) gsap.set(abbasExps, { opacity: 0 });
+      if (taglineContainer) gsap.set(taglineContainer, { opacity: 0 });
+      if (skillsBar) gsap.set(skillsBar, { yPercent: SKILLS_EXIT_YPERCENT });
+      return;
+    }
 
     // Helper: element offset relative to hero container
     // Since hero is position:fixed at (0,0), this returns viewport coordinates
@@ -148,7 +186,7 @@ export function Hero() {
       tl.to(taglineContainer, { opacity: 0, duration: 0.2, ease: 'power2.in' }, 0.08);
     }
     if (skillsBar) {
-      tl.to(skillsBar, { yPercent: 300, duration: 0.30, ease: 'power2.in' }, 0.385);
+      tl.to(skillsBar, { yPercent: SKILLS_EXIT_YPERCENT, duration: 0.30, ease: 'power2.in' }, 0.385);
     }
 
     // --- PHASE 5: Fly + shrink to navbar center (via SCALE, not fontSize) ---
@@ -182,13 +220,13 @@ export function Hero() {
     ScrollTrigger.create({
       trigger: spacer,
       start: 'top top',
-      end: () => `+=${window.innerHeight * 1.0}`,
-      scrub: 1.75,
+      end: () => `+=${window.innerHeight * SCROLL_RANGE_VH}`,
+      scrub: SCRUB_SMOOTHING,
       animation: tl,
       invalidateOnRefresh: true,
       onRefresh: () => {
         // Recalculate spacer height on resize/refresh
-        spacer.style.height = `${hero.offsetHeight + window.innerHeight * 1.0}px`;
+        spacer.style.height = `${hero.offsetHeight + window.innerHeight * SCROLL_RANGE_VH}px`;
         // Re-seed source fontSize + cached scale ratios so Phase 5 resolves
         // against the post-resize target sizes (clamp() CSS may change values).
         seedFlyingLetterTypography();
@@ -199,7 +237,7 @@ export function Hero() {
     // PERF: Defer refresh to avoid blocking main thread
     requestAnimationFrame(() => ScrollTrigger.refresh());
 
-  }, { dependencies: [welcomeDone] });
+  }, { dependencies: [welcomeDone, reducedMotion] });
 
   return (
     <>

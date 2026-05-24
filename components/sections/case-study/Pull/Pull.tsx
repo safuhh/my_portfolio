@@ -65,6 +65,8 @@ export const Pull = ({ attribution, act2, act3 }: PullContent) => {
             aria-label={quoteLabel}
           >
             <div ref={act2Ref} className={styles.act2} aria-hidden="true">
+              {/* Index keys are acceptable here: quote lines are static
+                  build-time content from case-studies.json and never reorder. */}
               {act2.map((line, i) => (
                 <span
                   key={i}
@@ -79,6 +81,7 @@ export const Pull = ({ attribution, act2, act3 }: PullContent) => {
               ))}
             </div>
             <div ref={act3Ref} className={styles.act3} aria-hidden="true">
+              {/* Same as act2: static build-time content. */}
               {act3.map((line, i) => (
                 <span
                   key={i}

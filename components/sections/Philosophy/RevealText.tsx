@@ -6,67 +6,17 @@ import { gsap, ScrollTrigger, ANIMATION_CONFIG } from '@/lib/gsap';
 import { hexToRgb } from '@/lib/colorUtils';
 import styles from './RevealText.module.css';
 import { useAccentColor } from '@/lib/AccentColorContext';
+import { useReducedMotion } from '@/lib/useReducedMotion';
+import {
+  getRandomDirection,
+  getDirectionTransform,
+  triggerPortalLoop,
+} from '@/lib/portalAnimation';
 
 interface RevealTextProps {
   text: string;
   highlights: string[];
 }
-
-// ============================================
-// PORTAL ANIMATION UTILITIES
-// ============================================
-
-type Direction = 'up' | 'down' | 'left' | 'right';
-const DIRECTIONS: Direction[] = ['up', 'down', 'left', 'right'];
-
-const getRandomDirection = (): Direction => {
-  return DIRECTIONS[Math.floor(Math.random() * DIRECTIONS.length)];
-};
-
-const getDirectionTransform = (direction: Direction, distance: number = 100) => {
-  switch (direction) {
-    case 'up': return { x: 0, y: -distance };
-    case 'down': return { x: 0, y: distance };
-    case 'left': return { x: -distance, y: 0 };
-    case 'right': return { x: distance, y: 0 };
-  }
-};
-
-const getOppositeDirection = (direction: Direction): Direction => {
-  switch (direction) {
-    case 'up': return 'down';
-    case 'down': return 'up';
-    case 'left': return 'right';
-    case 'right': return 'left';
-  }
-};
-
-// Single portal loop animation for a letter
-const triggerPortalLoop = (letterElement: HTMLElement) => {
-  if (gsap.isTweening(letterElement)) return;
-
-  const direction = getRandomDirection();
-  const exitTransform = getDirectionTransform(direction, 110);
-  const entryTransform = getDirectionTransform(getOppositeDirection(direction), 110);
-
-  gsap.timeline()
-    .to(letterElement, {
-      x: exitTransform.x + '%',
-      y: exitTransform.y + '%',
-      duration: 0.25,
-      ease: 'power2.in',
-    })
-    .set(letterElement, {
-      x: entryTransform.x + '%',
-      y: entryTransform.y + '%',
-    })
-    .to(letterElement, {
-      x: '0%',
-      y: '0%',
-      duration: 0.35,
-      ease: 'power2.out',
-    });
-};
 
 // ============================================
 // COLOR INTERPOLATION
@@ -104,6 +54,10 @@ export function RevealText({ text, highlights }: RevealTextProps) {
   const animationIntervals = useRef<number[]>([]);
   // PERF: AbortController for cleaner async animation cancellation
   const abortControllerRef = useRef<AbortController | null>(null);
+  // Tracks the delayedCall that kicks off startAsyncAnimations so it can be
+  // killed on unmount before it escapes the useGSAP context.
+  const staggerCall = useRef<gsap.core.Tween | null>(null);
+  const reducedMotion = useReducedMotion();
   const { color: accentColor } = useAccentColor();
   const phase2TriggerRef = useRef<ScrollTrigger | null>(null);
   const highlightWordsRef = useRef<NodeListOf<Element> | null>(null);
@@ -142,6 +96,18 @@ export function RevealText({ text, highlights }: RevealTextProps) {
     // ============================================
     // INITIAL STATES
     // ============================================
+    // Reduced motion: show everything legibly up front and skip all
+    // scrubbed reveals, the letter stagger, and the indefinite portal churn.
+    if (reducedMotion) {
+      gsap.set(normalWords, { opacity: 1, clearProps: 'transform' });
+      gsap.set(highlightWords, { opacity: 1 });
+      gsap.set(highlightLetters, { x: '0%', y: '0%' });
+      (normalWords as NodeListOf<HTMLElement>).forEach((word) => {
+        word.style.opacity = '1';
+      });
+      return;
+    }
+
     gsap.set(highlightWords, { opacity: 0 });
 
     highlightLetters.forEach((letter) => {
@@ -222,8 +188,14 @@ export function RevealText({ text, highlights }: RevealTextProps) {
         });
       });
 
-      // Start async continuous animations after initial reveal
-      gsap.delayedCall(letterDuration + maxRandomDelay + 0.3, startAsyncAnimations);
+      // Start async continuous animations after initial reveal.
+      // Tracked so unmount during this window can kill it before it fires
+      // startAsyncAnimations on detached nodes (its fresh AbortController
+      // would otherwise escape the pre-unmount abort).
+      staggerCall.current = gsap.delayedCall(
+        letterDuration + maxRandomDelay + 0.3,
+        startAsyncAnimations
+      );
     };
 
     // ============================================
@@ -302,7 +274,13 @@ export function RevealText({ text, highlights }: RevealTextProps) {
 
     // Cleanup
     return () => {
-      // PERF: Abort all pending animations first
+      // Kill the pending stagger->startAsyncAnimations handoff first. If we
+      // unmount in the window after the stagger but before this fires, it
+      // would otherwise run post-unmount and schedule timeouts/tweens against
+      // detached letters via a fresh AbortController that escapes the abort.
+      staggerCall.current?.kill();
+      staggerCall.current = null;
+      // PERF: Abort all pending animations
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
@@ -313,9 +291,14 @@ export function RevealText({ text, highlights }: RevealTextProps) {
       // scheduling — without this, portal-loop tweens can keep running for
       // up to 600ms after unmount.
       gsap.killTweensOf(highlightLetters);
+      // Reset the reveal latch so a StrictMode/HMR remount can cleanly
+      // re-reveal instead of being suppressed by a stale latch.
+      // (revealTriggered is a fresh closure local per effect run, so it does
+      // not need resetting here.)
+      hasAnimated.current = false;
     };
 
-  }, { scope: containerRef, dependencies: [words] });
+  }, { scope: containerRef, dependencies: [words, reducedMotion] });
 
   // Refresh cached endpoints + re-apply highlight colors when accent changes
   // (e.g. menu close cycles color). Phase-2 onUpdate then keeps writing the
@@ -343,6 +326,10 @@ export function RevealText({ text, highlights }: RevealTextProps) {
 
   return (
     <h2 ref={containerRef} className={styles.statementText} aria-label={text}>
+      {/* Robust, always-present text source for AT — the animated spans below
+          are purely decorative (aria-hidden). Backstops aria-label so the
+          heading is never silent even if older AT falls back to text content. */}
+      <span className="sr-only">{text}</span>
       {words.map(({ word, index, isHighlight }, i) => {
         const wordEl = isHighlight ? (
           <span

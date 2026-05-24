@@ -12,7 +12,7 @@ type NextCaseProps = NextCaseContent & {
 };
 
 export const NextCase = ({ slug, counter, target }: NextCaseProps) => {
-  // CR-02: When the target case study isn't ready yet, rendering an
+  // When the target case study isn't ready yet, rendering an
   // <a href="#"> with preventDefault is a footgun — middle-click /
   // Cmd-click / right-click → "Open in new tab" all bypass the onClick
   // handler and open the current page with a `#`, dumping the user back
@@ -41,7 +41,7 @@ export const NextCase = ({ slug, counter, target }: NextCaseProps) => {
           <Image
             className={styles.image}
             src={target.image}
-            alt={target.alt}
+            alt={target.alt ?? target.title}
             width={2400}
             height={1500}
             sizes="(min-width: 1024px) 50vw, 100vw"

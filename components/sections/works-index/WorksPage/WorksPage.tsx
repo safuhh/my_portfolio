@@ -1,9 +1,10 @@
 'use client';
 
-import { type CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { gsap, ANIMATION_CONFIG } from '@/lib/gsap';
 import { content, getCaseStudy, getCaseStudySlugs } from '@/data';
 import { useReducedMotion } from '@/lib/useReducedMotion';
+import { cssVars } from '@/lib/cssVars';
 import { WorksIndex } from '@/components/sections/works-index/WorksIndex';
 import { WorksCursor } from '@/components/sections/works-index/WorksCursor';
 import { WorksPreview, type WorksPreviewEntry } from '@/components/sections/works-stickers/WorksPreview';
@@ -19,10 +20,11 @@ export function WorksPage() {
   const [cursorHovered, setCursorHovered] = useState(false);
   const [cursorAccent, setCursorAccent] = useState<string | null>(null);
 
-  // Preview slider — same Toggle-pattern as /work2. Builds a stable list of
-  // previewable projects (only those with a resolvable case-study hero
-  // image), then drives the slider by index. Latched on hover-end so the
-  // slider doesn't snap back to slot 0 mid-hide.
+  // Preview slider — same Toggle-pattern as /work2. Filters projects to
+  // those with a resolvable case-study hero image, then drives the slider by
+  // index. Latched on hover-end so the slider doesn't snap back to slot 0
+  // mid-hide. worksIndex.projects is a build-time JSON ref so this memo
+  // runs once.
   const previewEntries = useMemo<WorksPreviewEntry[]>(() => {
     return worksIndex.projects.flatMap((project) => {
       const cs = getCaseStudy(project.id);
@@ -76,9 +78,7 @@ export function WorksPage() {
   }, [reduced]);
 
   // Page-wide accent for the headline dot — kept in sync with the cursor.
-  const rootStyle: CSSProperties | undefined = cursorAccent
-    ? { ['--accent' as string]: cursorAccent }
-    : undefined;
+  const rootStyle = cursorAccent ? cssVars({ '--accent': cursorAccent }) : undefined;
 
   const count = String(worksIndex.projects.length).padStart(2, '0');
 

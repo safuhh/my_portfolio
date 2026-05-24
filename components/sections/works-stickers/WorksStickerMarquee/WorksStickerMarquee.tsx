@@ -1,6 +1,8 @@
-import { type CSSProperties } from 'react';
+'use client';
+
 import { StarIcon } from '@/components/sections/Hero/StarIcon';
 import { useReducedMotion } from '@/lib/useReducedMotion';
+import { cssVars } from '@/lib/cssVars';
 import styles from './WorksStickerMarquee.module.css';
 
 export interface WorksStickerMarqueeProps {
@@ -35,9 +37,9 @@ export function WorksStickerMarquee({
   repeats = 6,
 }: WorksStickerMarqueeProps) {
   const reduced = useReducedMotion();
-  const trackStyle: CSSProperties = {
-    ['--marquee-dur' as string]: `${durationSec}s`,
-  };
+  // reduced is folded into isPaused below — both hover-pause and reduced-motion
+  // result in the same CSS paused class; no separate gate is needed.
+  const trackStyle = cssVars({ '--marquee-dur': `${durationSec}s` });
 
   const chunkClass = `${styles.chunk}${outline ? ` ${styles.outline}` : ''}`;
   const isPaused = paused || reduced;

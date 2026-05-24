@@ -6,6 +6,7 @@ import { gsap, ScrollTrigger, ANIMATION_CONFIG } from '@/lib/gsap';
 import { useReducedMotion } from '@/lib/useReducedMotion';
 import { useAccentColor } from '@/lib/AccentColorContext';
 import { TransitionLink } from '@/components/transitions';
+import { StarIcon } from '@/components/sections/Hero/StarIcon';
 import { content } from '@/data';
 import styles from './Archive.module.css';
 
@@ -17,6 +18,9 @@ import styles from './Archive.module.css';
 type Direction = 'up' | 'down' | 'left' | 'right';
 const DIRECTIONS: Direction[] = ['up', 'down', 'left', 'right'];
 const PORTAL_DISTANCE = 110;
+// Minimum and maximum additional jitter (ms) for the continuous letter-loop scheduler.
+const PORTAL_LOOP_MIN_MS = 3000;
+const PORTAL_LOOP_JITTER_MS = 3000;
 
 // Archive hold: once the section fills the viewport, pin it for this many
 // viewport-heights of scroll, then release toward Contact. The statement and
@@ -147,7 +151,7 @@ export function Archive() {
         portalLetters.forEach((letter) => {
           const scheduleNext = () => {
             if (signal.aborted) return;
-            const delay = 3000 + Math.random() * 3000;
+            const delay = PORTAL_LOOP_MIN_MS + Math.random() * PORTAL_LOOP_JITTER_MS;
             const id = window.setTimeout(() => {
               if (signal.aborted) return;
               triggerPortalLoop(letter);
@@ -156,7 +160,7 @@ export function Archive() {
             timeoutsRef.current.push(id);
           };
 
-          const initialDelay = Math.random() * 3000;
+          const initialDelay = Math.random() * PORTAL_LOOP_JITTER_MS;
           const id = window.setTimeout(() => {
             if (signal.aborted) return;
             triggerPortalLoop(letter);
@@ -273,32 +277,22 @@ export function Archive() {
         if (footTween.scrollTrigger) footTween.scrollTrigger.kill();
         revealTrigger.kill();
         colorTrigger.kill();
+        // Remove the highlight class that colorTrigger stamps; without this
+        // Fast-Refresh / matchMedia revoke leaves hlOn in place and the
+        // re-mounted trigger never re-fires the onEnter.
+        section.classList.remove(styles.hlOn);
         archivePin.kill();
         if (window.scrollY !== savedScrollY) window.scrollTo(0, savedScrollY);
       };
     },
-    { scope: wrapperRef, dependencies: [reducedMotion, words] }
+    { scope: wrapperRef, dependencies: [reducedMotion] }
   );
 
   return (
     <div ref={wrapperRef} id="archive-wrapper" className={styles.wrapper}>
       <section ref={sectionRef} className={styles.section} id="archive">
         <div ref={labelRef} className={styles.metaLabel}>
-          <svg
-            className={styles.starIcon}
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
-          >
-            <path
-              d="M12 0C12 0 14.5 9.5 24 12C14.5 14.5 12 24 12 24C12 24 9.5 14.5 0 12C9.5 9.5 12 0 12 0Z"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinejoin="round"
-              fill="none"
-            />
-          </svg>
+          <StarIcon variant="outline" baseClassName={styles.starIcon} />
           {archive.label}
         </div>
 

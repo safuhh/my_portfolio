@@ -6,24 +6,23 @@ import Lenis from 'lenis';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
 
 // Snapshot GSAP's lagSmoothing threshold ONCE per page lifetime so that under
-// React 18 StrictMode dev (mount→unmount→remount) the second mount doesn't
+// React StrictMode (dev) (mount→unmount→remount) the second mount doesn't
 // capture the already-zeroed value and restore `0` on final unmount. Module
 // scope is the only place where StrictMode can't double-run us.
 let originalLagSmoothing: number | null = null;
 function snapshotLagSmoothing(): number {
   if (originalLagSmoothing === null && typeof window !== 'undefined') {
-    originalLagSmoothing = (
-      gsap.ticker.lagSmoothing as unknown as () => number
-    )();
+    const fn = gsap.ticker.lagSmoothing as (threshold?: number, adjustedLag?: number) => number;
+    originalLagSmoothing = fn();
   }
-  return originalLagSmoothing ?? 33;
+  return originalLagSmoothing ?? 500;
 }
 
 // ============================================
 // LENIS CONTEXT - Allows child components to scroll programmatically
 // ============================================
 interface LenisContextValue {
-  scrollTo: (target: string | number | HTMLElement, options?: { offset?: number; duration?: number }) => void;
+  scrollTo: (target: string | number | HTMLElement, options?: { offset?: number; duration?: number; easing?: (t: number) => number }) => void;
 }
 
 const LenisContext = createContext<LenisContextValue>({
@@ -42,7 +41,7 @@ interface LenisProviderProps {
 export function LenisProvider({ children }: LenisProviderProps) {
   const lenisRef = useRef<Lenis | null>(null);
   const pathname = usePathname();
-  const firstRouteRef = useRef(true);
+  const initialPathRef = useRef<string | null>(null);
 
   useEffect(() => {
     // Initialize Lenis
@@ -75,12 +74,11 @@ export function LenisProvider({ children }: LenisProviderProps) {
     gsap.ticker.add(tick);
     gsap.ticker.lagSmoothing(0); // Required by Lenis to keep scroll timing accurate
 
-    // PERF: Handle visibility change - sync when tab becomes visible
+    // PERF: Handle visibility change - sync when tab becomes visible.
+    // The tick loop already gates lenis.raf on !document.hidden, so Lenis
+    // resumes on the next visible frame; we only nudge ScrollTrigger here.
     const handleVisibilityChange = () => {
-      if (!document.hidden && lenisRef.current) {
-        // Sync scroll state when tab regains focus
-        lenisRef.current.raf(performance.now());
-      }
+      if (!document.hidden) ScrollTrigger.update();
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
@@ -103,8 +101,13 @@ export function LenisProvider({ children }: LenisProviderProps) {
   // the inline reset and ScrollTrigger.refresh() runs before any page-level
   // triggers exist.
   useEffect(() => {
-    if (firstRouteRef.current) {
-      firstRouteRef.current = false;
+    if (initialPathRef.current === null) {
+      // Cold load: record the initial path and do nothing (layout.tsx owns it).
+      initialPathRef.current = pathname;
+      return;
+    }
+    if (initialPathRef.current === pathname) {
+      // StrictMode remount on the same path — keep the first run a no-op.
       return;
     }
     const lenis = lenisRef.current;
@@ -117,7 +120,7 @@ export function LenisProvider({ children }: LenisProviderProps) {
     ScrollTrigger.update();
   }, [pathname]);
 
-  const scrollTo = useCallback((target: string | number | HTMLElement, options?: { offset?: number; duration?: number }) => {
+  const scrollTo = useCallback((target: string | number | HTMLElement, options?: { offset?: number; duration?: number; easing?: (t: number) => number }) => {
     lenisRef.current?.scrollTo(target, options);
   }, []);
 

@@ -60,14 +60,18 @@ export function indexAtNeedle(progress: number, realCount: number): number {
   return progress * Math.max(0, realCount - 1) + PAD_CELLS;
 }
 
-/* Closest real cell to a fractional needle index. Clamps to the real-cell
-   range so that progress values right at the boundaries (e.g. idxFloat
-   exactly PAD_CELLS - 0.5) round down to the padding zone instead of
-   silently dropping the swap. Returns null only if the cells array hasn't
-   been seeded yet (defensive — shouldn't happen post-mount).
+/* Closest real cell to a fractional needle index. Rounds `idxFloat` to the
+   nearest cell, then clamps that index into the real-cell range so a needle
+   parked just past either edge (e.g. idxFloat < PAD_CELLS, which would
+   otherwise round onto a leading-pad cell) snaps to the first/last real cell
+   rather than dropping the swap.
 
    `realCount = cells.length - 2*PAD_CELLS`, so the inclusive real range is
-   [PAD_CELLS, PAD_CELLS + realCount - 1] = [PAD_CELLS, cells.length - 1 - PAD_CELLS]. */
+   [PAD_CELLS, PAD_CELLS + realCount - 1] = [PAD_CELLS, cells.length - 1 - PAD_CELLS].
+   The clamp therefore always lands on a real cell, so the trailing
+   `!cell.isPad` check is a belt-and-suspenders guard, not a reachable path.
+   Returns null only if the cells array hasn't been seeded yet (defensive —
+   shouldn't happen post-mount). */
 export function tunedAt(
   idxFloat: number,
   cells: ReadonlyArray<DialCell>,

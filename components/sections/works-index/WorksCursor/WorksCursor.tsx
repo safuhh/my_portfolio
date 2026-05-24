@@ -1,7 +1,9 @@
 'use client';
 
-import { type CSSProperties, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { gsap } from '@/lib/gsap';
+import { useReducedMotion } from '@/lib/useReducedMotion';
+import { cssVars } from '@/lib/cssVars';
 import styles from './WorksCursor.module.css';
 
 export interface WorksCursorProps {
@@ -19,9 +21,20 @@ export function WorksCursor({ hovered, accent, label = 'Open' }: WorksCursorProp
   const quickXRef = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
   const quickYRef = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
 
+  const reduced = useReducedMotion();
+
   useEffect(() => {
     const el = ref.current;
     if (!el) return undefined;
+
+    // Only attach the cursor spring on devices that support hover with a fine
+    // pointer (mouse / trackpad), matching the (hover: hover) and (pointer:
+    // fine) gate used by the case-study Hero parallax. On coarse-pointer or
+    // touch devices the cursor element is invisible anyway; on reduced-motion
+    // we skip the quickTo spring entirely. Both cases return a no-op cleanup.
+    if (reduced || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      return undefined;
+    }
 
     quickXRef.current = gsap.quickTo(el, 'x', { duration: 0.25, ease: 'power3' });
     quickYRef.current = gsap.quickTo(el, 'y', { duration: 0.25, ease: 'power3' });
@@ -33,12 +46,10 @@ export function WorksCursor({ hovered, accent, label = 'Open' }: WorksCursorProp
 
     window.addEventListener('mousemove', onMove, { passive: true });
     return () => window.removeEventListener('mousemove', onMove);
-  }, []);
+  }, [reduced]);
 
   const className = `${styles.cursor}${hovered ? ` ${styles.onRow}` : ''}`;
-  const style: CSSProperties | undefined = accent
-    ? { ['--cursor-accent' as string]: accent }
-    : undefined;
+  const style = accent ? cssVars({ '--cursor-accent': accent }) : undefined;
 
   return (
     <div ref={ref} className={className} style={style} aria-hidden="true">

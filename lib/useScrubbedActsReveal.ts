@@ -4,6 +4,18 @@ import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { splitTextIntoWords, type SplitResult } from "@/lib/splitTextIntoWords";
 import staggerStyles from "./staggerText.module.css";
 
+// Scrubbed three-act reveal tuning.
+const REVEAL_YPERCENT = 110; // initial offset of each word's inner span
+const ACT_SCRUB = 0.6; // scrub smoothing for both stage timelines
+const PIN_END = "+=180%"; // pin scrub range (% of viewport)
+const ACT1_START = "top 80%"; // Stage 1 pre-pin trigger start
+const ACT1_END = "top 10%"; // Stage 1 pre-pin trigger end
+const PIN_START = "top top"; // Stage 2 pin start
+const ACT_OFFSET = 0.55; // Act 3 entry on the pin timeline (0 → 1)
+const ACT1_STAGGER = 0.6; // total stagger window for Act 1 words
+const ACT2_STAGGER = 0.45; // total stagger window for Act 2 words
+const ACT3_STAGGER = 0.4; // total stagger window for Act 3 words
+
 interface UseScrubbedActsRevealOptions {
   scope: RefObject<HTMLElement | null>;
   sticky: RefObject<HTMLElement | null>;
@@ -84,7 +96,7 @@ export function useScrubbedActsReveal({
           }
 
           gsap.set([...inners1, ...inners2, ...inners3], {
-            yPercent: 110,
+            yPercent: REVEAL_YPERCENT,
             opacity: 0,
           });
 
@@ -93,9 +105,9 @@ export function useScrubbedActsReveal({
             const tl1 = gsap.timeline({
               scrollTrigger: {
                 trigger: sectionEl,
-                start: "top 80%",
-                end: "top 10%",
-                scrub: 0.6,
+                start: ACT1_START,
+                end: ACT1_END,
+                scrub: ACT_SCRUB,
                 invalidateOnRefresh: true,
               },
             });
@@ -105,7 +117,7 @@ export function useScrubbedActsReveal({
               opacity: 1,
               duration: 1,
               ease: "power2.out",
-              stagger: 0.6 / Math.max(inners1.length, 1),
+              stagger: ACT1_STAGGER / Math.max(inners1.length, 1),
             });
           }
 
@@ -118,9 +130,9 @@ export function useScrubbedActsReveal({
             const tl2 = gsap.timeline({
               scrollTrigger: {
                 trigger: sectionEl,
-                start: "top top",
-                end: "+=180%",
-                scrub: 0.6,
+                start: PIN_START,
+                end: PIN_END,
+                scrub: ACT_SCRUB,
                 pin: stickyEl,
                 pinType: "fixed",
                 anticipatePin: 1,
@@ -137,7 +149,7 @@ export function useScrubbedActsReveal({
                   opacity: 1,
                   duration: 1,
                   ease: "power2.out",
-                  stagger: 0.45 / Math.max(inners2.length, 1),
+                  stagger: ACT2_STAGGER / Math.max(inners2.length, 1),
                 },
                 0
               );
@@ -151,9 +163,9 @@ export function useScrubbedActsReveal({
                   opacity: 1,
                   duration: 1,
                   ease: "power2.out",
-                  stagger: 0.4 / Math.max(inners3.length, 1),
+                  stagger: ACT3_STAGGER / Math.max(inners3.length, 1),
                 },
-                0.55
+                ACT_OFFSET
               );
             }
           }
@@ -173,9 +185,6 @@ export function useScrubbedActsReveal({
           return () => {
             cancelAnimationFrame(refreshFrame);
             triggers.forEach((t) => t.kill());
-            gsap.set([...inners1, ...inners2, ...inners3], {
-              clearProps: "transform,opacity",
-            });
             split1.revert();
             split2.revert();
             split3.revert();
@@ -186,6 +195,13 @@ export function useScrubbedActsReveal({
           };
         }
       );
+
+      // mm.revert() invokes the mm.add() inner cleanup above (killing
+      // triggers and releasing pin-spacers); useGSAP does not own the
+      // matchMedia registry, so tear it down on unmount.
+      return () => {
+        mm.revert();
+      };
     },
     { scope }
   );

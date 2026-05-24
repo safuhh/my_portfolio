@@ -82,6 +82,20 @@ a.projectSticky {
     cursor: pointer;
 }
 
+/* Open-state click gate. The gate is armed only when JS sets `data-split-gated`
+   on the #projects container (motion allowed) — so no-JS / reduced-motion keeps
+   cards clickable via the default rule above. While armed, a card is inert until
+   its split has opened (`data-open="true"`, set from the timeline progress). */
+[data-split-gated="true"] a.projectSticky {
+    pointer-events: none;
+    cursor: default;
+}
+
+[data-split-gated="true"] a.projectSticky[data-open="true"] {
+    pointer-events: auto;
+    cursor: pointer;
+}
+
 /* THE SPLIT TEXT */
 .titleWrapper {
     position: absolute;

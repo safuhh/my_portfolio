@@ -12,13 +12,18 @@ import {
   TransitionProvider,
   TransitionStage,
 } from "@/components/transitions";
-import siteMetadata from "@/data/site-metadata.json";
+import { siteMetadata } from "@/data";
 
 const doppioOne = Doppio_One({
   weight: "400",
   subsets: ["latin"],
   variable: "--font-navbar",
   display: "swap",
+  // The navbar brand (the only above-the-fold consumer) is hidden/animated in
+  // during the welcome→hero handoff, so the font isn't painted at first load.
+  // Preloading it buys nothing and triggers Firefox's "preloaded but not used"
+  // warning. display:swap still handles the fallback when it does paint.
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -31,7 +36,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: siteMetadata.openGraph.title,
     description: siteMetadata.openGraph.description,
-    type: siteMetadata.openGraph.type as "website",
+    type: siteMetadata.openGraph.type,
     locale: siteMetadata.openGraph.locale,
     siteName: siteMetadata.openGraph.siteName,
   },
@@ -44,6 +49,18 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: siteMetadata.themeColor,
 };
+
+// Run synchronously before paint — next/script's beforeInteractive is
+// unreliable in App Router (fires after hydration), causing a theme flash on
+// dark-mode users and a scroll-position flash on reload. Inline scripts execute
+// at parse time, before React. Three concerns: apply saved dark theme, force
+// manual scroll restoration, and flag the load as fresh for downstream code.
+const BOOTSTRAP_SCRIPT = `
+(function(){try{if(localStorage.getItem("portfolio_theme")==="dark"){document.documentElement.setAttribute("data-theme","dark")}}catch(e){}})();
+if("scrollRestoration"in history){history.scrollRestoration="manual"}
+window.scrollTo(0,0);
+window.__freshLoad=true;
+`;
 
 const personJsonLd = {
   "@context": "https://schema.org",
@@ -63,13 +80,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={doppioOne.variable}>
-        {/* Run synchronously before paint — next/script's beforeInteractive
-            is unreliable in App Router (fires after hydration), causing a
-            theme flash on dark-mode users and a scroll-position flash on
-            reload. Inline scripts execute at parse time, before React. */}
+        {/* See BOOTSTRAP_SCRIPT above — pre-paint theme + scroll-restoration bootstrap. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{if(localStorage.getItem("portfolio_theme")==="dark"){document.documentElement.setAttribute("data-theme","dark")}}catch(e){}})();if("scrollRestoration"in history){history.scrollRestoration="manual"}window.scrollTo(0,0);window.__freshLoad=true;`,
+            __html: BOOTSTRAP_SCRIPT,
           }}
         />
         <script

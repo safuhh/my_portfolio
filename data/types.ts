@@ -6,7 +6,7 @@
 export interface OpenGraphData {
   title: string;
   description: string;
-  type: string;
+  type: "website" | "article" | "profile";
   locale: string;
   siteName: string;
 }
@@ -302,16 +302,14 @@ export interface EasingConfig {
     inOutQuart: string;
     outBack: string;
     inOutBack: string;
+    outCubic: string;
+    outQuad: string;
+    inQuad: string;
   };
   css: {
     outExpo: string;
     outQuart: string;
     inOutQuart: string;
-  };
-  framerMotion: {
-    outExpo: number[];
-    outQuart: number[];
-    inOutQuart: number[];
   };
 }
 
@@ -482,6 +480,13 @@ export interface VisionContent {
   titleLine2: string;
   titleAccent: string;
   body: string[];
+  /**
+   * Optional: the exact word in titleLine1 to wrap in the underline span.
+   * When omitted, the component falls back to underlining the last word of
+   * titleLine1 (legacy position-based behaviour). Populate this field when
+   * the emphasised word is not the last word in the string.
+   */
+  titleUnderlineWord?: string;
 }
 
 export interface PullLine {
@@ -598,11 +603,6 @@ export interface TransitionsConfig {
   /** Registry key of the default page-transition effect. Must match a key in
    *  components/transitions/registry.ts (e.g. 'iris-bloom'). */
   defaultEffect: string;
-  /** Default phase durations (seconds). Effects MAY use these for pacing. */
-  durations: {
-    exit: number;
-    enter: number;
-  };
   /** Fallback strategy when prefers-reduced-motion: reduce is active. */
   reducedMotionFallback: 'crossfade' | 'none';
   /** Duration (seconds) of the reduced-motion fallback. */

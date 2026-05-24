@@ -16,6 +16,7 @@
     "ui": {
       "gridLine": "#E5E5E5"
     },
+    "ogBackground": "#f5f3ee",
     "accentPalette": ["#62b6cb", "#da3036", "#ff990a", "#93b99e"]
   },
   "typography": {

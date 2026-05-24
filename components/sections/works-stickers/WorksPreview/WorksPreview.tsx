@@ -3,6 +3,8 @@
 import { type CSSProperties, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { gsap } from '@/lib/gsap';
+import { useReducedMotion } from '@/lib/useReducedMotion';
+import { cssVars } from '@/lib/cssVars';
 import styles from './WorksPreview.module.css';
 
 export interface WorksPreviewEntry {
@@ -44,6 +46,7 @@ export function WorksPreview({ entries, activeIndex, visible }: WorksPreviewProp
   const rootRef = useRef<HTMLDivElement | null>(null);
   const xToRef = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
   const yToRef = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
+  const reduced = useReducedMotion();
   // Mirrors `visible` for the mousemove handler — without it, the listener
   // captures the boolean at attach time and can't tell rising-edge from
   // steady-state. The handler reads the ref each tick. The sync runs in an
@@ -57,6 +60,15 @@ export function WorksPreview({ entries, activeIndex, visible }: WorksPreviewProp
   useEffect(() => {
     const el = rootRef.current;
     if (!el) return undefined;
+
+    // Gate: only fine-pointer, hover-capable devices get the spring. On touch /
+    // coarse-pointer devices this component is visually irrelevant (no mouse to
+    // follow), and on reduced-motion the quickTo spring violates the user pref.
+    // Matches the InteractiveBackground coarse-pointer precedent in CLAUDE.md.
+    const canHover =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    if (!canHover || reduced) return undefined;
 
     xToRef.current = gsap.quickTo(el, 'left', { duration: 0.55, ease: 'power3' });
     yToRef.current = gsap.quickTo(el, 'top', { duration: 0.55, ease: 'power3' });
@@ -80,15 +92,13 @@ export function WorksPreview({ entries, activeIndex, visible }: WorksPreviewProp
       window.removeEventListener('mousemove', onMove);
       gsap.killTweensOf(el);
     };
-  }, []);
+  }, [reduced]);
 
   const rootClass = `${styles.preview}${visible ? ` ${styles.visible}` : ''}`;
   // The accent border + badge colour follow the active card so they
   // crossfade alongside the slide.
   const activeAccent = entries[activeIndex]?.accent;
-  const rootStyle: CSSProperties | undefined = activeAccent
-    ? { ['--preview-accent' as string]: activeAccent }
-    : undefined;
+  const rootStyle = activeAccent ? cssVars({ '--preview-accent': activeAccent }) : undefined;
   const sliderStyle: CSSProperties = {
     transform: `translateY(-${activeIndex * 100}%)`,
   };

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { caseStudies, getCaseStudy, getCaseStudySlugs } from '@/data';
+import { caseStudies, getCaseStudy, getCaseStudySlugs, siteMetadata } from '@/data';
 import { Hero } from '@/components/sections/case-study/Hero';
 import { Ledger } from '@/components/sections/case-study/Ledger';
 import { Context } from '@/components/sections/case-study/Context';
@@ -26,13 +26,23 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const entry = getCaseStudy(slug);
+  const canonical = `/work/${slug}`;
   if (entry?.hero) {
     return {
       title: `${entry.hero.title} · Case Study · Mohed Abbas`,
       description: entry.hero.lede,
+      alternates: { canonical },
+      openGraph: {
+        images: [
+          {
+            url: new URL(entry.hero.image, siteMetadata.siteUrl).toString(),
+            alt: entry.hero.alt,
+          },
+        ],
+      },
     };
   }
-  return { title: 'Case Study · Mohed Abbas' };
+  return { title: 'Case Study · Mohed Abbas', alternates: { canonical } };
 }
 
 export default async function CaseStudyPage({

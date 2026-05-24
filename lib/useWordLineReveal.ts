@@ -8,6 +8,12 @@ import {
 } from "@/lib/splitTextIntoWords";
 import staggerStyles from "./staggerText.module.css";
 
+// Default word/line reveal tuning (overridable via RevealOptions).
+const WORD_REVEAL_YPERCENT = 110;
+const LINE_STAGGER = 0.12;
+const REVEAL_DURATION = 0.7;
+const REVEAL_START = "top 85%";
+
 type RevealOptions = {
   lineStagger?: number;
   duration?: number;
@@ -24,10 +30,10 @@ export function useWordLineReveal(
   options: RevealOptions = {}
 ) {
   const {
-    lineStagger = 0.12,
-    duration = 0.7,
+    lineStagger = LINE_STAGGER,
+    duration = REVEAL_DURATION,
     delay = 0,
-    start = "top 85%",
+    start = REVEAL_START,
     scope,
   } = options;
 
@@ -79,8 +85,17 @@ export function useWordLineReveal(
             return;
           }
 
-          gsap.set(split.inners, { yPercent: 110 });
+          gsap.set(split.inners, { yPercent: WORD_REVEAL_YPERCENT });
           buildTimeline();
+
+          // document.fonts.ready can resolve after unmount; bail if the
+          // root detached (or the inner cleanup ran) before we wire up
+          // the trigger against a now-orphaned node.
+          if (cancelled || !root.isConnected) {
+            split?.revert();
+            split = null;
+            return;
+          }
 
           trigger = ScrollTrigger.create({
             trigger: root,
@@ -88,6 +103,10 @@ export function useWordLineReveal(
             once: true,
             onEnter: () => tl?.play(),
           });
+
+          // The async font load shifted layout after other triggers cached
+          // their positions; re-measure start/end against the new layout.
+          ScrollTrigger.refresh();
 
           // Recompute groups on resize. ResizeObserver fires for every
           // layout change of the root — exactly when wrap behaviour can
@@ -121,6 +140,13 @@ export function useWordLineReveal(
           }
         };
       });
+
+      // mm.revert() invokes the mm.add() inner cleanup above (which sets
+      // cancelled = true); useGSAP does not own the matchMedia registry,
+      // so tear it down on unmount.
+      return () => {
+        mm.revert();
+      };
     },
     scope ? { scope } : { scope: target }
   );

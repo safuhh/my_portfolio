@@ -2,6 +2,11 @@ import { useGSAP } from "@gsap/react";
 import { type RefObject } from "react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 
+// Default block-fade tuning (overridable per-group via BlockFadeGroup).
+const FADE_Y = 24;
+const FADE_DURATION = 0.9;
+const FADE_START = "top 88%";
+
 export interface BlockFadeGroup {
   targets: Array<RefObject<HTMLElement | null>>;
   y?: number;
@@ -18,7 +23,7 @@ export interface UseBlockFadeInOptions {
 
 export function useBlockFadeIn(
   scopeRef: RefObject<HTMLElement | null>,
-  { start = "top 88%", groups }: UseBlockFadeInOptions
+  { start = FADE_START, groups }: UseBlockFadeInOptions
 ) {
   useGSAP(
     () => {
@@ -36,7 +41,7 @@ export function useBlockFadeIn(
       const mm = gsap.matchMedia();
       mm.add("(prefers-reduced-motion: no-preference)", () => {
         resolved.forEach((g) => {
-          if (g.els.length) gsap.set(g.els, { autoAlpha: 0, y: g.y ?? 24 });
+          if (g.els.length) gsap.set(g.els, { autoAlpha: 0, y: g.y ?? FADE_Y });
         });
 
         // WR-02: the fade-in tweens are created lazily inside onEnter,
@@ -56,7 +61,7 @@ export function useBlockFadeIn(
               const tween = gsap.to(g.els, {
                 autoAlpha: 1,
                 y: 0,
-                duration: g.duration ?? 0.9,
+                duration: g.duration ?? FADE_DURATION,
                 ease: g.ease ?? "expo.out",
                 delay: g.delay ?? 0,
                 stagger: g.stagger ?? 0,
@@ -74,6 +79,12 @@ export function useBlockFadeIn(
           if (allEls.length) gsap.set(allEls, { clearProps: "all" });
         };
       });
+
+      // mm.revert() invokes the mm.add() inner cleanup above; useGSAP does
+      // not own the matchMedia registry, so tear it down on unmount.
+      return () => {
+        mm.revert();
+      };
     },
     { scope: scopeRef }
   );

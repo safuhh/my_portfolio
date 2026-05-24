@@ -1,9 +1,10 @@
 'use client';
 
-import { type CSSProperties, type ReactNode, useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { TransitionLink } from '@/components/transitions';
 import type { WorksIndexProject } from '@/data';
 import { WorksStickerMarquee } from '@/components/sections/works-stickers/WorksStickerMarquee';
+import { cssVars } from '@/lib/cssVars';
 import styles from './WorksSticker.module.css';
 
 export interface WorksStickerProps {
@@ -21,9 +22,12 @@ export interface WorksStickerProps {
 }
 
 /** Cyclic visual rhythm — first 10 entries match the v5 prototype, then wraps. */
+// TILT_SEQ: initial rotation of each sticker in degrees; alternates sign for variety.
 const TILT_SEQ = [-2.4, 1.6, -1.2, 2.8, -3, 1.2, -2, 2.2, -1.6, 2.6];
-const OFFSET_SEQ = [0, 6, -4, 3, 0, 7, -5, 0, 4, -3];          // viewport %
-const WOBBLE_DUR_SEQ = [5, 6, 4.5, 5.5, 4, 6, 5, 4.5, 5.5, 4]; // seconds
+// OFFSET_SEQ: horizontal nudge as viewport-width %; keeps stickers from aligning.
+const OFFSET_SEQ = [0, 6, -4, 3, 0, 7, -5, 0, 4, -3];
+// WOBBLE_DUR_SEQ: CSS keyframe duration in seconds; de-syncs the idle float animation.
+const WOBBLE_DUR_SEQ = [5, 6, 4.5, 5.5, 4, 6, 5, 4.5, 5.5, 4];
 
 export function WorksSticker({
   index,
@@ -41,15 +45,15 @@ export function WorksSticker({
   const wobbleSign = index % 2 === 0 ? 1 : -1;
 
   const className = `${styles.sticker}${hovered ? ` ${styles.isHover}` : ''}`;
-  const style: CSSProperties = {
-    ['--sticker-accent' as string]: project.accent,
-    ['--tilt' as string]: `${tilt}deg`,
-    ['--offset' as string]: `${offset}%`,
-    ['--wobble-dur' as string]: `${wobbleDur}s`,
-    ['--wobble-amp' as string]: `${wobbleSign * 0.6}deg`,
+  const style = cssVars({
+    '--sticker-accent': project.accent,
+    '--tilt': `${tilt}deg`,
+    '--offset': `${offset}%`,
+    '--wobble-dur': `${wobbleDur}s`,
+    '--wobble-amp': `${wobbleSign * 0.6}deg`,
     // animation-delay staggers the wobbles so stickers don't move in lockstep.
-    ['--wobble-delay' as string]: `${(index % 4) * -0.7}s`,
-  };
+    '--wobble-delay': `${(index % 4) * -0.7}s`,
+  });
 
   const handleEnter = () => {
     setHovered(true);
@@ -86,6 +90,8 @@ export function WorksSticker({
         href={`/work/${project.id}`}
         className={className}
         style={style}
+        // Must stay derived from project.title — visible title lives only inside
+        // the aria-hidden marquee, so this label is the sole AT-visible name.
         aria-label={`Open ${project.title} case study`}
         payload={{
           accent: project.accent,
@@ -102,6 +108,9 @@ export function WorksSticker({
     );
   }
 
+  // No case study yet — render as an inert div (not a fake link).
+  // The sr-only span provides an accessible name since project.title
+  // is otherwise only present inside the aria-hidden marquee.
   return (
     <div
       className={className}
@@ -109,6 +118,11 @@ export function WorksSticker({
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
     >
+      {/* Provides an accessible name: project.title lives only inside the
+          aria-hidden marquee, so keyboard/AT users would otherwise get nothing. */}
+      <span className="sr-only">
+        {project.title} — case study coming soon
+      </span>
       {inner}
     </div>
   );

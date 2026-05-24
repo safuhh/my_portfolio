@@ -5,8 +5,11 @@ import { usePathname } from 'next/navigation';
 import { gsap } from '@/lib/gsap';
 import { navigation, content } from '@/data';
 import { useLenis } from '@/lib/LenisProvider';
+import { scrollToContactReveal } from '@/lib/scrollToContactReveal';
+import { scrollToProjectsReveal } from '@/lib/scrollToProjectsReveal';
 import { useAccentColor } from '@/lib/AccentColorContext';
 import { useTransition } from '@/components/transitions';
+import { useScrollLock } from '@/lib/useScrollLock';
 import styles from './Menu.module.css';
 
 interface MenuProps {
@@ -44,17 +47,23 @@ export function Menu({ isOpen, onClose, onCloseComplete, onRevealStart }: MenuPr
   const { triggerTransition } = useTransition();
   const { color: currentAccent } = useAccentColor();
 
-  // Lock body scroll when menu is open
+  // Lock body scroll when menu is open. Shared ref-counted lock so Menu,
+  // WelcomeScreen and TransitionProvider can't race each other for
+  // document.body.style.overflow.
+  useScrollLock(isOpen);
+
+  // Tracks the deferred post-close scroll so it can be cancelled on unmount
+  // or before a new schedule (prevents scrolling a stale DOM after the menu
+  // is gone or reopened).
+  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
     return () => {
-      document.body.style.overflow = '';
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+        scrollTimeoutRef.current = null;
+      }
     };
-  }, [isOpen]);
+  }, []);
 
   // A11y: inert background, focus trap, focus restoration.
   //
@@ -394,9 +403,27 @@ export function Menu({ isOpen, onClose, onCloseComplete, onRevealStart }: MenuPr
     // On-home: preserve smooth-scroll behaviour.
     e.preventDefault();
     onClose();
-    // Delay scroll to allow menu close animation
-    setTimeout(() => {
-      scrollTo(href, { duration: 1.8 }); // Lenis smooth scroll with custom duration
+    // Delay scroll to allow menu close animation. Track the timer so a
+    // second open/close or an unmount cancels it — otherwise it fires
+    // against a stale DOM. Clear any pending one before scheduling anew.
+    if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    scrollTimeoutRef.current = setTimeout(() => {
+      scrollTimeoutRef.current = null;
+      if (href === '#contact') {
+        // Contact's form reveals across a scrub-pinned range and is hidden at
+        // the panel top (progress 0). Pace the scroll in two phases so the form
+        // types in at the same speed as a manual scroll instead of racing past
+        // (see scrollToContactReveal). Track the phase-2 timeout for cleanup.
+        scrollTimeoutRef.current = scrollToContactReveal(scrollTo) ?? null;
+      } else if (href === '#projects') {
+        // Same problem as Contact: the first project's split is scrub-tied and
+        // closed at progress 0. Two-phase scroll plays it open at reading pace
+        // and parks on the open card (see scrollToProjectsReveal). Track the
+        // phase-2 timeout for cleanup.
+        scrollTimeoutRef.current = scrollToProjectsReveal(scrollTo) ?? null;
+      } else {
+        scrollTo(href, { duration: 1.8 }); // Lenis smooth scroll with custom duration
+      }
     }, 800);
   }, [onClose, scrollTo, pathname, triggerTransition, currentAccent]);
 
@@ -446,7 +473,7 @@ export function Menu({ isOpen, onClose, onCloseComplete, onRevealStart }: MenuPr
                     <span className={styles.socialTextBase}>
                       {social.label.split('').map((char, index) => (
                         <span
-                          key={index}
+                          key={`${char}-${index}`}
                           className={styles.socialChar}
                           style={{ transitionDelay: `${index * 0.025}s` }}
                         >
@@ -458,7 +485,7 @@ export function Menu({ isOpen, onClose, onCloseComplete, onRevealStart }: MenuPr
                     <span className={styles.socialTextClone} aria-hidden="true">
                       {social.label.split('').map((char, index) => (
                         <span
-                          key={index}
+                          key={`${char}-${index}`}
                           className={styles.socialChar}
                           style={{ transitionDelay: `${index * 0.025}s` }}
                         >
@@ -503,7 +530,7 @@ export function Menu({ isOpen, onClose, onCloseComplete, onRevealStart }: MenuPr
               <span className={styles.backTextBase}>
                 {BACK_BUTTON_TEXT.split('').map((char, index) => (
                   <span
-                    key={index}
+                    key={`${char}-${index}`}
                     className={styles.backChar}
                     style={{ transitionDelay: `${index * 0.025}s` }}
                   >
@@ -514,7 +541,7 @@ export function Menu({ isOpen, onClose, onCloseComplete, onRevealStart }: MenuPr
               <span className={styles.backTextClone} aria-hidden="true">
                 {BACK_BUTTON_TEXT.split('').map((char, index) => (
                   <span
-                    key={index}
+                    key={`${char}-${index}`}
                     className={styles.backChar}
                     style={{ transitionDelay: `${index * 0.025}s` }}
                   >

@@ -14,3 +14,15 @@
  * `cursorBus.y` synchronously when needed.
  */
 export const cursorBus = { x: 0, y: 0 };
+
+/**
+ * Reset the bus to origin. The bus is module-level mutable state with no
+ * inherent lifecycle, so the last cursor position persists across route
+ * changes. Consumers re-read on the next mousemove, making this harmless in
+ * practice — but call this if a consumer needs a deterministic starting point
+ * (e.g. on mount before the first pointer event).
+ */
+export function resetCursorBus() {
+  cursorBus.x = 0;
+  cursorBus.y = 0;
+}

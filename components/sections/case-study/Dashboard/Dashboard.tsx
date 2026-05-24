@@ -7,6 +7,11 @@ import { gsap, ScrollTrigger } from "@/lib/gsap";
 import type { DashboardContent } from "@/data";
 import styles from "./Dashboard.module.css";
 
+// ── Animation tuning constants (file-local; do not export) ──
+// Scroll range for the pinned shrink: 0.85 shrink + 0.05 gap + 0.15
+// overlay fade-in (1.05 TL units) + ~0.15 vh hold tail ≈ 1.2 vh total.
+const DASHBOARD_PIN_VH = 1.2;
+
 export const Dashboard = ({ badge, figcaption, image, alt }: DashboardContent) => {
   const sectionRef = useRef<HTMLElement>(null);
   const frameRef = useRef<HTMLElement>(null);
@@ -130,10 +135,7 @@ export const Dashboard = ({ badge, figcaption, image, alt }: DashboardContent) =
         const pin = ScrollTrigger.create({
           trigger: section,
           start: "top top",
-          // 1.2 × vh: 0.85 shrink + 0.05 gap + 0.15 overlay fade-in
-          // (1.05 timeline units total) + ~0.15 vh hold tail past the
-          // parked state before unpin.
-          end: () => "+=" + window.innerHeight * 1.2,
+          end: () => "+=" + window.innerHeight * DASHBOARD_PIN_VH,
           pin: true,
           pinType: "fixed",
           scrub: 0.5,
@@ -143,9 +145,13 @@ export const Dashboard = ({ badge, figcaption, image, alt }: DashboardContent) =
         });
 
         return () => {
-          // WR-01: pass true so the bound timeline (and its nested
-          // tweens with refs into frame / image / badge / corner) is
-          // killed alongside the trigger.
+          // Capture scrollY before kill() removes the pin-spacer; restoring
+          // it afterward prevents the document-height collapse from clamping
+          // the scroll position and jumping the page on route-change or
+          // StrictMode remount. Matches the Archive / Contact pattern.
+          const savedScrollY = window.scrollY;
+          // Pass true so the bound timeline (and its nested tweens with refs
+          // into frame / image / badge / corner) is killed alongside the trigger.
           pin.kill(true);
           gsap.set(frame, { clearProps: "all" });
           // Scoped clearProps so cleanup doesn't strip next/image's
@@ -154,6 +160,9 @@ export const Dashboard = ({ badge, figcaption, image, alt }: DashboardContent) =
           gsap.set([badgeRef.current, cornerRef.current], {
             clearProps: "all",
           });
+          // Restore scroll position if the pin-spacer removal shortened the
+          // document and caused the browser to clamp scrollY.
+          if (window.scrollY !== savedScrollY) window.scrollTo(0, savedScrollY);
         };
       });
     },

@@ -1,6 +1,8 @@
-import { type CSSProperties } from 'react';
+'use client';
+
 import { StarIcon } from '@/components/sections/Hero/StarIcon';
 import { useReducedMotion } from '@/lib/useReducedMotion';
+import { cssVars } from '@/lib/cssVars';
 import styles from './WorksRowMarquee.module.css';
 
 export interface WorksRowMarqueeProps {
@@ -39,9 +41,7 @@ export function WorksRowMarquee({
   repeats = 4,
 }: WorksRowMarqueeProps) {
   const reduced = useReducedMotion();
-  const trackStyle: CSSProperties = {
-    ['--marquee-dur' as string]: `${durationSec}s`,
-  };
+  const trackStyle = cssVars({ '--marquee-dur': `${durationSec}s` });
 
   const chunkClass = `${styles.chunk}${outline ? ` ${styles.outline}` : ''}`;
   const isPaused = paused || reduced;
