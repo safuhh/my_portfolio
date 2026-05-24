@@ -22,7 +22,7 @@ function snapshotLagSmoothing(): number {
 // LENIS CONTEXT - Allows child components to scroll programmatically
 // ============================================
 interface LenisContextValue {
-  scrollTo: (target: string | number | HTMLElement, options?: { offset?: number; duration?: number }) => void;
+  scrollTo: (target: string | number | HTMLElement, options?: { offset?: number; duration?: number; easing?: (t: number) => number }) => void;
 }
 
 const LenisContext = createContext<LenisContextValue>({
@@ -120,7 +120,7 @@ export function LenisProvider({ children }: LenisProviderProps) {
     ScrollTrigger.update();
   }, [pathname]);
 
-  const scrollTo = useCallback((target: string | number | HTMLElement, options?: { offset?: number; duration?: number }) => {
+  const scrollTo = useCallback((target: string | number | HTMLElement, options?: { offset?: number; duration?: number; easing?: (t: number) => number }) => {
     lenisRef.current?.scrollTo(target, options);
   }, []);
 

@@ -13,6 +13,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { ScrollTrigger } from '@/lib/gsap';
 import { transitionsConfig, features, getAccentColors } from '@/data';
 import { useScrollLock } from '@/lib/useScrollLock';
+import { useLenis } from '@/lib/LenisProvider';
+import { scrollToContactReveal } from '@/lib/scrollToContactReveal';
 import {
   isKnownEffect,
   TRANSITION_EFFECT_NAMES,
@@ -122,6 +124,10 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<State>({ kind: 'idle' });
   const router = useRouter();
   const pathname = usePathname();
+  // Same persistent Lenis instance the rest of the app uses (LenisProvider sits
+  // above this in the tree). Used by the #contact hash handoff to pace the
+  // scrubbed reveal, matching the on-home menu behaviour.
+  const { scrollTo } = useLenis();
 
   // Keep the live pathname in a ref so triggerTransition's same-target guard
   // can read it without listing `pathname` in the callback's deps (which would
@@ -279,6 +285,15 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
           const u = new URL(s.href, 'http://_');
           if (u.hash) {
             requestAnimationFrame(() => {
+              // Contact's form reveal is scrub-tied to its pinned range. Pace
+              // the scroll in two phases (see scrollToContactReveal) so the form
+              // types in at manual-scroll speed instead of landing on the empty
+              // gradient or racing the reveal; every other anchor lands at its
+              // top as usual.
+              if (u.hash === '#contact') {
+                scrollToContactReveal(scrollTo);
+                return;
+              }
               const el = document.querySelector(u.hash);
               if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
             });
@@ -290,7 +305,7 @@ export function TransitionProvider({ children }: { children: ReactNode }) {
         setState({ kind: 'idle' });
       }
     },
-    [router]
+    [router, scrollTo]
   );
 
   // ----- browser-back interception on case-study routes -----

@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { gsap } from '@/lib/gsap';
 import { navigation, content } from '@/data';
 import { useLenis } from '@/lib/LenisProvider';
+import { scrollToContactReveal } from '@/lib/scrollToContactReveal';
 import { useAccentColor } from '@/lib/AccentColorContext';
 import { useTransition } from '@/components/transitions';
 import { useScrollLock } from '@/lib/useScrollLock';
@@ -407,7 +408,15 @@ export function Menu({ isOpen, onClose, onCloseComplete, onRevealStart }: MenuPr
     if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
     scrollTimeoutRef.current = setTimeout(() => {
       scrollTimeoutRef.current = null;
-      scrollTo(href, { duration: 1.8 }); // Lenis smooth scroll with custom duration
+      if (href === '#contact') {
+        // Contact's form reveals across a scrub-pinned range and is hidden at
+        // the panel top (progress 0). Pace the scroll in two phases so the form
+        // types in at the same speed as a manual scroll instead of racing past
+        // (see scrollToContactReveal). Track the phase-2 timeout for cleanup.
+        scrollTimeoutRef.current = scrollToContactReveal(scrollTo) ?? null;
+      } else {
+        scrollTo(href, { duration: 1.8 }); // Lenis smooth scroll with custom duration
+      }
     }, 800);
   }, [onClose, scrollTo, pathname, triggerTransition, currentAccent]);
 
