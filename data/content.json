@@ -163,11 +163,11 @@
   },
   "archive": {
     "label": "The Archive",
-    "statement": "Two doors stand open above. The rest of the work waits in the index, set in motion.",
-    "highlights": ["work", "index", "motion"],
+    "statement": "What's above is just a selection. The full index holds every project I've designed, built, and shipped.",
+    "highlights": ["index", "built", "shipped"],
     "metaLeft": "Every line considered",
-    "metaRight": "Every door, opened",
-    "cta": "Checkout My Works",
+    "metaRight": "Every build, shipped",
+    "cta": "See everything I've built",
     "ctaHref": "/work2"
   },
   "contact": {
