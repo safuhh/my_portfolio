@@ -204,6 +204,19 @@ export function RevealText({ text, highlights }: RevealTextProps) {
     // ============================================
     let revealTriggered = false;
 
+    // Cap the cumulative per-word stagger so the LAST word keeps a positive
+    // reveal window. With a raw `index * stagger.words` offset, any statement
+    // with more than ~1/stagger normal words drives the offset to >= 1, making
+    // the `(1 - offset)` denominator zero or negative: that stranded the word
+    // at offset == 1 on min opacity (divide-by-zero) and sign-flipped every
+    // word after it straight to full. Spreading the stagger keeps each word
+    // revealing in order and finishing by the time progress reaches 1.
+    const MAX_STAGGER_OFFSET = 0.85;
+    const normalCount = normalWords.length;
+    const wordStep = normalCount > 1
+      ? Math.min(ANIMATION_CONFIG.stagger.words, MAX_STAGGER_OFFSET / (normalCount - 1))
+      : 0;
+
     ScrollTrigger.create({
       trigger: containerRef.current,
       start: 'top 95%',
@@ -213,8 +226,9 @@ export function RevealText({ text, highlights }: RevealTextProps) {
         // Update normal words opacity
         const progress = self.progress;
         normalWords.forEach((word, index) => {
+          const offset = index * wordStep;
           const wordProgress = Math.max(0, Math.min(1,
-            (progress - index * ANIMATION_CONFIG.stagger.words) / (1 - index * ANIMATION_CONFIG.stagger.words)
+            (progress - offset) / (1 - offset)
           ));
           (word as HTMLElement).style.opacity = String(0.15 + wordProgress * 0.85);
         });
