@@ -1,19 +1,23 @@
 {
-  "title": "MOHED ABBAS - Designer",
-  "description": "Portfolio of Mohed Abbas - UI/UX Designer specializing in brand strategy, interactive design, and digital products.",
+  "title": "MOHED ABBAS - Full Stack Web Engineer",
+  "description": "Portfolio of Mohed Abbas - Full Stack Web Engineer building full-stack web products end to end: React & Next.js front ends, Node & Python APIs, and cloud deployment.",
   "author": "Mohed Abbas",
   "siteUrl": "https://portfolio.thecodeman.cloud",
   "themeColor": "#1b2028",
   "keywords": [
-    "UI/UX Designer",
-    "Brand Strategy",
-    "Interactive Design",
+    "Full Stack Web Engineer",
+    "Full Stack Developer",
+    "React",
+    "Next.js",
+    "Node.js",
+    "TypeScript",
+    "Web Development",
     "Portfolio",
     "Mohed Abbas"
   ],
   "openGraph": {
-    "title": "MOHED ABBAS - Designer",
-    "description": "Portfolio of Mohed Abbas - UI/UX Designer specializing in brand strategy, interactive design, and digital products.",
+    "title": "MOHED ABBAS - Full Stack Web Engineer",
+    "description": "Portfolio of Mohed Abbas - Full Stack Web Engineer building full-stack web products end to end: React & Next.js front ends, Node & Python APIs, and cloud deployment.",
     "type": "website",
     "locale": "en_US",
     "siteName": "Mohed Abbas Portfolio"
@@ -24,7 +28,7 @@
   },
   "person": {
     "name": "Mohed Abbas",
-    "jobTitle": "UI/UX Designer",
+    "jobTitle": "Full Stack Web Engineer",
     "sameAs": [
       "https://www.instagram.com/mohed._.abbas",
       "https://www.linkedin.com/in/mohed-abbas/",

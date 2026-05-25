@@ -196,6 +196,15 @@
     transform-origin: center bottom;
 }
 
+/* Forced line break inside the flex-wrap tagline.
+   Fills the row so following words flow to the next line — lets us
+   author balanced 2-line breaks that align across both layers. */
+.lineBreak {
+    flex-basis: 100%;
+    width: 100%;
+    height: 0;
+}
+
 /* Responsive adjustments for MacBook 14" and similar screens */
 @media (min-width: 1200px) and (max-width: 1600px) {
     .taglineContainer {

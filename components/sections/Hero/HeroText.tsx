@@ -389,20 +389,28 @@ export function HeroText() {
 
         {/* LAYER 1: BOTTOM - Default visible tagline */}
         <p ref={taglineRef} className={styles.tagline}>
-          {TAGLINE_WORDS.map((word, index) => (
-            <span key={index} className={styles.taglineWord}>
-              {word}
-            </span>
-          ))}
+          {TAGLINE_WORDS.map((word, index) =>
+            word === '<br>' ? (
+              <span key={index} className={styles.lineBreak} aria-hidden="true" />
+            ) : (
+              <span key={index} className={styles.taglineWord}>
+                {word}
+              </span>
+            )
+          )}
         </p>
 
         {/* LAYER 2: TOP - Hidden tagline revealed by spotlight */}
         <p ref={taglineHiddenRef} className={styles.taglineHidden}>
-          {TAGLINE_HIDDEN_WORDS.map((word, index) => (
-            <span key={index} className={styles.taglineWord}>
-              {word}
-            </span>
-          ))}
+          {TAGLINE_HIDDEN_WORDS.map((word, index) =>
+            word === '<br>' ? (
+              <span key={index} className={styles.lineBreak} aria-hidden="true" />
+            ) : (
+              <span key={index} className={styles.taglineWord}>
+                {word}
+              </span>
+            )
+          )}
         </p>
       </div>
     </section>

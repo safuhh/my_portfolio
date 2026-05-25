@@ -24,10 +24,19 @@ export function SkillsBar() {
     const measureWidth = () => {
       const node = contentRef.current;
       if (!node) return;
-      // Measure the true loop distance directly. The content is rendered twice
-      // (skills + duplicate), so half the laid-out width is exactly one loop —
-      // seam-accurate with no integer-rounded offsetWidth + gap accumulation.
-      node.style.setProperty('--scroll-width', `${node.scrollWidth / 2}px`);
+      // The loop distance is the offset from the first item to its duplicate
+      // (the first child of the second half). We CANNOT use scrollWidth / 2:
+      // flexbox `gap` adds no trailing gap, so N items have only N-1 gaps and
+      // scrollWidth / 2 lands half a gap short of the seam, snapping the
+      // marquee back on every cycle. The left-edge delta below includes the
+      // seam gap exactly and is invariant to the running transform (both items
+      // share the same transformed parent), so it's sub-pixel seam-accurate.
+      const kids = node.children;
+      if (kids.length < 2) return;
+      const seam = kids[kids.length / 2];
+      const distance =
+        seam.getBoundingClientRect().left - kids[0].getBoundingClientRect().left;
+      node.style.setProperty('--scroll-width', `${distance}px`);
     };
 
     measureWidth();

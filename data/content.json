@@ -2,37 +2,44 @@
   "hero": {
     "firstName": "MOHED",
     "lastName": "ABBAS",
-    "title": "Designer",
+    "title": "Full Stack Web Engineer",
     "tagline": [
       "I",
       "design",
-      "solutions",
-      "for",
-      "people,",
-      "brands",
-      "& digital",
-      "products."
+      "& build",
+      "full-stack",
+      "web",
+      "<br>",
+      "products",
+      "that",
+      "ship",
+      "& scale."
     ],
     "taglineHidden": [
       "I",
-      "turn",
-      "your",
-      "complex",
-      "ideas",
-      " ",
-      "into",
-      "elegant",
-      "reality."
+      "design",
+      "it,",
+      "build",
+      "it,",
+      "ship",
+      "it,",
+      "then",
+      "<br>",
+      "keep",
+      "the",
+      "whole",
+      "thing",
+      "running."
     ]
   },
   "skills": {
     "marqueeItems": [
-      "DEVELOPER",
-      "UI/UX",
-      "BRAND STRATEGY",
-      "GRAPHIC DESIGN",
-      "WEB DESIGN",
-      "MOBILE APPS"
+      "FULL STACK",
+      "API DESIGN",
+      "DATABASES",
+      "DEVOPS",
+      "AI INTEGRATION",
+      "UI/UX"
     ],
     "separator": "✦"
   },
