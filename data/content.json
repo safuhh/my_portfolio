@@ -91,14 +91,11 @@
         "copy": "<b>Systems & APIs.</b> REST and GraphQL endpoints, auth, background jobs, and the boring contracts that hold a product together. Node and Python services backed by Postgres, Redis, and a clear data model.",
         "tools": [
           "Node.js",
-          "Python",
-          "PHP",
           "Laravel",
           "Moodle",
           "PostgreSQL",
           "Prisma",
-          "Redis",
-          "GraphQL"
+          "Redis"
         ]
       },
       {
@@ -141,7 +138,7 @@
         "title": "TASKTROX",
         "image": "/images/projects/tasktrox/Hero.jpg",
         "year": "2024",
-        "category": "ARCHITECTURE",
+        "category": "SAAS PLATFORM",
         "badge": "VIEW<br>CASE",
         "themeColor": "#e6f2ff",
         "badgeColor": "#FFB800",
@@ -154,8 +151,8 @@
         "title": "PERMITTO",
         "image": "/images/projects/tasktrox/Product.jpg",
         "year": "2025",
-        "category": "FINTECH",
-        "badge": "LIVE<br>DEMO",
+        "category": "INDUSTRIAL SAFETY",
+        "badge": "VIEW<br>CASE",
         "themeColor": "#fff0f5",
         "badgeColor": "#62B6CB",
         "badgeTextColor": "#ffffff",
