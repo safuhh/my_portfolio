@@ -96,7 +96,9 @@
     display: grid;
     /* Removed place-items: end to allow stretch (default) so layers align perfectly */
     position: relative;
-    margin-top: clamp(40px, 6vw, 80px);
+    /* Match the inter-H1 gap (.heroTextAbbas margin-top) so the tagline sits
+       the same distance below ABBAS as ABBAS sits below MOHED. */
+    margin-top: clamp(10px, 2vw, 20px);
     max-width: clamp(280px, 28vw, 420px);
     margin-left: auto;
     margin-right: 0;
@@ -208,7 +210,7 @@
 /* Responsive adjustments for MacBook 14" and similar screens */
 @media (min-width: 1200px) and (max-width: 1600px) {
     .taglineContainer {
-        margin-top: clamp(50px, 5vw, 70px);
+        margin-top: clamp(10px, 2vw, 20px);
         max-width: 380px;
     }
 }
@@ -216,7 +218,7 @@
 /* Larger desktop adjustments */
 @media (min-width: 1600px) {
     .taglineContainer {
-        margin-top: 80px;
+        margin-top: clamp(10px, 2vw, 20px);
         max-width: 420px;
     }
 }
@@ -233,7 +235,7 @@
     }
 
     .taglineContainer {
-        margin-top: clamp(5px, 2vw, 10px);
+        margin-top: clamp(10px, 2vw, 20px);
     }
 }
 
@@ -260,7 +262,8 @@
     }
 
     .taglineContainer {
-        margin-top: 60px;
+        /* Match .heroTextAbbas (20px) at this breakpoint */
+        margin-top: 20px;
         max-width: 340px;
     }
 
@@ -317,8 +320,8 @@
     }
 
     .taglineContainer {
-        /* Reposition tagline for mobile balance */
-        margin-top: 40px;
+        /* Match .heroTextAbbas (10px) at this breakpoint */
+        margin-top: 10px;
         /* Allow full width for better wrapping */
         max-width: 100%;
         /* Disable spotlight on mobile (no hover) */
