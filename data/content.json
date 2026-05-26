@@ -209,7 +209,7 @@
     "intro": {
       "eyebrow": "Index of Work",
       "headline": "works.",
-      "lede": "<b>An index of selected projects,</b> each one set in motion. Hover a row to lock its accent and pause its ticker. Click to step inside."
+      "lede": "<b>An index of selected projects — built and shipped, not just mocked up.</b> Hover any one to lock its accent and pause its ticker. Click to step inside."
     },
     "legend": {
       "number": "№",
@@ -224,7 +224,7 @@
       {
         "id": "tasktrox",
         "title": "tasktrox",
-        "discipline": "Brand · Product · Web",
+        "discipline": "Full-Stack · SaaS Platform",
         "year": 2024,
         "accent": "#62b6cb",
         "marqueeDurationSec": 24
@@ -232,7 +232,7 @@
       {
         "id": "permitto",
         "title": "permitto",
-        "discipline": "Brand · Product",
+        "discipline": "Full-Stack · Industrial Safety",
         "year": 2025,
         "accent": "#da3036",
         "marqueeDurationSec": 30
