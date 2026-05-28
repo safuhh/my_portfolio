@@ -180,7 +180,10 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.15em;
-    color: var(--color-accent-teal);
+    /* Match the menu nav links' base text (.linkText uses --color-primary-text)
+       so the "Social Presence" / "Location" labels read as the same family of
+       text against the purple overlay. */
+    color: var(--color-primary-text);
 }
 
 .socialList {
