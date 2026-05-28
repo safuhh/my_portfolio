@@ -66,10 +66,14 @@ export function Hero() {
     const flyingM = flyingMRef.current;
     const flyingA = flyingARef.current;
 
-    // Set spacer height: hero visible height + scroll range for animation
-    // Tighter range so Philosophy enters right as initials land in navbar
+    // Spacer height = animation range only. Hero is position: fixed
+    // (Hero.module.css), so it consumes zero document-flow height — the
+    // spacer is purely the runway for the scrubbed initials-to-navbar
+    // timeline. Including hero.offsetHeight here would double-count one
+    // viewport, leaving Philosophy out of view for ~100vh after the
+    // timeline already finished (visible empty-center gap).
     const scrollRange = window.innerHeight * SCROLL_RANGE_VH;
-    spacer.style.height = `${hero.offsetHeight + scrollRange}px`;
+    spacer.style.height = `${scrollRange}px`;
 
     // Query target elements (navbar is at page level, query from document)
     const targetM = document.getElementById('target-m');
@@ -225,8 +229,8 @@ export function Hero() {
       animation: tl,
       invalidateOnRefresh: true,
       onRefresh: () => {
-        // Recalculate spacer height on resize/refresh
-        spacer.style.height = `${hero.offsetHeight + window.innerHeight * SCROLL_RANGE_VH}px`;
+        // Recalculate spacer height on resize/refresh (matches initial calc above).
+        spacer.style.height = `${window.innerHeight * SCROLL_RANGE_VH}px`;
         // Re-seed source fontSize + cached scale ratios so Phase 5 resolves
         // against the post-resize target sizes (clamp() CSS may change values).
         seedFlyingLetterTypography();

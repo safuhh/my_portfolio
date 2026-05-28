@@ -25,9 +25,12 @@
     position: relative;
     width: 100%;
     pointer-events: none;
-    /* CSS fallback keeps Philosophy below viewport before JS sets exact height */
-    min-height: 200vh;
-    /* Height set dynamically by JS: hero height + scroll range */
+    /* CSS fallback: one viewport of runway for the initials-to-navbar
+       handoff. JS overwrites this once Hero mounts (Hero.tsx). The hero
+       is position: fixed, so this spacer is the only document-flow
+       contribution; matching the JS-set value keeps Philosophy in the
+       same pre/post-hydration position. */
+    min-height: 100vh;
 }
 
 /* ============================================
