@@ -262,24 +262,40 @@
   text-align: center;
   bottom: 18%;
   transform-origin: center bottom;
-  will-change: transform, opacity, -webkit-text-stroke-width;
+  will-change: transform, opacity;
   z-index: 1;
   font-size: clamp(18px, 1.8vw, 26px);
   letter-spacing: -0.005em;
   font-weight: 400;
   color: var(--color-text-muted-strong, rgba(27, 32, 40, 0.8));
-  /* Simulated weight scrubbing without a variable font:
-     applyDial writes `--weight-fx` (0..1, = eased proximity to the needle)
-     on each label per frame; CSS scales the stroke width by --tool-stroke-
-     max-px (set on .dialStrip at mount from TOOL_STROKE_MAX_PX) so the
-     glyph visually thickens in lock-step with its bar's scaleY. Stroke
-     color tracks currentColor so light/dark themes resolve correctly. */
-  -webkit-text-stroke-width: calc(var(--weight-fx, 0) * var(--tool-stroke-max-px, 0.4px));
-  -webkit-text-stroke-color: currentColor;
-  /* No transition: opacity + transform + --weight-fx are written every
-     scrub frame by applyDial, so they track the scroll directly (the scrub
-     itself is the smoother). A transition here would low-pass the label
-     behind its bar. */
+  /* No transition: opacity + transform are written every scrub frame by
+     applyDial, so they track the scroll directly (the scrub itself is the
+     smoother). A transition here would low-pass the label behind its bar.
+     The bold-overlay crossfade is on .dialTool::after below — its opacity
+     is driven by --weight-fx (per-frame) so it inherits the same scrub
+     smoothness without needing a transition either. */
+}
+
+/* Bold-weight overlay for simulated weight scrubbing without a variable font.
+   Each dial label renders twice: the parent .dialTool at weight 400 (book,
+   above), and this ::after pseudo at weight 700 (bold) layered on top via
+   `content: attr(data-text)` (the JS at cell creation mirrors the label text
+   into a data-text attribute so this can pick it up). The pseudo's opacity
+   is driven per scroll frame by applyDial's `--weight-fx` write (0..1, =
+   smoothstepped proximity to the needle), capped by --tool-bold-cap (set on
+   .dialStrip at mount from TOOL_BOLD_PEAK_OPACITY) so the on-needle peak
+   composite reads as approximately weight 600 rather than full 700.
+   Inherits font-family / font-size / letter-spacing / color from the parent
+   so the bold glyph aligns exactly over the book glyph — only weight differs. */
+.dialTool::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  text-align: center;
+  font-weight: 700;
+  opacity: calc(var(--weight-fx, 0) * var(--tool-bold-cap, 0.6));
+  pointer-events: none;
+  will-change: opacity;
 }
 
 /* Meter bar — a thin vertical accent rule that scales up (scaleY) toward the

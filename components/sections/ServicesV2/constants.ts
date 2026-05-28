@@ -116,18 +116,19 @@ export const TOOL_OPACITY_RANGE = 0.7;
    so the centred label grows by up to 18% as it locks onto the needle. */
 export const LABEL_SCALE_GAIN = 0.18;
 
-/* Tool-label simulated-weight ramp (CSS-only — no variable font required).
-   The dial labels stay on the static 400 cut of PP Neue Montreal; their
-   apparent weight is faked via `-webkit-text-stroke-width` driven from a
-   `--weight-fx` custom property that applyDial writes per frame as a 0..1
-   value (= the same smoothstepped `eased` used for the bar's scaleY). CSS
-   maps that 0..1 onto a stroke width by multiplying by TOOL_STROKE_MAX_PX,
-   which is set on the dialStrip as `--tool-stroke-max-px` at mount so the
-   visual cap lives next to the other dial tunables here rather than buried
-   in CSS.
-   0.4px is calibrated to mimic font-weight 600 (semi-bold) on PP Neue
-   Montreal Book at the dial's font-size: enough thickening to read as a
-   deliberate emphasis on the on-needle label, low enough to avoid visible
-   outlining/halo on the geometric glyphs. Empirical mapping for tuning:
-   ~0.2 ≈ weight 500, ~0.4 ≈ weight 600, ~0.6 ≈ weight 700, ~0.8 ≈ weight 800. */
-export const TOOL_STROKE_MAX_PX = 0.4;
+/* Tool-label crossfade peak cap (CSS-only — no variable font required).
+   Each .dialTool renders twice: the parent span at weight 400 (book), and a
+   ::after pseudo at weight 700 (bold) layered on top via `content: attr(
+   data-text)`. The pseudo's opacity is `var(--weight-fx) * TOOL_BOLD_PEAK_
+   OPACITY` so it fades in as the cell approaches the needle, riding the
+   same smoothstepped `eased` curve that applyDial writes into --weight-fx
+   each frame. Because both layers are real font designs, the on-needle
+   label transitions from a real weight-400 render toward a real weight-700
+   render — no outline halo, no simulation artifact.
+   At opacity 1.0 the composite reads as weight 700; at 0.0 as pure book;
+   this cap (default 0.6) lands the on-needle peak around weight 600
+   (semi-bold). Tune up for chunkier peaks (0.8 ≈ weight 650–700), down for
+   subtler (0.4 ≈ weight 500–550). Range: 0..1.
+   Reuses the existing /fonts/ppneuemontreal-bold.woff registered in
+   styles/fonts.css — no new asset, no licensing concern. */
+export const TOOL_BOLD_PEAK_OPACITY = 0.6;
