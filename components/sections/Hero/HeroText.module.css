@@ -96,9 +96,7 @@
     display: grid;
     /* Removed place-items: end to allow stretch (default) so layers align perfectly */
     position: relative;
-    /* Match the inter-H1 gap (.heroTextAbbas margin-top) so the tagline sits
-       the same distance below ABBAS as ABBAS sits below MOHED. */
-    margin-top: clamp(10px, 2vw, 20px);
+    margin-top: 0;
     max-width: clamp(280px, 28vw, 420px);
     margin-left: auto;
     margin-right: 0;
@@ -210,7 +208,7 @@
 /* Responsive adjustments for MacBook 14" and similar screens */
 @media (min-width: 1200px) and (max-width: 1600px) {
     .taglineContainer {
-        margin-top: clamp(10px, 2vw, 20px);
+        margin-top: 0;
         max-width: 380px;
     }
 }
@@ -218,7 +216,7 @@
 /* Larger desktop adjustments */
 @media (min-width: 1600px) {
     .taglineContainer {
-        margin-top: clamp(10px, 2vw, 20px);
+        /* margin-top: clamp(10px, 2vw, 20px); */
         max-width: 420px;
     }
 }
@@ -235,7 +233,7 @@
     }
 
     .taglineContainer {
-        margin-top: clamp(10px, 2vw, 20px);
+        margin-top: 0;
     }
 }
 
