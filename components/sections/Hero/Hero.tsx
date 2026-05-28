@@ -15,10 +15,10 @@ const INITIALS = content.welcomeScreen.initials;
 const SCROLL_RANGE_VH = 1;
 // Timeline progress at which Philosophy starts entering the viewport.
 // Phase 6's cross-dissolve ends at 0.81, but starting Philosophy slightly
-// earlier (0.65) overlaps its top edge with the dissolve — softens the
+// earlier (0.25) overlaps its top edge with the dissolve — softens the
 // handoff. If you add keyframes past 0.81, raise this constant or compute
 // it from `tl.duration()` after the timeline is built.
-const DOCKING_PROGRESS = 0.65;
+const DOCKING_PROGRESS = 0.25;
 // Timeline tuning constants.
 const SCRUB_SMOOTHING = 1.75;
 const SKILLS_EXIT_YPERCENT = 300;
@@ -81,11 +81,11 @@ export function Hero() {
     // moment.
     //
     // Geometry:
-    //   docking happens at scroll = scrollRange × DOCKING_PROGRESS = 65vh
+    //   docking happens at scroll = scrollRange × DOCKING_PROGRESS = 25vh
     //   we want Philosophy.top to reach viewport-bottom (= 100vh) at
     //   exactly that scroll position, then rise one viewport into view
     //   before its own pin engages.
-    //   => spacer.height = 65vh + 100vh = 165vh
+    //   => spacer.height = 25vh + 100vh = 125vh
     //
     // Earlier formulas:
     //   - hero.offsetHeight + scrollRange (≈ 200vh + 60px) left a
@@ -210,7 +210,11 @@ export function Hero() {
       tl.to(taglineContainer, { opacity: 0, duration: 0.2, ease: 'power2.in' }, 0.08);
     }
     if (skillsBar) {
-      tl.to(skillsBar, { yPercent: SKILLS_EXIT_YPERCENT, duration: 0.30, ease: 'power2.in' }, 0.385);
+      // Scaled with DOCKING_PROGRESS (0.25) to preserve the original
+      // "SkillsBar exits just as Philosophy crests the viewport bottom"
+      // handoff. Original was (start 0.385, duration 0.30) tuned for
+      // DOCKING_PROGRESS = 0.65; scale factor = 0.25/0.65 ≈ 0.385.
+      tl.to(skillsBar, { yPercent: SKILLS_EXIT_YPERCENT, duration: 0.12, ease: 'power2.in' }, 0.15);
     }
 
     // --- PHASE 5: Fly + shrink to navbar center (via SCALE, not fontSize) ---
