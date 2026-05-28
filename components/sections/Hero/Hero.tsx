@@ -13,6 +13,13 @@ const INITIALS = content.welcomeScreen.initials;
 
 // Scroll range for the initials-to-navbar handoff, expressed in viewport heights.
 const SCROLL_RANGE_VH = 1;
+// Timeline progress at which the docking visually completes — Phase 6's
+// cross-dissolve (lines below) ends at progress 0.71 + 0.10 = 0.81. The
+// scroll spacer below uses this to start Philosophy's entry at the docking
+// moment instead of at the start of the animation. If you add keyframes
+// past 0.81, raise this constant or compute it from `tl.duration()` after
+// the timeline is built.
+const DOCKING_PROGRESS = 0.81;
 // Timeline tuning constants.
 const SCRUB_SMOOTHING = 1.75;
 const SKILLS_EXIT_YPERCENT = 300;
@@ -66,14 +73,28 @@ export function Hero() {
     const flyingM = flyingMRef.current;
     const flyingA = flyingARef.current;
 
-    // Spacer height = animation range only. Hero is position: fixed
-    // (Hero.module.css), so it consumes zero document-flow height — the
-    // spacer is purely the runway for the scrubbed initials-to-navbar
-    // timeline. Including hero.offsetHeight here would double-count one
-    // viewport, leaving Philosophy out of view for ~100vh after the
-    // timeline already finished (visible empty-center gap).
+    // Spacer height = (scroll-distance to docking) + one viewport.
+    //
+    // Hero is position: fixed (Hero.module.css), so it consumes zero
+    // document-flow height — this spacer is the sole runway for both
+    // the scrubbed initials-to-navbar timeline AND the document-flow
+    // gap that keeps Philosophy below the viewport until the docking
+    // moment.
+    //
+    // Geometry:
+    //   docking happens at scroll = scrollRange × DOCKING_PROGRESS = 81vh
+    //   we want Philosophy.top to reach viewport-bottom (= 100vh) at
+    //   exactly that scroll position, then rise one viewport into view
+    //   before its own pin engages.
+    //   => spacer.height = 81vh + 100vh = 181vh
+    //
+    // Earlier formulas:
+    //   - hero.offsetHeight + scrollRange (≈ 200vh + 60px) left a
+    //     ~120vh empty stretch between docking and Philosophy entry.
+    //   - scrollRange (= 100vh) put Philosophy in the viewport from
+    //     scroll 0, so it rose during the animation — also wrong.
     const scrollRange = window.innerHeight * SCROLL_RANGE_VH;
-    spacer.style.height = `${scrollRange}px`;
+    spacer.style.height = `${scrollRange * DOCKING_PROGRESS + window.innerHeight}px`;
 
     // Query target elements (navbar is at page level, query from document)
     const targetM = document.getElementById('target-m');
@@ -230,7 +251,7 @@ export function Hero() {
       invalidateOnRefresh: true,
       onRefresh: () => {
         // Recalculate spacer height on resize/refresh (matches initial calc above).
-        spacer.style.height = `${window.innerHeight * SCROLL_RANGE_VH}px`;
+        spacer.style.height = `${window.innerHeight * SCROLL_RANGE_VH * DOCKING_PROGRESS + window.innerHeight}px`;
         // Re-seed source fontSize + cached scale ratios so Phase 5 resolves
         // against the post-resize target sizes (clamp() CSS may change values).
         seedFlyingLetterTypography();
