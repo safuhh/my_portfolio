@@ -13,13 +13,12 @@ const INITIALS = content.welcomeScreen.initials;
 
 // Scroll range for the initials-to-navbar handoff, expressed in viewport heights.
 const SCROLL_RANGE_VH = 1;
-// Timeline progress at which the docking visually completes — Phase 6's
-// cross-dissolve (lines below) ends at progress 0.71 + 0.10 = 0.81. The
-// scroll spacer below uses this to start Philosophy's entry at the docking
-// moment instead of at the start of the animation. If you add keyframes
-// past 0.81, raise this constant or compute it from `tl.duration()` after
-// the timeline is built.
-const DOCKING_PROGRESS = 0.81;
+// Timeline progress at which Philosophy starts entering the viewport.
+// Phase 6's cross-dissolve ends at 0.81, but starting Philosophy slightly
+// earlier (0.65) overlaps its top edge with the dissolve — softens the
+// handoff. If you add keyframes past 0.81, raise this constant or compute
+// it from `tl.duration()` after the timeline is built.
+const DOCKING_PROGRESS = 0.65;
 // Timeline tuning constants.
 const SCRUB_SMOOTHING = 1.75;
 const SKILLS_EXIT_YPERCENT = 300;
@@ -82,11 +81,11 @@ export function Hero() {
     // moment.
     //
     // Geometry:
-    //   docking happens at scroll = scrollRange × DOCKING_PROGRESS = 81vh
+    //   docking happens at scroll = scrollRange × DOCKING_PROGRESS = 65vh
     //   we want Philosophy.top to reach viewport-bottom (= 100vh) at
     //   exactly that scroll position, then rise one viewport into view
     //   before its own pin engages.
-    //   => spacer.height = 81vh + 100vh = 181vh
+    //   => spacer.height = 65vh + 100vh = 165vh
     //
     // Earlier formulas:
     //   - hero.offsetHeight + scrollRange (≈ 200vh + 60px) left a

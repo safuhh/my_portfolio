@@ -26,12 +26,12 @@
     width: 100%;
     pointer-events: none;
     /* CSS fallback that matches Hero.tsx's runtime formula:
-       scrollRange × DOCKING_PROGRESS + 1 viewport = 81vh + 100vh = 181vh.
+       scrollRange × DOCKING_PROGRESS + 1 viewport = 65vh + 100vh = 165vh.
        JS overwrites this once Hero mounts; the hero itself is
        position: fixed so this spacer is the only document-flow
        contribution, and matching the JS value keeps Philosophy in the
        same pre/post-hydration scroll position. */
-    min-height: 181vh;
+    min-height: 165vh;
 }
 
 /* ============================================
