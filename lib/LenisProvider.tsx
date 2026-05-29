@@ -45,11 +45,12 @@ export function LenisProvider({ children }: LenisProviderProps) {
 
   useEffect(() => {
     // Initialize Lenis
-    // duration: tuned to 1.2 (Lenis docs default) for 60Hz responsiveness.
-    // Original 3.0 produced ~5s of trailing lerp when combined with Hero's
-    // ScrollTrigger scrub — see docs/perf/animation-baseline.md to restore.
+    // duration: 1.8 — deliberately slower than the Lenis 1.2 default for a
+    // heavier, more cinematic glide. Kept below the old 3.0 value, which
+    // produced ~5s of trailing lerp against Hero's ScrollTrigger scrub; 1.8
+    // stays clear of that. See docs/perf/animation-baseline.md for history.
     const lenis = new Lenis({
-      duration: 1.2,
+      duration: 1.8,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // easeOutExpo
       orientation: 'vertical',
       gestureOrientation: 'vertical',
