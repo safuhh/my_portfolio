@@ -234,6 +234,14 @@
         "marqueeDurationSec": 24
       },
       {
+        "id": "travara",
+        "title": "travara",
+        "discipline": "Full-Stack · Travel Platform",
+        "year": 2025,
+        "accent": "#ff990a",
+        "marqueeDurationSec": 26
+      },
+      {
         "id": "emerald-psychiatry",
         "title": "emerald psychiatry",
         "discipline": "Front-End · Healthcare Web",

@@ -247,8 +247,222 @@
       ]
     },
     "nextCase": {
+      "slug": "travara",
+      "counter": "Next case · 02 / 04"
+    }
+  },
+  "travara": {
+    "hero": {
+      "title": "TRAVARA",
+      "lede": "A travel-management platform for a tour operator that books flights, stays, and full itineraries in one place. I built it full-stack: a Laravel, Postgres, and Redis back end behind a Next.js and Tailwind front end, all containerised with Docker. Figma design with Hamail Hassan.",
+      "image": "/images/work/travara/01-hero.png",
+      "alt": "Travara travel-management landing page",
+      "pills": ["Full-Stack · Travel Platform", "Laravel · Next.js · Postgres"],
+      "badge": "View\nCase",
+      "backHref": "/"
+    },
+    "ledger": {
+      "entries": [
+        {
+          "label": "Client",
+          "primary": "Travara",
+          "secondary": "Travel-management brand"
+        },
+        { "label": "Year", "primary": "2025", "secondary": "Built & delivered" },
+        {
+          "label": "Role",
+          "primary": "Engineer",
+          "secondary": "Full-stack development"
+        },
+        {
+          "label": "Stack",
+          "primary": "Laravel · Next",
+          "secondary": "Postgres · Redis · Docker"
+        },
+        {
+          "label": "Status",
+          "primary": "Shipped",
+          "secondary": "Delivered to client"
+        }
+      ]
+    },
+    "context": {
+      "label": "Context",
+      "facts": [
+        "**Role**Full-stack engineer",
+        "**Stack**Laravel · Next.js · Postgres · Redis · Docker",
+        "**Team**1 engineer (me) · 1 designer"
+      ],
+      "body": [
+        "**Travara is a travel-management brand** that books trips end to end: flights, stays, schedules, and the support around them. Coordinating that breadth usually means a stack of disconnected tools and a spreadsheet quietly holding them together.",
+        "The brief was one platform. A traveler plans and books on the front, the team behind the counter manages it from the same source of truth: curated stays, exclusive deals, live availability, **no double entry and no version that only one person can see.**",
+        "Hamail Hassan and I shaped the design in Figma: warm, editorial, photography-led, closer to a travel magazine than a booking engine. **I built everything else, front to back.**",
+        "The front end is Next.js and Tailwind with a shadcn component layer; the back end is Laravel over Postgres with Redis caching the busy reads. Every service runs in Docker, so the client can host the whole platform wherever it likes."
+      ]
+    },
+    "vision": {
+      "label": "The Vision",
+      "titleLine1": "Plan and book",
+      "titleLine2": "without the",
+      "titleAccent": "tab sprawl.",
+      "body": [
+        "Two ideas held the build together. **One: a single source of truth.** Availability, pricing, and bookings live in Postgres and move through real transitions, so what a traveler sees and what the team sees never drift apart.",
+        "**Two: it has to feel effortless.** The browsing is editorial and unhurried, but the booking underneath is quick. Redis caches the destination and package views that get hit hardest, the Laravel API stays lean, and the Next.js front end paints fast on first load."
+      ]
+    },
+    "product": {
+      "label": "The Product",
+      "titleLine1": "A booking flow",
+      "titleLine2": "that reads like a",
+      "titleAccent": "magazine.",
+      "body": [
+        "The surface is built to make planning feel like daydreaming, not data entry. **Curated destinations, handpicked stays, and clear packages** carry real photography and generous space; the booking controls sit close by but never crowd the view.",
+        "Under it sits a typed Next.js app with a shadcn component layer, talking to a Laravel API over a clean contract. **State stays honest end to end:** a stay shown as available is available, because the front end and the database read from the same source."
+      ]
+    },
+    "dashboard": {
+      "badge": "Full\nStack",
+      "figcaption": "Fig. 02 · Destination explorer · 2025",
+      "image": "/images/work/travara/03-destinations.png",
+      "alt": "Travara destination explorer"
+    },
+    "toggle": {
+      "label": "The Build",
+      "titleLine1": "All",
+      "titleAccent": "screens.",
+      "screens": [
+        {
+          "num": "01",
+          "name": "Why Travara",
+          "image": "/images/work/travara/02-features.png",
+          "color": "#F2EBDF",
+          "description": "Curated stays, deals, support",
+          "meta": "1240 × 923",
+          "hasGalleryCaption": true
+        },
+        {
+          "num": "02",
+          "name": "Destination detail",
+          "image": "/images/work/travara/07-card-bali.png",
+          "color": "#E7EAEC",
+          "description": "Single-stay card, location perks",
+          "meta": "229 × 575",
+          "hasGalleryCaption": true
+        },
+        {
+          "num": "03",
+          "name": "Trust & traction",
+          "image": "/images/work/travara/04-about-stats.png",
+          "color": "#FCE9D8",
+          "description": "Partner story, live counters",
+          "meta": "1238 × 813",
+          "hasGalleryCaption": true
+        },
+        {
+          "num": "04",
+          "name": "Closing & footer",
+          "image": "/images/work/travara/06-footer.png",
+          "color": "#E5EEEC",
+          "description": "Final CTA, sitemap",
+          "meta": "1340 × 914",
+          "hasGalleryCaption": true
+        },
+        {
+          "num": "05",
+          "name": "Traveler wall",
+          "image": "/images/work/travara/05-testimonials.png",
+          "color": "#EAECEF",
+          "description": "Social-proof grid",
+          "meta": "1240 × 508",
+          "hasGalleryCaption": true
+        },
+        {
+          "num": "06",
+          "name": "Destination explorer",
+          "image": "/images/work/travara/03-destinations.png",
+          "color": "#E6EFF2",
+          "description": "Five-card browse row",
+          "meta": "1240 × 951"
+        },
+        {
+          "num": "07",
+          "name": "Destination detail · Lisbon",
+          "image": "/images/work/travara/08-card-lisbon.png",
+          "color": "#E4EEEC",
+          "description": "Stay card, second variant",
+          "meta": "229 × 575"
+        }
+      ]
+    },
+    "architecture": {
+      "label": "Architecture",
+      "titleLine1": "Under the",
+      "titleAccent": "hood.",
+      "intro": "Behind the screens, Travara is a full-stack platform I built and containerised end to end: a typed Next.js client, a Laravel REST API, and a Postgres core with Redis in front, **all running in Docker so the client can host it anywhere.**",
+      "layers": [
+        {
+          "name": "Client",
+          "tech": ["Next.js", "Tailwind", "shadcn"],
+          "detail": "Server-rendered React with a shadcn component layer, typed end to end and talking to the API over a clean REST contract."
+        },
+        {
+          "name": "API",
+          "tech": ["Laravel", "PHP", "REST"],
+          "detail": "A Laravel back end handling auth, bookings, and the business rules around availability and pricing, exposed as versioned REST endpoints."
+        },
+        {
+          "name": "Data",
+          "tech": ["PostgreSQL", "Redis"],
+          "detail": "Postgres holds destinations, packages, stays, and bookings as the single source of truth. Redis caches the read-heavy browse and availability views."
+        },
+        {
+          "name": "Runtime",
+          "tech": ["Docker", "Nginx"],
+          "detail": "Every service in its own container behind Nginx, so the whole platform deploys as a unit and the client can self-host wherever it likes."
+        }
+      ],
+      "facts": [
+        { "value": "4", "title": "Layers", "caption": "client to runtime" },
+        { "value": "2", "title": "Data stores", "caption": "Postgres + Redis" },
+        {
+          "value": "100",
+          "unit": "%",
+          "title": "Containerised",
+          "caption": "every service in Docker"
+        },
+        { "value": "1", "title": "Engineer", "caption": "front end to infra" }
+      ]
+    },
+    "colophon": {
+      "leftLabel": "Colophon",
+      "titleLine1": "Made with a small",
+      "titleAccent": "circle.",
+      "credits": [
+        {
+          "role": "Engineering",
+          "primary": "Mohed Abbas",
+          "secondary": "Full stack · FE, API, DB, infra"
+        },
+        {
+          "role": "Design",
+          "primary": "Hamail Hassan",
+          "secondary": "Figma · UI"
+        }
+      ],
+      "rightLabel": "About M.A",
+      "bio": [
+        "Mohed Abbas is a full-stack web engineer. He builds web products end to end: interfaces in React and Next, APIs and services in Laravel and Node, and the Postgres, Redis, and Docker plumbing that keeps them running.",
+        "Travara was a full-stack client build: a Figma design with Hamail Hassan, a Laravel and Postgres back end, a Next.js front end, and a Dockerised runtime the client owns. Currently open to full-time roles and freelance builds."
+      ],
+      "actions": [
+        { "label": "All work", "href": "/work2" },
+        { "label": "Back home", "href": "/" },
+        { "label": "Private client build" }
+      ]
+    },
+    "nextCase": {
       "slug": "emerald-psychiatry",
-      "counter": "Next case · 02 / 03"
+      "counter": "Next case · 03 / 04"
     }
   },
   "emerald-psychiatry": {
@@ -439,7 +653,7 @@
     },
     "nextCase": {
       "slug": "permitto",
-      "counter": "Next case · 03 / 03"
+      "counter": "Next case · 04 / 04"
     }
   },
   "permitto": {
@@ -666,7 +880,7 @@
     },
     "nextCase": {
       "slug": "tasktrox",
-      "counter": "Next case · 01 / 03"
+      "counter": "Next case · 01 / 04"
     }
   }
 }
