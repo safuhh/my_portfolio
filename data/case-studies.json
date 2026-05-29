@@ -342,11 +342,11 @@
         },
         {
           "num": "02",
-          "name": "Destination detail",
-          "image": "/images/work/travara/07-card-bali.png",
-          "color": "#E7EAEC",
-          "description": "Single-stay card, location perks",
-          "meta": "229 × 575",
+          "name": "Destination explorer",
+          "image": "/images/work/travara/03-destinations.png",
+          "color": "#E6EFF2",
+          "description": "Five-card browse row",
+          "meta": "1240 × 951",
           "hasGalleryCaption": true
         },
         {
@@ -360,15 +360,6 @@
         },
         {
           "num": "04",
-          "name": "Closing & footer",
-          "image": "/images/work/travara/06-footer.png",
-          "color": "#E5EEEC",
-          "description": "Final CTA, sitemap",
-          "meta": "1340 × 914",
-          "hasGalleryCaption": true
-        },
-        {
-          "num": "05",
           "name": "Traveler wall",
           "image": "/images/work/travara/05-testimonials.png",
           "color": "#EAECEF",
@@ -377,20 +368,13 @@
           "hasGalleryCaption": true
         },
         {
-          "num": "06",
-          "name": "Destination explorer",
-          "image": "/images/work/travara/03-destinations.png",
-          "color": "#E6EFF2",
-          "description": "Five-card browse row",
-          "meta": "1240 × 951"
-        },
-        {
-          "num": "07",
-          "name": "Destination detail · Lisbon",
-          "image": "/images/work/travara/08-card-lisbon.png",
-          "color": "#E4EEEC",
-          "description": "Stay card, second variant",
-          "meta": "229 × 575"
+          "num": "05",
+          "name": "Closing & footer",
+          "image": "/images/work/travara/06-footer.png",
+          "color": "#E5EEEC",
+          "description": "Final CTA, sitemap",
+          "meta": "1340 × 914",
+          "hasGalleryCaption": true
         }
       ]
     },
