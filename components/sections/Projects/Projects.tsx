@@ -196,7 +196,7 @@ export const Projects = () => {
 
             // 3. INNER PARALLAX
             tl.to(imgWrapper, {
-                scale: 1.1,
+                scale: 1.0,
                 force3D: true,
                 ease: "none"
             }, "start");

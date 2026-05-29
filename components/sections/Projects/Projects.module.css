@@ -164,8 +164,8 @@ a.projectSticky {
 
 /* THE IMAGE */
 .imageCard {
-    width: 80vw;
-    height: 70vh;
+    width: min(80vw, 76vh * 3 / 2);
+    aspect-ratio: 3 / 2; /* fixed ratio so cover crops consistently across screens */
     position: relative;
     z-index: 5;
     transform: scale(0.125) rotate(-10deg); /* Start small and crooked */
@@ -179,7 +179,7 @@ a.projectSticky {
     width: 100%;
     height: 100%;
     position: relative;
-    transform: scale(1.4);
+    transform: scale(1.15); /* parallax start; GSAP eases to 1.0 at rest */
 }
 
 /* FUNKY BADGE */
