@@ -33,15 +33,16 @@ export const PAD_CELLS = 3;
    content-relative value. */
 export const PIN_RUNWAY_VH = 10;
 
-/* Reference viewport height (px) for the pin runway. The end clamps the height
-   term to this: `+=Math.min(window.innerHeight, PIN_RUNWAY_REF_PX) * PIN_RUNWAY_VH`.
-   So every desktop-class screen sweeps the dial over the same ~900px-laptop runway
-   (900 * PIN_RUNWAY_VH = 9,000px) instead of growing with the display — a 1440px
-   screen drops from ~14,400px to 9,000px. This removes the screen-size slowness the
-   longer global Lenis glide exposed; anything shorter than 900px scales below it, so
-   no screen is ever slower than the laptop. Trade: a slightly larger per-burst cell
-   travel on tall screens (~2.7 → ~4.3 cells at 1440px), still under a zone width. */
+/* Height threshold (px) above which a screen counts as "tall/large". At or below
+   this, the runway scales with the actual viewport height (innerHeight * PIN_RUNWAY_VH);
+   above it, the reduced PIN_RUNWAY_TALL_REF_PX reference kicks in. 900px is the laptop
+   reference. */
 export const PIN_RUNWAY_REF_PX = 900;
+
+/* Reduced reference height (px) used for tall screens (innerHeight >
+   PIN_RUNWAY_REF_PX). Gives those screens a shorter ~6,000px runway
+   (600 * PIN_RUNWAY_VH) for a snappier sweep on large displays. */
+export const PIN_RUNWAY_TALL_REF_PX = 600;
 
 /* ScrollTrigger `scrub` value. With the longer pin runway above, a sharper
    scroll has more travel headroom, so lerp the dial toward its target a bit
