@@ -17,6 +17,7 @@ import {
   LABEL_RIDE_GAP_PX,
   LABEL_SCALE_GAIN,
   NEEDLE_FALLOFF,
+  PIN_RUNWAY_REF_PX,
   PIN_RUNWAY_VH,
   PIN_SCRUB,
   TOOL_OPACITY_MIN,
@@ -455,14 +456,19 @@ export function DialServicesV2() {
       const trigger = ScrollTrigger.create({
         trigger: shellEl,
         start: 'top top',
-        /* Runway length is viewport-relative BY DESIGN: it scales the pin
-           distance with screen height so the per-gesture cell travel stays
-           constant across devices (see PIN_RUNWAY_VH in constants.ts for the
-           derivation). Do NOT switch this to a content-relative value (e.g. a
-           fixed px or an element's height) without keeping the
-           ScrollTrigger.refresh() below — the imperative cell build and the
-           sibling layout swap both depend on a post-create remeasure. */
-        end: () => `+=${window.innerHeight * PIN_RUNWAY_VH}`,
+        /* Runway length is viewport-relative, but the height term is clamped to
+           PIN_RUNWAY_REF_PX (~900px laptop) so every desktop-class screen sweeps
+           the dial over the same ~9,000px runway instead of growing with the
+           display. Without the clamp, tall screens demand disproportionately more
+           scroll to sweep the dial (felt worse under the longer global Lenis
+           glide); shorter screens still scale below the reference so none is ever
+           slower than the laptop (see PIN_RUNWAY_REF_PX in constants.ts). Do NOT
+           switch this to a content-relative value (e.g. a fixed px or an element's
+           height) without keeping the ScrollTrigger.refresh() below — the
+           imperative cell build and the sibling layout swap both depend on a
+           post-create remeasure. */
+        end: () =>
+          `+=${Math.min(window.innerHeight, PIN_RUNWAY_REF_PX) * PIN_RUNWAY_VH}`,
         pin: pinEl,
         pinSpacing: true,
         /* Match V1's pinType so two adjacent pinned ScrollTriggers under
