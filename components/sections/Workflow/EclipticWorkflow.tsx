@@ -12,7 +12,7 @@ import { useRef } from 'react';
 import { content } from '@/data';
 import { useReducedMotion } from '@/lib/useReducedMotion';
 import { MetaLabel } from '@/components/ui/MetaLabel';
-import { VIEWBOX } from './variants';
+import { VIEWBOX, workflowAccent } from './variants';
 import { useEclipticDriver } from './useEclipticDriver';
 import { renderCopy } from './renderCopy';
 import styles from './Ecliptic.module.css';
@@ -22,7 +22,7 @@ export function EclipticWorkflow() {
   const reducedMotion = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
 
-  const accents = stops.map((s) => `var(--wf-${s.accent})`);
+  const accents = stops.map((s, i) => workflowAccent(s.accent, i, stops.length));
 
   useEclipticDriver(sectionRef, { accents, reducedMotion });
 
@@ -55,7 +55,7 @@ export function EclipticWorkflow() {
               className={styles.detail}
               data-step
               data-name={stop.name}
-              style={{ '--accent': `var(--wf-${stop.accent})` } as React.CSSProperties}
+              style={{ '--accent': workflowAccent(stop.accent, i, stops.length) } as React.CSSProperties}
             >
               <span className={styles.detailKicker}>
                 Step {String(i + 1).padStart(2, '0')}&nbsp;/&nbsp;{String(stops.length).padStart(2, '0')}

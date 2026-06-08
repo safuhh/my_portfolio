@@ -182,14 +182,8 @@
   text-wrap: pretty;
 }
 .em {
-  font-style: italic;
-  color: var(--color-primary-text);
-  background: linear-gradient(
-    transparent 76%,
-    var(--accent) 76%,
-    var(--accent) 94%,
-    transparent 94%
-  );
+  font-weight: 600;
+  color: var(--accent);
 }
 
 @media (max-width: 640px) {

@@ -12,7 +12,7 @@ import { useRef } from 'react';
 import { content } from '@/data';
 import { useReducedMotion } from '@/lib/useReducedMotion';
 import { MetaLabel } from '@/components/ui/MetaLabel';
-import { VIEWBOX } from './variants';
+import { VIEWBOX, workflowAccent } from './variants';
 import { useEclipseDriver } from './useEclipseDriver';
 import { renderCopy } from './renderCopy';
 import styles from './Eclipse.module.css';
@@ -22,7 +22,7 @@ export function EclipseWorkflow() {
   const reducedMotion = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
 
-  const accents = stops.map((s) => `var(--wf-${s.accent})`);
+  const accents = stops.map((s, i) => workflowAccent(s.accent, i, stops.length));
 
   useEclipseDriver(sectionRef, { accents, reducedMotion });
 
@@ -58,11 +58,8 @@ export function EclipseWorkflow() {
               className={styles.detail}
               data-step
               data-name={stop.name}
-              style={{ '--accent': `var(--wf-${stop.accent})` } as React.CSSProperties}
+              style={{ '--accent': workflowAccent(stop.accent, i, stops.length) } as React.CSSProperties}
             >
-              <span className={styles.detailKicker}>
-                Step {String(i + 1).padStart(2, '0')}&nbsp;·&nbsp;{stop.name}
-              </span>
               <h3 className={styles.detailTitle}>{stop.title}</h3>
               <p className={styles.detailCopy}>{renderCopy(stop, styles.em)}</p>
             </article>

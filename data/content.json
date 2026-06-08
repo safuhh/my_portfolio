@@ -76,32 +76,36 @@
       {
         "name": "Discover",
         "title": "Listen first.",
-        "copy": "Audit the problem before touching a pixel. The audience, the constraints, the metrics that move, and a sharp written definition of done.",
+        "copy": "Before I touch code, I work out who it's for and what done actually means. Half the job is asking sharper questions than the brief did.",
         "emphasis": "done",
         "accent": "teal"
       },
       {
         "name": "Define",
         "title": "Find the angle.",
-        "copy": "Strategy and positioning, the single idea the whole product hangs on. The through-line a visitor remembers once the tab is closed.",
+        "copy": "Most products try to say five things and land none. I find the one idea worth keeping and build everything around it, so people remember it after the tab closes.",
+        "emphasis": "one idea",
         "accent": "red"
       },
       {
         "name": "Design",
-        "title": "Make it inevitable.",
-        "copy": "Interface and motion in Figma. Design systems and prototypes that prove the claim before a line of production code is written.",
+        "title": "Prototype, don't guess.",
+        "copy": "I design and prototype the hard interactions in Figma while they're still cheap to change. If it doesn't feel right as a prototype, it won't feel right shipped.",
+        "emphasis": "cheap to change",
         "accent": "orange"
       },
       {
         "name": "Build",
-        "title": "Ship at sixty.",
-        "copy": "Production UI typed end to end across React, Vue, Next and Nuxt. Accessible by default, with scroll-tied motion that holds 60 fps.",
-        "accent": "green"
+        "title": "Build it for real.",
+        "copy": "This is where I'm strongest. Production UI in React, Vue, Next or Nuxt, typed end to end, accessible by default, fast on a mid-range phone, with motion that actually holds 60fps.",
+        "emphasis": "60fps",
+        "accent": "gold"
       },
       {
         "name": "Refine",
         "title": "Sweat the last ten.",
-        "copy": "Observability, polish, and the micro-interactions everybody feels. Catch the bugs before users do, then iterate on the real thing.",
+        "copy": "The last 10% is the part people actually feel: how it behaves when something breaks, the bug I kill before anyone hits it. I'd rather spend an extra week here than ship something almost right.",
+        "emphasis": "almost right",
         "accent": "teal"
       }
     ]
