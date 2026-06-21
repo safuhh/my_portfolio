@@ -33,19 +33,27 @@ export function AboutPageHeroEcho() {
 
   useGSAP(
     () => {
+      const section = sectionRef.current;
+      if (!section) return;
+
       const mm = gsap.matchMedia();
       mm.add("(prefers-reduced-motion: no-preference)", () => {
+        const echoes = gsap.utils.toArray<HTMLElement>("[data-echo]", section);
+
+        // On-load reveal: the solid word slides up, the echoes fade in from the
+        // centre out, then the chrome settles.
         gsap.set("[data-reveal]", { autoAlpha: 0, y: 24 });
         gsap.set("[data-solid]", { yPercent: 115 });
-        gsap.set("[data-echo]", (_i: number, el: HTMLElement) => ({
+        gsap.set(echoes, (_i: number, el: HTMLElement) => ({
           autoAlpha: 0,
           y: el.dataset.dir === "up" ? -16 : 16,
         }));
 
-        const tl = gsap.timeline({ delay: 0.1 });
-        tl.to("[data-solid]", { yPercent: 0, duration: 1, ease: "expo.out" })
+        const intro = gsap.timeline({ delay: 0.1 });
+        intro
+          .to("[data-solid]", { yPercent: 0, duration: 1, ease: "expo.out" })
           .to(
-            "[data-echo]",
+            echoes,
             {
               autoAlpha: 1,
               y: 0,
@@ -67,7 +75,53 @@ export function AboutPageHeroEcho() {
             "-=0.8",
           );
 
-        return () => tl.kill();
+        // Scroll crop: pin the hero and crop every echo row away with a
+        // `clip-path` inset — top rows retract upward (the band closes from the
+        // bottom edge so its content recedes off the top), bottom rows retract
+        // downward. Because clip-path never reflows, the rows hold their layout
+        // slots and the solid word in the middle stays perfectly intact. Each
+        // row crops at its own rate — the outer echoes (the faint tails) close
+        // fastest, the inner ones nearest the word linger longest — so the stack
+        // peels away from the outside in. The slowest row finishes exactly as
+        // the pin releases, then normal scroll resumes. `immediateRender: false`
+        // keeps the scrub from clobbering the intro before the user scrolls.
+        const merge = gsap.timeline({
+          scrollTrigger: {
+            trigger: section,
+            start: "top top",
+            end: "+=120%",
+            pin: true,
+            scrub: 0.6,
+          },
+        });
+        const maxRank = (echoes.length - 1) / 2;
+        echoes.forEach((row, i) => {
+          // rank = distance from the centre of the stack (0 = innermost).
+          const rank = Math.abs(i - maxRank);
+          // Retract toward the outer edge: top rows close from the bottom up,
+          // bottom rows close from the top down.
+          const closed =
+            row.dataset.dir === "up"
+              ? "inset(0% 0% 100% 0%)"
+              : "inset(100% 0% 0% 0%)";
+          merge.fromTo(
+            row,
+            { clipPath: "inset(0% 0% 0% 0%)" },
+            {
+              clipPath: closed,
+              ease: "power1.in",
+              duration: 0.5 + (maxRank - rank) * 0.3,
+              immediateRender: false,
+            },
+            0,
+          );
+        });
+
+        return () => {
+          intro.kill();
+          merge.scrollTrigger?.kill();
+          merge.kill();
+        };
       });
     },
     { scope: sectionRef },
