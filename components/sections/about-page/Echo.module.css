@@ -1,0 +1,134 @@
+/* ABOUT PAGE · Hero variant — "Echo".
+   Stacked masthead: a solid centre word with sliced, outlined echo rows above
+   and below. Band heights + text offsets are ported from the Figma layers as em
+   ratios of the masthead size (246.667px in the source), so every slice lines up
+   regardless of the rendered font size. */
+
+.hero {
+  position: relative;
+  z-index: var(--z-above);
+  box-sizing: border-box;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: clamp(96px, 13vh, 150px) 0 0;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 20px;
+  padding: 0 var(--spacing-nav-side);
+}
+/* Back button — matches the case-study Hero: a circular outlined arrow that
+   inverts on hover. */
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1 / 1;
+  height: calc(2px * 2 + 9px * 2 + clamp(13px, 1vw, 16px));
+  border: 2px solid var(--color-primary-text);
+  border-radius: 999px;
+  background: var(--color-background);
+  color: var(--color-primary-text);
+  text-decoration: none;
+  font-family: var(--font-navbar);
+  font-size: clamp(14px, 1.05vw, 17px);
+  line-height: 1;
+  transition:
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.28s ease,
+    color 0.28s ease,
+    border-color 0.28s ease;
+  will-change: transform;
+}
+.backLink:hover {
+  transform: translateX(-2px) scale(1.03);
+  background: var(--color-primary-text);
+  color: var(--color-background);
+}
+
+/* Centres the stack in the space left under the chrome. */
+.stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 0;
+}
+
+/* The masthead. `font-size` is the em base every slice is measured against; the
+   word fills the viewport like the Figma frame and stays nowrap. */
+.stack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.0324em;
+  width: 100%;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: normal;
+  letter-spacing: -0.01em;
+  font-size: clamp(44px, 16.5vw, 247px);
+}
+
+/* Echo rows — each clips the full word to a thin band; the text inside is
+   absolutely placed so the same glyph slice repeats across the rows. */
+.echoRow {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+.echoRow[data-band="top"] { height: 0.373em; }
+.echoRow[data-band="bottom"] { height: 0.3365em; }
+
+.echoText {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  white-space: nowrap;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: clamp(1px, 0.0095em, 2.5px) currentColor;
+}
+.echoRow[data-band="top"] .echoText { top: -0.2108em; }
+.echoRow[data-band="bottom"] .echoText { top: -0.6405em; }
+
+/* Solid centre word — the only filled row, full glyph height. */
+.solid {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 0.75em;
+}
+.solidText {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -0.227em;
+  text-align: center;
+  white-space: nowrap;
+}
+.solidInk { color: var(--color-text-muted-strong); }
+.solidAccent { color: var(--color-accent-purple); }
+
+/* Stroke tone for the echo rows (currentColor feeds -webkit-text-stroke). */
+.ink { color: var(--color-primary-text); }
+.accent { color: var(--color-accent-purple); }

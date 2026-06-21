@@ -3,7 +3,160 @@
     "label": "About",
     "verbs": ["Design it.", "Build it.", "Ship it.", "Run it."],
     "lede": "Mohed Abbas builds web products end to end, from the interface to the containers it runs in.",
-    "meta": ["Independent", "Full-Stack Web Engineer", "Currently building TASKTROX"]
+    "meta": ["Builds independently", "Full Stack Web Engineer", "Currently building TASKTROX"],
+    "bio": [
+      "I am **Mohed Abbas**, a full stack web engineer who builds products end to end. The design in Figma, the interface in React and Vue, the services behind it, and the infrastructure it all runs on.",
+      "I work full time as a **full stack engineer**, and I build my own products independently. Right now that is TASKTROX, an internal operations platform I built end to end. Before it, production work for clients across travel, healthcare and industrial safety.",
+      "The throughline never changes: **ship the real thing, not a mockup.** Accessible by default, fast, and built to scale past launch."
+    ],
+    "_cvNote": "All CV data is REAL (provided by Mohed; French sources translated to English). The /about page reads the unified, de-duplicated `credentials` array (degrees carry their RNCP state titles as `titles` so nothing is listed twice). The legacy `education` + `certifications` arrays are kept ONLY for the unmounted home About exploration variants and can be deleted once those are pruned. The bio paragraphs are grounded in known facts.",
+    "experience": [
+      {
+        "role": "Full Stack Developer",
+        "org": "LMS Factory",
+        "kind": "Full-time",
+        "period": "April 2021 → Present",
+        "summary": "Building Moodle LMS plugins and themes in PHP, and the data architecture behind them.",
+        "points": [
+          "Built LMS (Moodle) plugins in PHP",
+          "Built Moodle themes in PHP, CSS and JavaScript",
+          "Designed the architecture and logic to manage data in the MySQL database",
+          "Wrote complex SQL queries"
+        ],
+        "tags": ["PHP", "Moodle", "MySQL", "CSS", "JavaScript"],
+        "placeholder": false
+      },
+      {
+        "role": "Front-End Developer",
+        "org": "CIAGE",
+        "kind": "Internship",
+        "period": "Feb 2020 → March 2020",
+        "summary": "Front-end websites in Bootstrap and JavaScript, plus reusable component libraries.",
+        "points": [
+          "Built front-end websites with Bootstrap and JavaScript",
+          "Helped create fully reusable code and libraries for future use",
+          "Got up to speed on the company intranet"
+        ],
+        "tags": ["Bootstrap", "JavaScript", "HTML / CSS"],
+        "placeholder": false
+      }
+    ],
+    "credentials": [
+      {
+        "period": "2025 → Present",
+        "credential": "Master 1, Web Engineering",
+        "institution": "ESGI · Paris",
+        "kind": "Degree",
+        "status": "In progress",
+        "points": [
+          "Frameworks Vue.js, Nuxt.js, Node.js and Symfony",
+          "Advanced DevOps: Docker, CI/CD, testing and telemetry",
+          "Web security, authentication protocols and server administration",
+          "UX and accessibility, SASS and TailwindCSS, plus Go and Agile Scrum"
+        ]
+      },
+      {
+        "period": "2024 → 2025",
+        "credential": "Bachelor, Web Engineering",
+        "institution": "ESGI · Paris",
+        "kind": "Degree",
+        "titles": [
+          { "label": "Application & Software Solutions Developer", "ref": "RNCP Level 6" }
+        ],
+        "points": [
+          "Development in PHP, JavaScript and TypeScript with Laravel",
+          "Docker, Git and Linux infrastructure",
+          "Relational database design, SQL and design patterns",
+          "Web design in Figma, project management and generative AI"
+        ]
+      },
+      {
+        "period": "2023",
+        "credential": "French Language Program",
+        "institution": "CAVILAM · Alliance Française",
+        "kind": "Course"
+      },
+      {
+        "period": "2020 → 2021",
+        "credential": "Bac+2, Web & Mobile Developer",
+        "institution": "WebForce3 · Les Mureaux",
+        "kind": "Degree",
+        "titles": [
+          { "label": "Web & Web Mobile Developer", "ref": "Titre Pro · RNCP Level 5" },
+          { "label": "Web Integration Techniques", "ref": "WebForce3" }
+        ],
+        "points": [
+          "Front-end integration",
+          "Building APIs in Symfony",
+          "Object-oriented programming and algorithms",
+          "Conceptual data modelling"
+        ]
+      },
+      {
+        "period": "2019 → 2020",
+        "credential": "École de la Deuxième Chance",
+        "institution": "Magnanville",
+        "kind": "Foundation",
+        "points": [
+          "French language and mathematics",
+          "Computing languages: HTML, CSS, JS (beginner)"
+        ]
+      }
+    ],
+    "certifications": [
+      { "name": "Application & Software Solutions Developer", "issuer": "ESGI · RNCP Level 6", "year": "2025", "placeholder": false },
+      { "name": "French Language Program", "issuer": "CAVILAM · Alliance Française", "year": "2023", "placeholder": false },
+      { "name": "Professional Title, Web & Web Mobile Developer", "issuer": "WebForce3 · RNCP Level 5", "year": "2021", "placeholder": false },
+      { "name": "Web Integration Techniques", "issuer": "WebForce3", "year": "2021", "placeholder": false }
+    ],
+    "education": [
+      {
+        "credential": "Master 1, Web Engineering",
+        "institution": "ESGI · Paris",
+        "period": "2025 → Present",
+        "points": [
+          "Frameworks Vue.js, Nuxt.js, Node.js and Symfony",
+          "Advanced DevOps: Docker, CI/CD, testing and telemetry",
+          "Web security, authentication protocols and server administration",
+          "UX and accessibility, SASS and TailwindCSS, plus Go and Agile Scrum"
+        ],
+        "placeholder": false
+      },
+      {
+        "credential": "Bachelor, Web Engineering",
+        "institution": "ESGI · Paris",
+        "period": "2024 → 2025",
+        "points": [
+          "Development in PHP, JavaScript and TypeScript with Laravel",
+          "Docker, Git and Linux infrastructure",
+          "Relational database design, SQL and design patterns",
+          "Web design in Figma, project management and generative AI"
+        ],
+        "placeholder": false
+      },
+      {
+        "credential": "Bac+2, Web & Mobile Developer",
+        "institution": "WebForce3",
+        "period": "2020 → 2021",
+        "points": [
+          "Front-end integration",
+          "Building APIs in Symfony",
+          "Object-oriented programming and algorithms",
+          "Conceptual data modelling"
+        ],
+        "placeholder": false
+      },
+      {
+        "credential": "École de la Deuxième Chance",
+        "institution": "Magnanville",
+        "period": "2019 → 2020",
+        "points": [
+          "French language and mathematics",
+          "Computing languages: HTML, CSS, JS (beginner)"
+        ],
+        "placeholder": false
+      }
+    ]
   },
   "hero": {
     "firstName": "MOHED",

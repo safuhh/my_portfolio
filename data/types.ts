@@ -96,6 +96,68 @@ export interface WorkflowContent {
   stops: WorkflowStop[];
 }
 
+export interface ExperienceEntry {
+  role: string;
+  org: string;
+  /** Engagement type, e.g. "Independent venture", "Full-time". */
+  kind: string;
+  /** Display period, e.g. "2024 — Present". */
+  period: string;
+  summary: string;
+  /** Responsibility bullets (optional detail under the summary). */
+  points?: string[];
+  tags?: string[];
+  /** true = sample/placeholder content awaiting real data. */
+  placeholder?: boolean;
+}
+
+export interface CertificationEntry {
+  name: string;
+  issuer: string;
+  year: string;
+  placeholder?: boolean;
+}
+
+export interface EducationEntry {
+  credential: string;
+  institution: string;
+  period: string;
+  detail?: string;
+  /** Coursework / focus bullets (optional detail under the card). */
+  points?: string[];
+  placeholder?: boolean;
+}
+
+/** A formal title or attached certificate carried by a credential, e.g. the
+ *  RNCP state title that an ESGI degree confers. Rendered as a "certified as"
+ *  line beneath the parent credential so it is never duplicated as its own row. */
+export interface CredentialTitle {
+  /** Title name, e.g. "Application & Software Solutions Developer". */
+  label: string;
+  /** Issuing reference / level, e.g. "RNCP Level 6" or "WebForce3". */
+  ref: string;
+}
+
+/** Unified credential record for the /about Credentials ledger. Merges what
+ *  used to live in separate `education` + `certifications` arrays so a degree
+ *  and the state title it confers are ONE entry, not two. */
+export interface CredentialEntry {
+  /** Display period, e.g. "2024 → 2025" or "2023". */
+  period: string;
+  /** Programme / credential name. */
+  credential: string;
+  /** Institution, e.g. "ESGI · Paris". */
+  institution: string;
+  /** Type chip: "Degree" | "Course" | "Foundation". */
+  kind: string;
+  /** Optional status note, e.g. "In progress". */
+  status?: string;
+  /** Formal titles / attached certs conferred by this credential. */
+  titles?: CredentialTitle[];
+  /** Coursework / focus bullets. */
+  points?: string[];
+}
+
 export interface AboutContent {
   /** Eyebrow / rotated meta-label, e.g. "About". */
   label: string;
@@ -107,6 +169,20 @@ export interface AboutContent {
   /** Meta row items, joined with middot separators. A item matching
    *  "Currently building TASKTROX" is rendered in the accent color. */
   meta: string[];
+  /** Profile narrative paragraphs (may contain **bold** markup). */
+  bio: string[];
+  /** Dev note flagging placeholder CV data. */
+  _cvNote?: string;
+  /** Work history (newest first). */
+  experience: ExperienceEntry[];
+  /** Unified, de-duplicated credentials ledger (degrees + their titles +
+   *  standalone courses) shown on the /about page. Newest first. */
+  credentials: CredentialEntry[];
+  /** @deprecated Legacy split arrays kept only for the unmounted home About
+   *  exploration variants. The /about page reads `credentials` instead. */
+  certifications: CertificationEntry[];
+  /** @deprecated See `certifications`. */
+  education: EducationEntry[];
 }
 
 export interface ServiceFace {
