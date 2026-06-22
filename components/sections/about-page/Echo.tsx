@@ -19,7 +19,7 @@ import { TransitionLink } from "@/components/transitions";
 import { useAccentColor } from "@/lib/AccentColorContext";
 import styles from "./Echo.module.css";
 
-const WORD = "ABOUT ME";
+const WORD = "ABOUT ME"; // The echo rows are all the same word, so we can centralize it here
 
 // Outline strokes alternate outward from the solid centre: ink, accent, ink.
 // Top rows render outer→inner (matching the Figma "third/second/first layer"
@@ -39,6 +39,9 @@ export function AboutPageHeroEcho() {
       const mm = gsap.matchMedia();
       mm.add("(prefers-reduced-motion: no-preference)", () => {
         const echoes = gsap.utils.toArray<HTMLElement>("[data-echo]", section);
+        const solidRow = section.querySelector<HTMLElement>(
+          '[data-band="solid"]',
+        );
 
         // On-load reveal: the solid word slides up, the echoes fade in from the
         // centre out, then the chrome settles.
@@ -75,16 +78,17 @@ export function AboutPageHeroEcho() {
             "-=0.8",
           );
 
-        // Scroll crop: pin the hero and crop every echo row away with a
-        // `clip-path` inset — top rows retract upward (the band closes from the
-        // bottom edge so its content recedes off the top), bottom rows retract
-        // downward. Because clip-path never reflows, the rows hold their layout
-        // slots and the solid word in the middle stays perfectly intact. Each
-        // row crops at its own rate — the outer echoes (the faint tails) close
-        // fastest, the inner ones nearest the word linger longest — so the stack
-        // peels away from the outside in. The slowest row finishes exactly as
-        // the pin releases, then normal scroll resumes. `immediateRender: false`
-        // keeps the scrub from clobbering the intro before the user scrolls.
+        // Scroll merge: pin the hero and, as the user scrolls, retract every
+        // echo row with a `clip-path` inset (top rows close from the bottom edge
+        // so they recede upward, bottom rows from the top edge) WHILE sliding the
+        // row toward the solid word. Every row retracts and merges at the same
+        // speed, finishing together as the pin releases. Each echo's group
+        // wrapper has `overflow: hidden`, so the moment a row crosses the solid
+        // word's edge it is clipped — the echoes dissolve INTO the masthead and
+        // are never drawn over the solid text. The slide distance is read from
+        // transform-free layout offsets so it re-derives on resize, and the solid
+        // word never moves. `immediateRender: false` keeps the scrub from
+        // clobbering the intro before the user scrolls.
         const merge = gsap.timeline({
           scrollTrigger: {
             trigger: section,
@@ -92,30 +96,33 @@ export function AboutPageHeroEcho() {
             end: "+=120%",
             pin: true,
             scrub: 0.6,
+            invalidateOnRefresh: true,
           },
         });
-        const maxRank = (echoes.length - 1) / 2;
-        echoes.forEach((row, i) => {
-          // rank = distance from the centre of the stack (0 = innermost).
-          const rank = Math.abs(i - maxRank);
-          // Retract toward the outer edge: top rows close from the bottom up,
-          // bottom rows close from the top down.
-          const closed =
-            row.dataset.dir === "up"
-              ? "inset(0% 0% 100% 0%)"
-              : "inset(100% 0% 0% 0%)";
-          merge.fromTo(
-            row,
-            { clipPath: "inset(0% 0% 0% 0%)" },
-            {
-              clipPath: closed,
-              ease: "power1.in",
-              duration: 0.5 + (maxRank - rank) * 0.3,
-              immediateRender: false,
-            },
-            0,
-          );
-        });
+        merge.fromTo(
+          echoes,
+          { clipPath: "inset(0% 0% 0% 0%)", y: 0 },
+          {
+            // Retract toward the outer edge: top rows close from the bottom up,
+            // bottom rows close from the top down.
+            clipPath: (_i: number, el: HTMLElement) =>
+              el.dataset.dir === "up"
+                ? "inset(0% 0% 100% 0%)"
+                : "inset(100% 0% 0% 0%)",
+            // Slide each row to the solid word's centre as it retracts; the
+            // group's overflow clips it well before it gets there.
+            y: (_i: number, el: HTMLElement) =>
+              solidRow
+                ? solidRow.offsetTop +
+                  solidRow.offsetHeight / 2 -
+                  (el.offsetTop + el.offsetHeight / 2)
+                : 0,
+            ease: "power1.in",
+            duration: 1,
+            immediateRender: false,
+          },
+          0,
+        );
 
         return () => {
           intro.kill();
@@ -144,17 +151,19 @@ export function AboutPageHeroEcho() {
 
       <div className={styles.stage} aria-hidden="true">
         <div className={styles.stack}>
-          {TOP_ROWS.map((tone, i) => (
-            <div
-              key={`t${i}`}
-              className={`${styles.echoRow} ${styles[tone]}`}
-              data-band="top"
-              data-echo
-              data-dir="up"
-            >
-              <span className={styles.echoText}>{WORD}</span>
-            </div>
-          ))}
+          <div className={styles.echoGroup} data-group="top">
+            {TOP_ROWS.map((tone, i) => (
+              <div
+                key={`t${i}`}
+                className={`${styles.echoRow} ${styles[tone]}`}
+                data-band="top"
+                data-echo
+                data-dir="up"
+              >
+                <span className={styles.echoText}>{WORD}</span>
+              </div>
+            ))}
+          </div>
 
           <div className={styles.solid} data-band="solid">
             <span className={styles.solidText} data-solid>
@@ -163,17 +172,19 @@ export function AboutPageHeroEcho() {
             </span>
           </div>
 
-          {BOTTOM_ROWS.map((tone, i) => (
-            <div
-              key={`b${i}`}
-              className={`${styles.echoRow} ${styles[tone]}`}
-              data-band="bottom"
-              data-echo
-              data-dir="down"
-            >
-              <span className={styles.echoText}>{WORD}</span>
-            </div>
-          ))}
+          <div className={styles.echoGroup} data-group="bottom">
+            {BOTTOM_ROWS.map((tone, i) => (
+              <div
+                key={`b${i}`}
+                className={`${styles.echoRow} ${styles[tone]}`}
+                data-band="bottom"
+                data-echo
+                data-dir="down"
+              >
+                <span className={styles.echoText}>{WORD}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
