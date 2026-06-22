@@ -69,6 +69,12 @@
   font-size: clamp(14px, 1.2vw, 17px);
   line-height: 1.5;
   color: var(--color-text-muted-strong);
+  /* Clips .pointInner so it can slide up from below on reveal (masked line
+     reveal, matching the Profile word reveal). */
+  overflow: hidden;
+}
+.pointInner {
+  display: block;
 }
 .point::before {
   content: "";

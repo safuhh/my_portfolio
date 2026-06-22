@@ -20,6 +20,9 @@ type RevealOptions = {
   delay?: number;
   start?: string;
   scope?: RefObject<HTMLElement | null>;
+  /** CSS selector for subtrees to leave out of the word split (they get their
+      own entrance animation instead). */
+  exclude?: string;
 };
 
 // Awaits document.fonts.ready before grouping words by offsetTop (the
@@ -35,6 +38,7 @@ export function useWordLineReveal(
     delay = 0,
     start = REVEAL_START,
     scope,
+    exclude,
   } = options;
 
   useGSAP(
@@ -77,7 +81,8 @@ export function useWordLineReveal(
           split = splitTextIntoWords(
             root,
             staggerStyles.word,
-            staggerStyles.wordInner
+            staggerStyles.wordInner,
+            exclude
           );
           if (!split.inners.length) {
             split.revert();

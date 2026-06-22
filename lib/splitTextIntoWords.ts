@@ -18,7 +18,11 @@ const ORIGINAL_LABELLEDBY = "data-split-original-labelledby";
 export function splitTextIntoWords(
   root: HTMLElement,
   maskClass: string,
-  innerClass: string
+  innerClass: string,
+  // Optional CSS selector; text under any matching ancestor is left untouched
+  // so callers can opt elements out of the word reveal (e.g. pills/points that
+  // get their own entrance animation).
+  exclude?: string
 ): SplitResult {
   const words: SplitWord[] = [];
   const textNodes: Text[] = [];
@@ -26,11 +30,9 @@ export function splitTextIntoWords(
     acceptNode(node) {
       let parent: Node | null = node.parentNode;
       while (parent && parent !== root) {
-        if (
-          parent instanceof HTMLElement &&
-          parent.hasAttribute(WORD_MARK)
-        ) {
-          return NodeFilter.FILTER_REJECT;
+        if (parent instanceof HTMLElement) {
+          if (parent.hasAttribute(WORD_MARK)) return NodeFilter.FILTER_REJECT;
+          if (exclude && parent.matches(exclude)) return NodeFilter.FILTER_REJECT;
         }
         parent = parent.parentNode;
       }
