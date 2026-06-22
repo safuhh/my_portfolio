@@ -399,7 +399,24 @@ export function Menu({ isOpen, onClose, onCloseComplete, onRevealStart }: MenuPr
       return;
     }
 
-    // CR-01: nav targets (#projects, #philosophy, #services, #contact)
+    // Route links (e.g. /about) navigate to a different page rather than
+    // scrolling within the current one. Hand them to the page-transition
+    // system so the curtain plays, mirroring TransitionLink. A click while
+    // already on that route just folds the menu up (no same-page transition).
+    if (!href.startsWith('#')) {
+      e.preventDefault();
+      onClose();
+      if (href !== pathname) {
+        triggerTransition({
+          href,
+          origin: { x: e.clientX, y: e.clientY },
+          payload: { accent: currentAccent },
+        });
+      }
+      return;
+    }
+
+    // CR-01: the hash nav targets (#projects, #services, #contact)
     // only exist on the home page. When the menu is opened from a
     // case-study route (e.g. /work/tasktrox), Lenis can't resolve the
     // selector against a DOM that doesn't contain those sections, so

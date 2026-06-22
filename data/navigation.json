@@ -9,7 +9,7 @@
     {
       "id": "about",
       "label": "About",
-      "href": "#philosophy",
+      "href": "/about",
       "description": "The story behind the craft"
     },
     {
