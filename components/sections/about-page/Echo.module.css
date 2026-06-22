@@ -74,7 +74,11 @@
 }
 
 /* The masthead. `font-size` is the em base every slice is measured against; the
-   word fills the viewport like the Figma frame and stays nowrap. */
+   word fills the viewport and stays nowrap. The preferred `16.5vw` scales it
+   with width; the `27vh` ceiling caps it by height instead of a fixed px, since
+   on wide displays (e.g. 2560x1440) this stack is height-limited — the whole
+   stack is ~3.07em tall, so 27vh keeps it inside the stage at any resolution
+   while still scaling up far past the old 247px cap that left big side margins. */
 .stack {
   display: flex;
   flex-direction: column;
@@ -86,7 +90,7 @@
   text-transform: uppercase;
   line-height: normal;
   letter-spacing: -0.01em;
-  font-size: clamp(44px, 16.5vw, 247px);
+  font-size: clamp(44px, 16.5vw, 27vh);
 }
 
 /* Occlusion groups — the three top echoes and the three bottom echoes each live
