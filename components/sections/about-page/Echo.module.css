@@ -126,7 +126,7 @@
   text-align: center;
   white-space: nowrap;
 }
-.solidInk { color: var(--color-text-muted-strong); }
+.solidInk { color: var(--color-primary-text); }
 .solidAccent { color: var(--color-accent-purple); }
 
 /* Stroke tone for the echo rows (currentColor feeds -webkit-text-stroke). */
