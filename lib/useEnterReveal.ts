@@ -1,25 +1,33 @@
 import { useGSAP } from "@gsap/react";
 import { type RefObject } from "react";
-import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { gsap } from "@/lib/gsap";
 
 type RevealSpec = {
-  /** Elements to reveal (resolved within the scope). */
+  /** Elements to observe and reveal (resolved within the scope). These must not
+      be clipped by an ancestor at rest — IntersectionObserver respects overflow
+      clipping, so a clipped element never intersects and never fires. */
   selector: string;
-  /** Resting-state offset to animate *from* (e.g. { opacity: 0, y: 12 } for a
-      fade-up, { opacity: 0, scale: 0.8 } for a pop). */
+  /** Resting-state offset to animate the observed element *from* (e.g.
+      { opacity: 0 } for a fade, { opacity: 0, scale: 0.8 } for a pop). */
   from: gsap.TweenVars;
-  start?: string;
+  /** Optional masked child to slide in together with its parent. The child can
+      start clipped outside the parent's `overflow: hidden` box (e.g.
+      yPercent: 110) because we observe the *parent*, not the child. */
+  innerSelector?: string;
+  innerFrom?: gsap.TweenVars;
   duration?: number;
   /** Stagger applied across elements that share an entrance (e.g. pills in one
-      row). Vertically-stacked elements enter at their own scroll positions and
-      already cascade naturally. */
+      row, or the two columns of a credential row). Vertically-stacked elements
+      enter at their own scroll positions and already cascade naturally. */
   stagger?: number;
   ease?: string;
+  /** IntersectionObserver rootMargin. Default fires when an element is ~10% up
+      from the viewport bottom (equivalent to the old "top 90%" start). */
+  rootMargin?: string;
 };
 
 // Natural resting value for every prop we let callers animate *from*. The
-// reveal sets the from-state explicitly, then tweens back to these — an
-// explicit fromTo, never gsap.from().
+// reveal sets the from-state explicitly, then tweens back to these.
 const REST: gsap.TweenVars = {
   opacity: 1,
   autoAlpha: 1,
@@ -39,19 +47,21 @@ function restFor(from: gsap.TweenVars): gsap.TweenVars {
   return to;
 }
 
-// Per-element entrance reveal: each matched element gets its own ScrollTrigger
-// and animates from `from` to rest as it scrolls into view, so content far down
-// a tall list still animates when reached instead of playing off-screen.
+// Per-element entrance reveal: each matched element starts at `from` and tweens
+// to rest as it scrolls into view, so content far down a tall list still
+// animates when reached instead of playing off-screen.
 //
-// Uses an explicit gsap.set(from) + gsap.to(rest) (a fromTo), NOT gsap.from().
-// gsap.from() defaults to immediateRender:true; with several .from() tweens
-// sharing targets plus the later ScrollTrigger.refresh() this page needs (the
-// pinned hero re-measures everything), GSAP can record the from-value as the
-// already-zeroed current value and tween 0 → 0, leaving elements stuck at
-// opacity 0. Setting the resting state up front and tweening back is exactly
-// what the (reliable) word-line reveal does. ScrollTrigger fires the tween on
-// enter — including immediately on refresh for anything already in view — so
-// points visible on load still play.
+// Driven by IntersectionObserver, NOT ScrollTrigger. This page pins the Echo
+// hero above these lists; on a client-side route change the section remounts
+// while the pin-spacer is still settling, so ScrollTrigger read stale start
+// positions and left points stuck hidden on return navigation. IntersectionObserver
+// observes real viewport geometry: immune to pin math, Lenis, and refresh-timing,
+// and it fires immediately for anything already in view (including first load).
+//
+// Masked slides (the point text) start clipped outside their parent's
+// `overflow: hidden`, which would give IntersectionObserver zero area to detect.
+// So we observe the un-clipped parent (the point row) and, from that one
+// intersection, animate both the parent and its masked child together.
 export function useEnterReveal(
   scope: RefObject<HTMLElement | null>,
   specs: RevealSpec[],
@@ -63,57 +73,94 @@ export function useEnterReveal(
 
       const mm = gsap.matchMedia();
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        const triggers: ScrollTrigger[] = [];
+        const observers: IntersectionObserver[] = [];
         const tweens: gsap.core.Tween[] = [];
 
         specs.forEach(
           ({
             selector,
             from,
-            start = "top 90%",
+            innerSelector,
+            innerFrom,
             duration = 0.55,
             stagger = 0.06,
             ease = "power3.out",
+            rootMargin = "0px 0px -10% 0px",
           }) => {
             const els = gsap.utils.toArray<HTMLElement>(selector, root);
             if (!els.length) return;
 
             const to = restFor(from);
+            const innerOf = (el: HTMLElement) =>
+              innerSelector
+                ? el.querySelector<HTMLElement>(innerSelector)
+                : null;
+            const innerTo = innerFrom ? restFor(innerFrom) : null;
 
             // Hold the resting (hidden) state immediately so nothing flashes
-            // before its trigger fires.
+            // before each element enters.
             gsap.set(els, from);
+            if (innerFrom) {
+              const inners = els.map(innerOf).filter(Boolean) as HTMLElement[];
+              if (inners.length) gsap.set(inners, innerFrom);
+            }
 
-            // Group elements by vertical position so a row of pills entering
-            // together still staggers, while stacked items keep their own
-            // trigger (and natural top-to-bottom cascade).
+            // Group elements by vertical position so a row of pills (or the two
+            // columns of a credential row) reveals together with a stagger,
+            // while vertically-stacked items each enter at their own position.
+            const groupByEl = new Map<Element, HTMLElement[]>();
             const rows = new Map<number, HTMLElement[]>();
             els.forEach((el) => {
               const key = Math.round(el.getBoundingClientRect().top);
               if (!rows.has(key)) rows.set(key, []);
               rows.get(key)!.push(el);
             });
+            rows.forEach((group) =>
+              group.forEach((el) => groupByEl.set(el, group)),
+            );
 
-            rows.forEach((group) => {
-              const tween = gsap.to(group, {
-                ...to,
-                duration,
-                ease,
-                stagger,
-                scrollTrigger: { trigger: group[0], start, once: true },
-              });
-              tweens.push(tween);
-              if (tween.scrollTrigger) triggers.push(tween.scrollTrigger);
-            });
+            const played = new WeakSet<Element>();
+
+            const io = new IntersectionObserver(
+              (entries) => {
+                entries.forEach((entry) => {
+                  if (!entry.isIntersecting) return;
+                  const group = groupByEl.get(entry.target) ?? [
+                    entry.target as HTMLElement,
+                  ];
+                  const fresh = group.filter((el) => !played.has(el));
+                  if (!fresh.length) return;
+                  // Reveal the whole row at once (with stagger); stop observing
+                  // every member so it never re-fires.
+                  fresh.forEach((el) => {
+                    played.add(el);
+                    io.unobserve(el);
+                  });
+                  tweens.push(
+                    gsap.to(fresh, { ...to, duration, ease, stagger }),
+                  );
+                  if (innerTo) {
+                    const inners = fresh
+                      .map(innerOf)
+                      .filter(Boolean) as HTMLElement[];
+                    if (inners.length) {
+                      tweens.push(
+                        gsap.to(inners, { ...innerTo, duration, ease, stagger }),
+                      );
+                    }
+                  }
+                });
+              },
+              { root: null, rootMargin, threshold: 0 },
+            );
+
+            els.forEach((el) => io.observe(el));
+            observers.push(io);
           },
         );
 
-        // Recompute every trigger's start against the final (pinned) layout;
-        // anything already past its start plays now, the rest on scroll-in.
-        ScrollTrigger.refresh();
-
         return () => {
-          triggers.forEach((t) => t.kill());
+          observers.forEach((o) => o.disconnect());
           tweens.forEach((t) => t.kill());
         };
       });

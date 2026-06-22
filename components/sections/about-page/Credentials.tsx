@@ -46,10 +46,11 @@ export function AboutPageCredentials() {
   // arrives). Kind pills pop. Each fires per-element as it scrolls in, so points
   // deep in this tall list still animate when reached instead of off-screen.
   useEnterReveal(sectionRef, [
-    { selector: "[data-point]", from: { opacity: 0 }, stagger: 0.07 },
     {
-      selector: "[data-point-inner]",
-      from: { yPercent: 110 },
+      selector: "[data-point]",
+      from: { opacity: 0 },
+      innerSelector: "[data-point-inner]",
+      innerFrom: { yPercent: 110 },
       duration: 0.7,
       stagger: 0.07,
     },
