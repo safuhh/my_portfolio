@@ -175,7 +175,13 @@ export interface AboutContent {
   _cvNote?: string;
   /** Work history (newest first). */
   experience: ExperienceEntry[];
-
+  /**
+   * Optional legacy support (prevents build crashes if old data still exists somewhere)
+   * Remove later when everything is cleaned.
+   */
+  credentials?: CredentialEntry[];
+  certifications?: CertificationEntry[];
+  education?: EducationEntry[];
 }
 
 export interface ServiceFace {
