@@ -19,8 +19,8 @@
     padding: 0;
 }
 
-/* MOHED Text */
-.heroTextMohed {
+/* MUHAMMED Text */
+.heroTextMuhammed {
     color: var(--color-primary-text);
     display: block;
     perspective: 1000px;
@@ -59,8 +59,8 @@
     -webkit-font-smoothing: antialiased;
 }
 
-/* ABBAS Text */
-.heroTextAbbas {
+/* SAFVAN Text */
+.heroTextSafvan {
     display: block;
     text-align: right;
     margin-top: clamp(10px, 2vw, 20px);
@@ -68,8 +68,8 @@
     perspective: 1000px;
 }
 
-/* Individual ABBAS letter for stagger animation */
-.abbasLetter {
+/* Individual SAFVAN letter for stagger animation */
+.safvanLetter {
     display: inline-block;
     transform-style: preserve-3d;
     transform-origin: center bottom;
@@ -251,16 +251,16 @@
 
     .heroText {
         /* Slightly smaller than full desktop to fit portrait aspect ratios */
-        font-size: clamp(80px, 18vw, 20vw);
+        font-size: clamp(64px, 14.5vw, 16vw);
         line-height: 0.82;
     }
 
-    .heroTextAbbas {
+    .heroTextSafvan {
         margin-top: 20px;
     }
 
     .taglineContainer {
-        /* Match .heroTextAbbas (20px) at this breakpoint */
+        /* Match .heroTextSafvan (20px) at this breakpoint */
         margin-top: 20px;
         max-width: 340px;
     }
@@ -300,17 +300,17 @@
 
     .heroText {
         /* Maximize font size to fill width (~90%) */
-        font-size: 24vw;
+        font-size: 19vw;
         line-height: 0.8;
     }
 
-    .heroTextMohed {
+    .heroTextMuhammed {
         /* Ensure it sticks to the left */
         text-align: center;
         margin-bottom: 0;
     }
 
-    .heroTextAbbas {
+    .heroTextSafvan {
         /* Tighten vertical gap */
         margin-top: 10px;
         /* Ensure it sticks to the right */
@@ -318,7 +318,7 @@
     }
 
     .taglineContainer {
-        /* Match .heroTextAbbas (10px) at this breakpoint */
+        /* Match .heroTextSafvan (10px) at this breakpoint */
         margin-top: 10px;
         /* Allow full width for better wrapping */
         max-width: 100%;
@@ -328,7 +328,7 @@
 
     .tagline,
     .taglineHidden {
-        /* Align left to contrast with the right-aligned 'ABBAS' above */
+        /* Align left to contrast with the right-aligned 'SAFVAN' above */
         text-align: left;
         justify-content: flex-start;
         /* Increase readability size */

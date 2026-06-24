@@ -222,16 +222,32 @@ export function Contact() {
       ].join('\r\n')
     );
 
-    const href = `mailto:${c.fallback.email}?subject=${subject}&body=${body}`;
+    const isWhatsApp = channel === 'WhatsApp';
 
-    // Guard against OS / mail-client URL length limits. A URL that silently
-    // exceeds the limit produces no error and no email — surface it instead.
-    if (href.length > MAILTO_MAX_LENGTH) {
-      setMailtoLengthError(true);
-      return;
+    if (isWhatsApp && c.fallback.whatsapp) {
+      // Build a WhatsApp deep-link with a pre-filled message.
+      const waText = encodeURIComponent(
+        [
+          `Hi ${c.row1.recipient},`,
+          '',
+          `I'm ${trimmedName || '—'}, reaching out from ${trimmedCountry || '—'}.`,
+          `Topic: ${resolvedTopic}.`,
+          '',
+          trimmedMessage || '—',
+        ].join('\n')
+      );
+      window.open(`https://wa.me/${c.fallback.whatsapp}?text=${waText}`, '_blank', 'noopener,noreferrer');
+    } else {
+      const href = `mailto:${c.fallback.email}?subject=${subject}&body=${body}`;
+
+      // Guard against OS / mail-client URL length limits.
+      if (href.length > MAILTO_MAX_LENGTH) {
+        setMailtoLengthError(true);
+        return;
+      }
+
+      window.location.href = href;
     }
-
-    window.location.href = href;
   }
 
   return (
@@ -316,7 +332,7 @@ export function Contact() {
 
           {/* NOTE (F-IN-01): key={i} on SUBMIT_CHARS is intentional — the array
               is built once from the static c.submit string and never mutates. */}
-          <button type="submit" className={styles.submit}>
+          <button type="submit" className={styles.submit} suppressHydrationWarning>
             <span className={styles.submitTextWrap}>
               <span className={styles.submitTextBase}>
                 {SUBMIT_CHARS.map((char, i) => (
@@ -372,6 +388,19 @@ export function Contact() {
             <a className={styles.fallbackLink} href={`mailto:${c.fallback.email}`}>
               {c.fallback.email}
             </a>
+            {c.fallback.whatsapp && (
+              <>
+                {' · or WhatsApp '}
+                <a
+                  className={styles.fallbackLink}
+                  href={`https://wa.me/${c.fallback.whatsapp}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {c.fallback.phone}
+                </a>
+              </>
+            )}
           </p>
         </form>
       </div>
@@ -452,6 +481,7 @@ function RevealInput({
         aria-invalid={error || undefined}
         autoComplete="off"
         style={!grow && width ? { width: `${width}px` } : undefined}
+        suppressHydrationWarning
       />
       {/* Animated underline — width drives 0% → 100% during scroll reveal. */}
       <span className={styles.inputBorder} aria-hidden="true" />
@@ -482,6 +512,7 @@ function Chip({ label, selected, onSelect }: ChipProps) {
       aria-pressed={selected}
       onClick={onSelect}
       className={`${styles.chip} ${styles.revealItem} ${selected ? styles.chipSelected : ''}`}
+      suppressHydrationWarning
     >
       <span className={styles.chipTextWrap}>
         <span className={styles.chipTextBase}>

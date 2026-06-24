@@ -106,8 +106,8 @@ export function Hero() {
 
     // Query hero content to fade out. Keyed on stable data attributes — CSS-module
     // substring selectors break under Next 16 + Turbopack hashed class names.
-    const mohedExps = hero.querySelectorAll('[data-hero-mohed] .portal-expansion');
-    const abbasExps = hero.querySelectorAll('[data-hero-abbas] .portal-expansion');
+    const muhammedExps = hero.querySelectorAll('[data-hero-muhammed] .portal-expansion');
+    const safvanExps = hero.querySelectorAll('[data-hero-safvan] .portal-expansion');
     const taglineContainer = hero.querySelector('[data-tagline]');
     const skillsBar = hero.querySelector('[data-skills]');
 
@@ -117,8 +117,8 @@ export function Hero() {
       gsap.set([flyingM, flyingA], { opacity: 0 });
       gsap.set(navBrand, { opacity: 1 });
       gsap.set([targetM, targetA], { opacity: 0 });
-      if (mohedExps.length > 0) gsap.set(mohedExps, { opacity: 0 });
-      if (abbasExps.length > 0) gsap.set(abbasExps, { opacity: 0 });
+      if (muhammedExps.length > 0) gsap.set(muhammedExps, { opacity: 0 });
+      if (safvanExps.length > 0) gsap.set(safvanExps, { opacity: 0 });
       if (taglineContainer) gsap.set(taglineContainer, { opacity: 0 });
       if (skillsBar) gsap.set(skillsBar, { yPercent: SKILLS_EXIT_YPERCENT });
       return;
@@ -194,13 +194,13 @@ export function Hero() {
       .to(flyingA, { scale: 1.05, duration: 0.04, ease: 'back.out(2)' }, 0.02);
 
     // --- PHASE 3: Fade remaining hero letters (staggered) ---
-    if (mohedExps.length > 0) {
-      tl.to(mohedExps, {
+    if (muhammedExps.length > 0) {
+      tl.to(muhammedExps, {
         opacity: 0, stagger: 0.025, duration: 0.12, ease: 'power2.in',
       }, 0.01);
     }
-    if (abbasExps.length > 0) {
-      tl.to(abbasExps, {
+    if (safvanExps.length > 0) {
+      tl.to(safvanExps, {
         opacity: 0, stagger: 0.025, duration: 0.12, ease: 'power2.in',
       }, 0.03);
     }

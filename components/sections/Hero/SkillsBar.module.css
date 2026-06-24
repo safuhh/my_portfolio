@@ -43,7 +43,7 @@
     color: var(--color-accent-purple);
     white-space: nowrap;
     line-height: normal;
-    animation: scroll-skills-seamless 20s linear infinite;
+    animation: scroll-skills-seamless 30s linear infinite;
 
     /* CSS custom property set by JS for exact scroll distance */
     --scroll-width: 0px;

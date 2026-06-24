@@ -1,6 +1,12 @@
 {
   "mainLinks": [
     {
+      "id": "home",
+      "label": "Home",
+      "href": "/",
+      "description": "Back to the beginning"
+    },
+    {
       "id": "work",
       "label": "Work",
       "href": "#projects",
@@ -29,27 +35,27 @@
     {
       "id": "instagram",
       "label": "Instagram",
-      "href": "https://www.instagram.com/mohed._.abbas",
+      "href": "https://www.instagram.com/_safuhh._?igsh=MWlodmJrbmdoc3V5Yg==",
       "platform": "instagram"
     },
     {
       "id": "linkedin",
       "label": "LinkedIn",
-      "href": "https://www.linkedin.com/in/mohed-abbas/",
+      "href": "https://www.linkedin.com/in/safvan-p-/",
       "platform": "linkedin"
     },
     {
       "id": "github",
       "label": "GitHub",
-      "href": "https://github.com/mohed-abbas",
+      "href": "https://github.com/safuhh",
       "platform": "github"
     },
     {
       "id": "twitter",
       "label": "Twitter",
-      "href": "https://x.com/mohed332",
+      "href": "https://x.com",
       "platform": "twitter"
     }
   ],
-  "location": "Based in Europe, Working Worldwide"
+  "location": "Based in Kerala, Working Worldwide"
 }

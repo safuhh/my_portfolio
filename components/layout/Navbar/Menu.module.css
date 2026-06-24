@@ -32,7 +32,7 @@
     display: flex;
     justify-content: space-between;
     padding: var(--spacing-nav-side);
-    padding-top: calc(var(--spacing-nav-top) + 60px);
+    padding-top: calc(var(--spacing-nav-top) + 70px);
 }
 
 /* Navigation container - left side */

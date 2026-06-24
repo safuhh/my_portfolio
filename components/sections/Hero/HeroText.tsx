@@ -18,13 +18,14 @@ import styles from './HeroText.module.css';
 // ============================================
 
 const { firstName, lastName } = getHeroLetters();
-const MOHED_LETTERS = firstName;
-const ABBAS_LETTERS_CONFIG = [
+const MUHAMMED_LETTERS = firstName;
+const SAFVAN_LETTERS_CONFIG = [
   { letter: lastName[0], color: 'dark' },
   { letter: lastName[1], color: 'purple' },
   { letter: lastName[2], color: 'dark' },
   { letter: lastName[3], color: 'dark' },
   { letter: lastName[4], color: 'purple' },
+  { letter: lastName[5], color: 'dark' },
 ];
 const TAGLINE_WORDS = content.hero.tagline;
 const TAGLINE_HIDDEN_WORDS = content.hero.taglineHidden;
@@ -38,8 +39,8 @@ const SPOTLIGHT_SIZE = 80;
 
 export function HeroText() {
   const sectionRef = useRef<HTMLElement>(null);
-  const mohedRef = useRef<HTMLHeadingElement>(null);
-  const abbasRef = useRef<HTMLHeadingElement>(null);
+  const muhammedRef = useRef<HTMLHeadingElement>(null);
+  const safvanRef = useRef<HTMLHeadingElement>(null);
   const taglineRef = useRef<HTMLDivElement>(null);
   const taglineContainerRef = useRef<HTMLDivElement>(null);
   const taglineHiddenRef = useRef<HTMLParagraphElement>(null);
@@ -162,23 +163,23 @@ export function HeroText() {
   }, []);
 
   useGSAP(() => {
-    if (!sectionRef.current || !mohedRef.current || !abbasRef.current || !taglineRef.current) return;
+    if (!sectionRef.current || !muhammedRef.current || !safvanRef.current || !taglineRef.current) return;
 
     // 1. Select Elements
     // Target initials (M and A) - these fade in during handoff
-    const targetM = mohedRef.current.querySelector('#target-m');
-    const targetA = abbasRef.current.querySelector('#target-a');
+    const targetM = muhammedRef.current.querySelector('#target-m');
+    const targetA = safvanRef.current.querySelector('#target-a');
 
     // Expansion letters (OHED and BBAS) - these use portal animation
-    const mohedExpansionMasks = mohedRef.current.querySelectorAll('.portal-expansion');
-    const abbasExpansionMasks = abbasRef.current.querySelectorAll('.portal-expansion');
+    const muhammedExpansionMasks = muhammedRef.current.querySelectorAll('.portal-expansion');
+    const safvanExpansionMasks = safvanRef.current.querySelectorAll('.portal-expansion');
 
     // Get the inner portal letters for animation
-    const mohedExpansionLetters = Array.from(mohedExpansionMasks).map(
+    const muhammedExpansionLetters = Array.from(muhammedExpansionMasks).map(
       mask => mask.querySelector(`.${styles.portalLetter}`)
     ).filter(Boolean) as HTMLElement[];
 
-    const abbasExpansionLetters = Array.from(abbasExpansionMasks).map(
+    const safvanExpansionLetters = Array.from(safvanExpansionMasks).map(
       mask => mask.querySelector(`.${styles.portalLetter}`)
     ).filter(Boolean) as HTMLElement[];
 
@@ -186,12 +187,12 @@ export function HeroText() {
 
     // 2. Initial States
     // Hide expansion masks initially
-    gsap.set([mohedExpansionMasks, abbasExpansionMasks], {
+    gsap.set([muhammedExpansionMasks, safvanExpansionMasks], {
       opacity: 0,
     });
 
     // Position expansion letters outside their masks (for portal entry)
-    mohedExpansionLetters.forEach(letter => {
+    muhammedExpansionLetters.forEach(letter => {
       const direction = getRandomDirection();
       const startTransform = getDirectionTransform(direction, 110);
       gsap.set(letter, {
@@ -200,7 +201,7 @@ export function HeroText() {
       });
     });
 
-    abbasExpansionLetters.forEach(letter => {
+    safvanExpansionLetters.forEach(letter => {
       const direction = getRandomDirection();
       const startTransform = getDirectionTransform(direction, 110);
       gsap.set(letter, {
@@ -220,8 +221,8 @@ export function HeroText() {
       // skipping the cross-dissolve, portal slide-ins, and tagline tweens.
       if (reducedMotion) {
         gsap.set([targetM, targetA], { opacity: 1 });
-        gsap.set([mohedExpansionMasks, abbasExpansionMasks], { opacity: 1 });
-        gsap.set([...mohedExpansionLetters, ...abbasExpansionLetters], { x: '0%', y: '0%' });
+        gsap.set([muhammedExpansionMasks, safvanExpansionMasks], { opacity: 1 });
+        gsap.set([...muhammedExpansionLetters, ...safvanExpansionLetters], { x: '0%', y: '0%' });
         gsap.set(taglineWords, { opacity: 1, y: 0, rotateX: 0, scale: 1 });
         return;
       }
@@ -239,14 +240,14 @@ export function HeroText() {
       })
 
       // 2. Reveal expansion masks
-      .to([mohedExpansionMasks, abbasExpansionMasks], {
+      .to([muhammedExpansionMasks, safvanExpansionMasks], {
         opacity: 1,
         duration: 0.01,
       }, ">-0.1")
 
       // 3. Portal Slide-In Animation for OHED
       .add(() => {
-        mohedExpansionLetters.forEach((letter, index) => {
+        muhammedExpansionLetters.forEach((letter, index) => {
           gsap.to(letter, {
             x: '0%',
             y: '0%',
@@ -259,7 +260,7 @@ export function HeroText() {
 
       // 4. Portal Slide-In Animation for BBAS (slight offset)
       .add(() => {
-        abbasExpansionLetters.forEach((letter, index) => {
+        safvanExpansionLetters.forEach((letter, index) => {
           gsap.to(letter, {
             x: '0%',
             y: '0%',
@@ -311,9 +312,9 @@ export function HeroText() {
 
   return (
     <section ref={sectionRef} className={styles.textAndArm}>
-      {/* MOHED Text */}
-      <h1 ref={mohedRef} data-hero-mohed className={`${styles.heroText} ${styles.heroTextMohed}`}>
-        {MOHED_LETTERS.map((letter, index) => {
+      {/* MUHAMMED Text */}
+      <h1 ref={muhammedRef} data-hero-muhammed className={`${styles.heroText} ${styles.heroTextMuhammed}`}>
+        {MUHAMMED_LETTERS.map((letter, index) => {
           const isTarget = index === 0;
 
           if (isTarget) {
@@ -343,9 +344,9 @@ export function HeroText() {
         })}
       </h1>
 
-      {/* ABBAS Text */}
-      <h1 ref={abbasRef} data-hero-abbas className={`${styles.heroText} ${styles.heroTextAbbas}`}>
-        {ABBAS_LETTERS_CONFIG.map((item, index) => {
+      {/* SAFVAN Text */}
+      <h1 ref={safvanRef} data-hero-safvan className={`${styles.heroText} ${styles.heroTextSafvan}`}>
+        {SAFVAN_LETTERS_CONFIG.map((item, index) => {
           const isTarget = index === 0;
           const colorClass = item.color === 'purple' ? styles.textPurple : styles.textDark;
 
@@ -355,7 +356,7 @@ export function HeroText() {
               <span
                 key={index}
                 id="target-a"
-                className={`${styles.abbasLetter} ${styles.portalMask} ${colorClass}`}
+                className={`${styles.safvanLetter} ${styles.portalMask} ${colorClass}`}
                 onMouseEnter={handleLetterHover}
               >
                 <span className={styles.portalLetter}>{item.letter}</span>
@@ -367,7 +368,7 @@ export function HeroText() {
           return (
             <span
               key={index}
-              className={`${styles.abbasLetter} ${styles.portalMask} ${colorClass} portal-expansion`}
+              className={`${styles.safvanLetter} ${styles.portalMask} ${colorClass} portal-expansion`}
               onMouseEnter={handleLetterHover}
             >
               <span className={styles.portalLetter}>{item.letter}</span>

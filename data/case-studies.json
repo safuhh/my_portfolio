@@ -1,22 +1,23 @@
 {
-  "tasktrox": {
+  "medifind": {
     "hero": {
-      "title": "TASKTROX",
-      "lede": "A full-stack project-management tool that replaces spreadsheet, Notion, and Trello sprawl with one workspace teams actually open every day. I engineered it end to end: a Next.js front end and a Node and Postgres back end, on a Figma design by Hamail Hassan.",
-      "image": "/images/work/tasktrox/Hero.webp",
-      "alt": "Tasktrox marketing landing",
-      "pills": ["Full-Stack · SaaS Product", "Next.js · Node · Postgres"],
+      "title": "MEDIFIND",
+      "lede": "A full-stack healthcare platform with five distinct user roles — Patient, Doctor, Pharmacy Seller, Delivery Boy, and Admin — bringing medicine discovery, video consultations, real-time order tracking, and platform governance into one unified system. Built with Next.js on the front end and Express on the back end.",
+      "image": "/images/projects/medifind/Hero.png",
+      "alt": "MediFind — Find exactly what you need, right where you are",
+      "pills": ["Full-Stack · Healthcare Platform", "Next.js · Express · MongoDB · Socket.io"],
       "badge": "View\nCase",
-      "backHref": "/"
+      "backHref": "/",
+      "demoUrl": "https://medifind-client-side.vercel.app/"
     },
     "ledger": {
       "entries": [
         {
           "label": "Client",
-          "primary": "Tasktrox",
-          "secondary": "Self-initiated SaaS"
+          "primary": "MediFind",
+          "secondary": "Self-initiated product"
         },
-        { "label": "Year", "primary": "2024", "secondary": "Shipped & in use" },
+        { "label": "Year", "primary": "2026", "secondary": "Shipped & live" },
         {
           "label": "Role",
           "primary": "Engineer",
@@ -24,13 +25,13 @@
         },
         {
           "label": "Stack",
-          "primary": "Next · Node",
-          "secondary": "Postgres · Redis · Docker"
+          "primary": "Next.js · Express",
+          "secondary": "MongoDB · Socket.io"
         },
         {
           "label": "Status",
           "primary": "Live",
-          "secondary": "Public, paid plans next"
+          "secondary": "Active users"
         }
       ]
     },
@@ -38,55 +39,40 @@
       "label": "Context",
       "facts": [
         "**Role**Full-stack engineer",
-        "**Stack**Next · Node · Postgres · Redis · Docker",
-        "**Team**1 engineer (me) · 1 designer"
+        "**Stack**Next.js · Express.js · MongoDB · Socket.io · Jitsi",
+        "**Team**1 engineer (me)"
       ],
       "body": [
-        "**Tasktrox started** as a tool for a friend's company, a small team drowning in spreadsheets, Notion docs, and a Trello board nobody trusted. They needed one place to see who was doing what, by when.",
-        "The brief was narrow and honest: a project-management tool simple enough that a team would actually open it every day. **No feature bloat, no dashboard spaghetti, no AI-as-mascot.** Just the handful of things a team needs to coordinate work, built well.",
-        "Hamail Hassan handled the design in Figma. **I built everything else.** Front end, API, database, caching, and the containers it all runs in. One engineer owning the full stack end to end.",
-        "When the original company moved on, we shipped Tasktrox live as a public product instead of shelving it. It quietly found real users beyond the team it was built for, and paid plans come next."
+        "**Finding the right medicine shouldn't mean calling five pharmacies.** Most patients either rely on a single pharmacy near them or waste time searching online with no real-time stock information. MediFind was built to close that gap.",
+        "MediFind is not a single-user product. It is a **five-role ecosystem** — each actor has their own dedicated dashboard, workflow, and set of responsibilities. A Patient searches and orders medicines, books doctor consultations, and tracks deliveries. A **Doctor** manages their availability, accepts consultation bookings, conducts Jitsi video calls, and issues digital health reports. A **Pharmacy Seller** registers their store, manages their medicine inventory, processes incoming orders, and tracks their earnings. A **Delivery Boy** receives assigned deliveries, updates status in real time, and confirms handoff. An **Admin** governs the entire platform — approving registrations, managing disputes, and monitoring operations.",
+        "I built every one of these roles independently — from the per-role authentication system and dashboards to the real-time Socket.io notification layer that connects all five actors. **No role was an afterthought.**"
       ]
     },
     "vision": {
       "label": "The Vision",
-      "titleLine1": "A tool we'd",
-      "titleLine2": "actually",
-      "titleAccent": "open.",
+      "titleLine1": "One platform,",
+      "titleLine2": "five roles,",
+      "titleAccent": "zero gaps.",
       "body": [
-        "Three rules shaped the build. **One: fewer screens, done well.** A small team doesn't need fifty features. It needs the five it touches daily to be fast and obvious. Scope was a feature, not a limitation.",
-        "**Two: keep the data honest.** If a task is blocked, the board says blocked, with no silently recoloured badges. State lives in Postgres and changes through real transitions, never optimistic guesses. **Three: it has to feel instant.** Redis caches the hot paths, the API stays lean, and motion is 240ms, quick enough to stay out of the way."
-      ]
-    },
-    "pull": {
-      "attribution": {
-        "name": "Martina",
-        "role": "Full-stack engineer"
-      },
-      "act2": [
-        { "text": "“Tasktrox is" },
-        { "text": "very cute and clean." }
-      ],
-      "act3": [
-        { "text": "I actually use it" },
-        { "text": "at work.”", "accent": true }
+        "**Every healthcare interaction has multiple participants.** Most apps solve for one of them — the patient — and leave the rest operating on WhatsApp groups and spreadsheets. MediFind was designed from the start to be the single source of truth for all five actors simultaneously.",
+        "**Real-time inventory is non-negotiable.** If a medicine shows as in stock, it is in stock — pharmacy sellers update their catalogue live and stock changes propagate instantly. When a patient orders, the pharmacy seller sees it immediately. When it ships, the delivery boy's queue updates. When it arrives, the patient gets a confirmation. **Every transition is tracked. Nothing falls through.**"
       ]
     },
     "product": {
       "label": "The Product",
-      "titleLine1": "The dashboard,",
-      "titleLine2": "built to",
-      "titleAccent": "scan.",
+      "titleLine1": "Five roles,",
+      "titleLine2": "one",
+      "titleAccent": "platform.",
       "body": [
-        "The dashboard is where the team lives: every project at a glance, **status and owner up front, detail one click away.** The right rail is for context, never controls.",
-        "Under it sit the boring contracts that hold it together: a Prisma schema modelling projects, tasks and members; REST endpoints with real auth; Redis caching the views that get hit most. Cards align to an 8-pt grid, and motion is 240ms expo.out, fast enough to feel earned, quick enough to stay out of the way."
+        "**The Patient** logs in and lands on a location-aware search. They type a medicine name, grant location, and see a live list of nearby verified pharmacies — each with stock count, price, distance, and license details. They can add to cart, review the order summary with GST breakdown, and check out. They can also browse the Consultation section, pick a doctor by specialisation, book a slot, and join a Jitsi video call at the scheduled time. After the call, a digital health report appears in their profile.",
+        "**The Pharmacy Seller** has a dedicated dashboard where they list medicines, set prices, and manage inventory. When an order comes in, a Socket.io notification fires instantly. They review the order, confirm it, and hand it to a delivery boy. Their earnings ledger updates with every fulfilled order. **The Doctor** sets weekly availability, receives booking notifications, and joins consultations through the built-in Jitsi room. Post-consultation, they fill a structured health report that is immediately visible to the patient. **The Delivery Boy** sees a queue of assigned orders, picks them up from the pharmacy, updates status to 'Picked up' and 'Delivered', and the patient's tracking view updates in real time. **The Admin** can view all registered users, approve or reject pharmacy and doctor applications, flag suspicious activity, and access platform-wide analytics — orders, revenue, active users, and disputes — from a single control panel."
       ]
     },
     "dashboard": {
-      "badge": "In\nUse",
-      "figcaption": "Fig. 04 · Project dashboard · 2024",
-      "image": "/images/work/tasktrox/Dashboard.webp",
-      "alt": "Tasktrox project dashboard"
+      "badge": "Live\nProduct",
+      "figcaption": "Fig. 02 · Platform ecosystem overview · 2026",
+      "image": "/images/projects/medifind/Feature.png",
+      "alt": "MediFind — A complete ecosystem for smarter healthcare"
     },
     "toggle": {
       "label": "The Build",
@@ -95,63 +81,55 @@
       "screens": [
         {
           "num": "01",
-          "name": "Marketing landing",
-          "image": "/images/work/tasktrox/Hero.webp",
-          "color": "#E6F4F8",
-          "description": "Landing page, scroll-led hero",
-          "meta": "2400 × 1500"
+          "name": "Landing page",
+          "image": "/images/projects/medifind/Hero.png",
+          "color": "#E6F4F0",
+          "description": "Location-aware medicine search hero",
+          "meta": "1440 × 768"
         },
         {
           "num": "02",
-          "name": "Project dashboard",
-          "image": "/images/work/tasktrox/Dashboard.webp",
-          "color": "#FBE4E5",
-          "description": "Status grid, owner + due date",
-          "meta": "2400 × 1500"
+          "name": "Platform overview",
+          "image": "/images/projects/medifind/Feature.png",
+          "color": "#E0F0FA",
+          "description": "AI fulfillment · video consults · health reports",
+          "meta": "1440 × 768",
+          "hasGalleryCaption": true
         },
         {
           "num": "03",
-          "name": "Product surface",
-          "image": "/images/work/tasktrox/Product.webp",
-          "color": "#FFF0DB",
-          "description": "Card system, 8-pt grid",
-          "meta": "2400 × 1500",
+          "name": "Patient cart",
+          "image": "/images/projects/medifind/Screen01.png",
+          "color": "#EAF6F0",
+          "description": "Cart with order summary and GST breakdown",
+          "meta": "1440 × 768",
           "hasGalleryCaption": true
         },
         {
           "num": "04",
-          "name": "About page",
-          "image": "/images/work/tasktrox/About.webp",
-          "color": "#E8EFEA",
-          "description": "Team page, folio layout",
-          "meta": "2400 × 1500",
+          "name": "Medicine detail",
+          "image": "/images/projects/medifind/Screen02.png",
+          "color": "#F0FAF4",
+          "description": "Product page — price, pharmacy, distance",
+          "meta": "1440 × 768",
           "hasGalleryCaption": true
         },
         {
           "num": "05",
-          "name": "Pricing",
-          "image": "/images/work/tasktrox/Price.webp",
-          "color": "#ECEFFF",
-          "description": "Three tiers, no asterisks",
-          "meta": "2400 × 1500",
+          "name": "Seller dashboard",
+          "image": "/images/projects/medifind/Screen03.png",
+          "color": "#EBF5EC",
+          "description": "Orders received, earnings, delivery tracking",
+          "meta": "1440 × 768",
           "hasGalleryCaption": true
         },
         {
           "num": "06",
-          "name": "Testimonials",
-          "image": "/images/work/tasktrox/testimonials.webp",
-          "color": "#EFE8D3",
-          "description": "Quotes section, marginalia",
-          "meta": "2400 × 1500",
-          "hasGalleryCaption": true
-        },
-        {
-          "num": "07",
-          "name": "Footer marquee",
-          "image": "/images/work/tasktrox/footer.webp",
-          "color": "#F4E8F0",
-          "description": "Closing flourish",
-          "meta": "2400 × 1500",
+          "name": "Help & support",
+          "image": "/images/projects/medifind/Help.png",
+          "color": "#F4FAE6",
+          "description": "FAQ, live chat, inventory explainer",
+          "meta": "1440 × 768",
           "hasGalleryCaption": true
         }
       ]
@@ -160,34 +138,34 @@
       "label": "Architecture",
       "titleLine1": "Under the",
       "titleAccent": "hood.",
-      "intro": "Behind the screens, Tasktrox is a Kanban project tool I built and run end to end: a typed React client, a versioned REST API, and a Postgres core with Redis in front, **all containerised and shipped with zero-downtime deploys.**",
+      "intro": "MediFind is a full-stack healthcare platform built entirely with Next.js on the client and Express on the server, with MongoDB as the database and Socket.io powering all real-time updates across five user roles — patient, doctor, pharmacy seller, delivery boy, and admin. **No role shares a dashboard. Every actor has their own purpose-built surface.**",
       "layers": [
         {
           "name": "Client",
-          "tech": ["Next.js", "Tailwind", "TypeScript"],
-          "detail": "Server-rendered React, typed end to end, talking to the API over a versioned REST contract."
+          "tech": ["Next.js", "TypeScript", "Tailwind CSS"],
+          "detail": "Server-rendered React with five separate dashboard experiences — one per role. The patient-facing pages are public and SEO-optimised. Seller, doctor, delivery, and admin dashboards are protected routes with role-specific layouts and permissions."
         },
         {
           "name": "API",
-          "tech": ["Node", "Express", "TypeScript"],
-          "detail": "Auth on every route: Google and Apple OAuth plus email login, JWT access tokens with refresh-token rotation, and four access roles from owner to viewer."
+          "tech": ["Express.js", "Node.js", "JWT Auth"],
+          "detail": "RESTful Express API with role-based access control. Each role has its own set of endpoints and middleware guards. JWT access tokens with refresh-token rotation ensure sessions are secure. Doctors, pharmacies, and delivery boys go through an admin-approval flow before they can operate."
         },
         {
-          "name": "Data",
-          "tech": ["PostgreSQL 16", "Prisma", "Redis 7"],
-          "detail": "A 12-model Prisma schema: projects, columns, tasks, assignees, labels, comments and attachments, with soft deletes and a full activity log. Redis caches the read-heavy board views."
+          "name": "Data & Real-Time",
+          "tech": ["MongoDB", "Socket.io", "Jitsi"],
+          "detail": "MongoDB stores users, medicines, pharmacies, orders, consultations, and health reports as flexible documents. Socket.io broadcasts order updates to sellers and delivery tracking to patients in real time. Jitsi handles encrypted video consultations between doctors and patients without any media data touching the server."
         },
         {
-          "name": "Runtime",
-          "tech": ["Docker", "Nginx", "GHCR", "GitHub Actions"],
-          "detail": "Every service in its own container, built in CI and pushed to GHCR. Self-hosted behind Nginx on isolated networks, released blue/green for zero downtime."
+          "name": "Notifications",
+          "tech": ["Socket.io Events", "In-App Alerts"],
+          "detail": "Every key action — new order placed, order picked up, delivery confirmed, consultation booked — fires a Socket.io event that updates the relevant dashboard instantly. No polling, no refresh. The platform feels alive because all five roles are connected through the same event layer."
         }
       ],
       "facts": [
-        { "value": "12", "title": "Models", "caption": "in the Prisma schema" },
-        { "value": "4", "title": "Access roles", "caption": "owner to viewer, per project" },
-        { "value": "0", "title": "Downtime", "caption": "blue/green releases" },
-        { "value": "2", "title": "Networks", "caption": "proxy and data, isolated" }
+        { "value": "5", "title": "User roles", "caption": "patient · doctor · seller · delivery · admin" },
+        { "value": "6", "title": "Screens", "caption": "shipped to production" },
+        { "value": "0s", "title": "Delay", "caption": "real-time Socket.io events" },
+        { "value": "1", "title": "Engineer", "caption": "front end to back end" }
       ]
     },
     "outcomes": {
@@ -197,78 +175,72 @@
       "titleAccent": "numbers.",
       "metrics": [
         {
-          "value": "7",
-          "title": "Surfaces",
-          "caption": "shipped to production"
+          "value": "5",
+          "title": "User roles",
+          "caption": "each with their own dashboard"
         },
         {
-          "value": "3",
-          "title": "Tools replaced",
-          "caption": "Notion · Trello · sheets"
+          "value": "6",
+          "title": "Surfaces",
+          "caption": "shipped and in use"
+        },
+        {
+          "value": "0",
+          "title": "Polling",
+          "caption": "all updates via Socket.io"
         },
         {
           "value": "1",
           "title": "Engineer",
-          "caption": "front end to infra"
-        },
-        {
-          "value": "100",
-          "unit": "%",
-          "title": "Self-hosted",
-          "caption": "Dockerised, our own box"
+          "caption": "every layer built solo"
         }
       ]
     },
     "colophon": {
       "leftLabel": "Colophon",
-      "titleLine1": "Made with a small",
-      "titleAccent": "circle.",
+      "titleLine1": "Built by one",
+      "titleAccent": "engineer.",
       "credits": [
         {
           "role": "Engineering",
-          "primary": "Mohed Abbas",
-          "secondary": "Full stack · FE, API, DB, infra"
-        },
-        {
-          "role": "Design",
-          "primary": "Hamail Hassan",
-          "secondary": "Figma · UI"
+          "primary": "Muhammed Safvan",
+          "secondary": "Full stack · FE, API, DB, real-time"
         }
       ],
-      "rightLabel": "About M.A",
+      "rightLabel": "About M.S",
       "bio": [
-        "Mohed Abbas is a full-stack web engineer. He builds web products end to end: interfaces in React and Next, APIs and services in Node, and the Postgres, Redis and Docker plumbing that keeps them running.",
-        "Tasktrox started as a tool for a friend's company and outlived the company itself. It's now live as a public product, picking up real users beyond the team it was built for. Currently open to full-time roles and freelance builds."
+        "Muhammed Safvan is a full-stack web engineer who builds products end to end: interfaces in Next.js and React, APIs in Express and Node, real-time layers in Socket.io, and MongoDB databases that keep five distinct user roles in sync.",
+        "MediFind is a self-initiated product built to solve a real problem in healthcare access — one platform connecting patients, doctors, pharmacy sellers, delivery boys, and administrators without a single spreadsheet. Currently open to full-time roles and freelance builds."
       ],
       "actions": [
-        { "label": "Visit Tasktrox ↗", "href": "https://tasktrox.thecodeman.cloud/" },
         { "label": "All work", "href": "/work2" },
         { "label": "Back home", "href": "/" }
       ]
     },
     "nextCase": {
-      "slug": "travara",
-      "counter": "Next case · 02 / 04"
+      "slug": "vyntra-ecom",
+      "counter": "Next case · 02 / 02"
     }
   },
-  "travara": {
+  "vyntra-ecom": {
     "hero": {
-      "title": "TRAVARA",
-      "lede": "A travel-management platform for a tour operator that books flights, stays, and full itineraries in one place. I built it full-stack: a Laravel, Postgres, and Redis back end behind a Next.js and Tailwind front end, all containerised with Docker. Figma design with Hamail Hassan.",
-      "image": "/images/work/travara/01-hero.webp",
-      "alt": "Travara travel-management landing page",
-      "pills": ["Full-Stack · Travel Platform", "Laravel · Next.js · Postgres"],
+      "title": "VYNTRA",
+      "lede": "A luxury watch e-commerce platform built for a premium retail brand. Editorial product pages, curated Heritage Collections, a persistent wishlist, cart, and a full order flow — engineered with a React front end and an Express back end, with MongoDB powering the product catalogue and order management.",
+      "image": "/images/projects/vyntra-ecom/Hero.png",
+      "alt": "Vyntra — luxury watch e-commerce platform",
+      "pills": ["Full-Stack · E-Commerce Platform", "React · Express · MongoDB"],
       "badge": "View\nCase",
-      "backHref": "/"
+      "backHref": "/",
+      "demoUrl": "https://vyntra-dqdt.vercel.app/"
     },
     "ledger": {
       "entries": [
         {
           "label": "Client",
-          "primary": "Travara",
-          "secondary": "Travel-management brand"
+          "primary": "Vyntra",
+          "secondary": "Luxury watch retail brand"
         },
-        { "label": "Year", "primary": "2025", "secondary": "Built & delivered" },
+        { "label": "Year", "primary": "2026", "secondary": "Built & delivered" },
         {
           "label": "Role",
           "primary": "Engineer",
@@ -276,8 +248,8 @@
         },
         {
           "label": "Stack",
-          "primary": "Laravel · Next",
-          "secondary": "Postgres · Redis · Docker"
+          "primary": "React · Express",
+          "secondary": "MongoDB · Stripe"
         },
         {
           "label": "Status",
@@ -290,41 +262,40 @@
       "label": "Context",
       "facts": [
         "**Role**Full-stack engineer",
-        "**Stack**Laravel · Next.js · Postgres · Redis · Docker",
-        "**Team**1 engineer (me) · 1 designer"
+        "**Stack**React · Express.js · MongoDB · Stripe",
+        "**Team**1 engineer (me)"
       ],
       "body": [
-        "**Travara is a travel-management brand** that books trips end to end: flights, stays, schedules, and the support around them. Coordinating that breadth usually means a stack of disconnected tools and a spreadsheet quietly holding them together.",
-        "The brief was one platform. A traveler plans and books on the front, the team behind the counter manages it from the same source of truth: curated stays, exclusive deals, live availability, **no double entry and no version that only one person can see.**",
-        "Hamail Hassan and I shaped the design in Figma: warm, editorial, photography-led, closer to a travel magazine than a booking engine. **I built everything else, front to back.**",
-        "The front end is Next.js and Tailwind with a shadcn component layer; the back end is Laravel over Postgres with Redis caching the busy reads. Every service runs in Docker, so the client can host the whole platform wherever it likes."
+        "**Vyntra is a luxury watch brand** with a serious catalogue — limited-edition series, Swiss-movement timepieces, Heritage Collection pieces from Seiko and G-Shock, and curated editorial photography to match. What they needed was a storefront that met the product at its own level: premium, editorial, and built to convert a considered buyer rather than a casual browser.",
+        "The brief was a fully custom platform with no template shortcuts. **A storefront that reflects the brand**, a product browsing experience built around collection curation and craftsmanship storytelling, a persistent wishlist for customers saving pieces before committing, and a cart and checkout flow that doesn't lose the sale at the last step.",
+        "I built everything solo — React front end with a carefully designed component system, an Express REST API, MongoDB for the product catalogue and order data, and Stripe handling the payment flow. **No template. No compromise.**"
       ]
     },
     "vision": {
       "label": "The Vision",
-      "titleLine1": "Plan and book",
-      "titleLine2": "without the",
-      "titleAccent": "tab sprawl.",
+      "titleLine1": "Simplicity is the",
+      "titleLine2": "ultimate",
+      "titleAccent": "sophistication.",
       "body": [
-        "Two ideas held the build together. **One: a single source of truth.** Availability, pricing, and bookings live in Postgres and move through real transitions, so what a traveler sees and what the team sees never drift apart.",
-        "**Two: it has to feel effortless.** The browsing is editorial and unhurried, but the booking underneath is quick. Redis caches the destination and package views that get hit hardest, the Laravel API stays lean, and the Next.js front end paints fast on first load."
+        "The Vyntra Creed — heritage, precision, craftsmanship, elegance — shaped every design and engineering decision. **One: browsing must feel like discovery, not filtering.** Customers move through curated collections and editorial image sections, not a generic product grid. The storefront earns attention before it asks for a purchase.",
+        "**Two: the path from intent to checkout must be frictionless.** The wishlist persists across sessions so a customer can save a timepiece today and return tomorrow. The cart is always one click away. The checkout is direct and clear — no upsells, no clutter, no reason to abandon. **A customer who decides to buy a ₹7,899 watch should not have to fight the interface to do it.**"
       ]
     },
     "product": {
       "label": "The Product",
-      "titleLine1": "A booking flow",
-      "titleLine2": "that reads like a",
-      "titleAccent": "magazine.",
+      "titleLine1": "A storefront that",
+      "titleLine2": "respects the",
+      "titleAccent": "product.",
       "body": [
-        "The surface is built to make planning feel like daydreaming, not data entry. **Curated destinations, handpicked stays, and clear packages** carry real photography and generous space; the booking controls sit close by but never crowd the view.",
-        "Under it sits a typed Next.js app with a shadcn component layer, talking to a Laravel API over a clean contract. **State stays honest end to end:** a stay shown as available is available, because the front end and the database read from the same source."
+        "The homepage opens with the Obsidian Series — a limited-edition campaign with editorial photography and a craftsmanship narrative. From there, customers move through collection sections: Heritage, Sport, Minimalist. **Each watch gets a dedicated product page** with full-size imagery, Swiss movement specifications, pricing with discount details, and a single 'Move to Shopping Bag' action. A persistent wishlist lets them save pieces across sessions without losing their shortlist.",
+        "The cart shows a clean order summary with itemised pricing. Checkout collects shipping details and hands off to Stripe for secure payment. On the back end, the Express API handles product queries, cart state, wishlist syncing, order creation, and user authentication. **MongoDB stores the full catalogue, orders, and customer records.** The admin side gives the client complete control over product listings, inventory, and order fulfilment without touching the codebase."
       ]
     },
     "dashboard": {
       "badge": "Full\nStack",
-      "figcaption": "Fig. 02 · Destination explorer · 2025",
-      "image": "/images/work/travara/03-destinations.webp",
-      "alt": "Travara destination explorer"
+      "figcaption": "Fig. 02 · The Vyntra Creed · Heritage & Precision · 2026",
+      "image": "/images/projects/vyntra-ecom/Screen02.png",
+      "alt": "Vyntra — craftsmanship editorial section"
     },
     "toggle": {
       "label": "The Build",
@@ -333,47 +304,64 @@
       "screens": [
         {
           "num": "01",
-          "name": "Why Travara",
-          "image": "/images/work/travara/02-features.webp",
-          "color": "#F2EBDF",
-          "description": "Curated stays, deals, support",
-          "meta": "1240 × 923",
-          "hasGalleryCaption": true
+          "name": "Landing storefront",
+          "image": "/images/projects/vyntra-ecom/Hero.png",
+          "color": "#F0EFEB",
+          "description": "Brand hero — Obsidian Series, limited edition 001/500",
+          "meta": "1440 × 768"
         },
         {
           "num": "02",
-          "name": "Destination explorer",
-          "image": "/images/work/travara/03-destinations.webp",
-          "color": "#E6EFF2",
-          "description": "Five-card browse row",
-          "meta": "1240 × 951",
+          "name": "Craftsmanship",
+          "image": "/images/projects/vyntra-ecom/Screen01.png",
+          "color": "#EDECEA",
+          "description": "Precision · Durability · Elegance · Innovation",
+          "meta": "1440 × 768",
           "hasGalleryCaption": true
         },
         {
           "num": "03",
-          "name": "Trust & traction",
-          "image": "/images/work/travara/04-about-stats.webp",
-          "color": "#FCE9D8",
-          "description": "Partner story, live counters",
-          "meta": "1238 × 813",
+          "name": "The Vyntra Creed",
+          "image": "/images/projects/vyntra-ecom/Screen02.png",
+          "color": "#F2F0EC",
+          "description": "Editorial gallery — heritage brand photography",
+          "meta": "1440 × 768",
           "hasGalleryCaption": true
         },
         {
           "num": "04",
-          "name": "Traveler wall",
-          "image": "/images/work/travara/05-testimonials.webp",
-          "color": "#EAECEF",
-          "description": "Social-proof grid",
-          "meta": "1240 × 508",
+          "name": "Watch collection",
+          "image": "/images/projects/vyntra-ecom/Screen03.png",
+          "color": "#EEF0F4",
+          "description": "Collection browse — cart and wishlist actions",
+          "meta": "1440 × 768",
           "hasGalleryCaption": true
         },
         {
           "num": "05",
-          "name": "Closing & footer",
-          "image": "/images/work/travara/06-footer.webp",
-          "color": "#E5EEEC",
-          "description": "Final CTA, sitemap",
-          "meta": "1340 × 914",
+          "name": "Heritage catalogue",
+          "image": "/images/projects/vyntra-ecom/Screen04.png",
+          "color": "#F0EEF4",
+          "description": "Heritage Collection — Seiko, G-Shock, FEICE",
+          "meta": "1440 × 768",
+          "hasGalleryCaption": true
+        },
+        {
+          "num": "06",
+          "name": "Wishlist",
+          "image": "/images/projects/vyntra-ecom/Screen05.png",
+          "color": "#F4F0EE",
+          "description": "Saved pieces — session-persistent wishlist",
+          "meta": "1440 × 768",
+          "hasGalleryCaption": true
+        },
+        {
+          "num": "07",
+          "name": "Cart & checkout",
+          "image": "/images/projects/vyntra-ecom/Screen06.png",
+          "color": "#EEF4F0",
+          "description": "Order summary — Stripe payment flow",
+          "meta": "1440 × 768",
           "hasGalleryCaption": true
         }
       ]
@@ -382,61 +370,83 @@
       "label": "Architecture",
       "titleLine1": "Under the",
       "titleAccent": "hood.",
-      "intro": "Behind the screens, Travara is a full-stack platform I built and containerised end to end: a typed Next.js client, a Laravel REST API, and a Postgres core with Redis in front, **all running in Docker so the client can host it anywhere.**",
+      "intro": "Vyntra is a full-stack e-commerce platform built with React on the client and Express on the server. MongoDB stores the product catalogue, orders, and customer data. Stripe handles payments. Every surface — storefront, product pages, wishlist, cart, and checkout — is a purpose-built React component connected to a clean, versioned Express API.",
       "layers": [
         {
           "name": "Client",
-          "tech": ["Next.js", "Tailwind", "shadcn"],
-          "detail": "Server-rendered React with a shadcn component layer, typed end to end and talking to the API over a clean REST contract."
+          "tech": ["React", "JavaScript", "CSS Modules"],
+          "detail": "A component-driven React front end with a carefully designed system for the editorial storefront, collection pages, product detail views, wishlist, and cart. State is managed cleanly across components — wishlist persists in local storage, cart state is synced with the API."
         },
         {
           "name": "API",
-          "tech": ["Laravel", "PHP", "REST"],
-          "detail": "A Laravel back end handling auth, bookings, and the business rules around availability and pricing, exposed as versioned REST endpoints."
+          "tech": ["Express.js", "Node.js", "JWT Auth"],
+          "detail": "RESTful Express API handling product queries, cart operations, wishlist syncing, order creation, and user authentication. JWT-based auth with protected routes for checkout and order history. Admin endpoints for product and order management are guarded by role middleware."
         },
         {
           "name": "Data",
-          "tech": ["PostgreSQL", "Redis"],
-          "detail": "Postgres holds destinations, packages, stays, and bookings as the single source of truth. Redis caches the read-heavy browse and availability views."
+          "tech": ["MongoDB", "Mongoose"],
+          "detail": "Mongoose models for watches, collections, orders, and customers. Products are organised by collection (Heritage, Sport, Limited Edition) with full metadata: price, MRP, stock count, specifications, and image references. Orders capture item snapshots so price changes don't affect historical records."
         },
         {
-          "name": "Runtime",
-          "tech": ["Docker", "Nginx"],
-          "detail": "Every service in its own container behind Nginx, so the whole platform deploys as a unit and the client can self-host wherever it likes."
+          "name": "Payments",
+          "tech": ["Stripe", "Webhook Handlers"],
+          "detail": "Stripe handles the full payment flow — card collection, charge, and confirmation. Webhook handlers on the Express side confirm payment success and trigger order creation. No card data ever touches the application server; Stripe owns that responsibility entirely."
         }
       ],
       "facts": [
-        { "value": "4", "title": "Layers", "caption": "client to runtime" },
-        { "value": "2", "title": "Data stores", "caption": "Postgres + Redis" },
+        { "value": "7", "title": "Screens", "caption": "shipped to production" },
+        { "value": "4", "title": "Layers", "caption": "client to payments" },
         {
-          "value": "100",
-          "unit": "%",
-          "title": "Containerised",
-          "caption": "every service in Docker"
+          "value": "0",
+          "title": "Templates",
+          "caption": "built from scratch"
         },
-        { "value": "1", "title": "Engineer", "caption": "front end to infra" }
+        { "value": "1", "title": "Engineer", "caption": "front end to back end" }
+      ]
+    },
+    "outcomes": {
+      "label": "Outcome",
+      "titleLine1": "What it is,",
+      "titleLine2": "in",
+      "titleAccent": "numbers.",
+      "metrics": [
+        {
+          "value": "7",
+          "title": "Screens",
+          "caption": "shipped and in use"
+        },
+        {
+          "value": "1",
+          "title": "Engineer",
+          "caption": "front end to back end"
+        },
+        {
+          "value": "0",
+          "title": "Templates",
+          "caption": "built entirely from scratch"
+        },
+        {
+          "value": "0",
+          "title": "Lock-in",
+          "caption": "client owns the codebase"
+        }
       ]
     },
     "colophon": {
       "leftLabel": "Colophon",
-      "titleLine1": "Made with a small",
-      "titleAccent": "circle.",
+      "titleLine1": "Built by one",
+      "titleAccent": "engineer.",
       "credits": [
         {
           "role": "Engineering",
-          "primary": "Mohed Abbas",
-          "secondary": "Full stack · FE, API, DB, infra"
-        },
-        {
-          "role": "Design",
-          "primary": "Hamail Hassan",
-          "secondary": "Figma · UI"
+          "primary": "Muhammed Safvan",
+          "secondary": "Full stack · React, Express, MongoDB, Stripe"
         }
       ],
-      "rightLabel": "About M.A",
+      "rightLabel": "About M.S",
       "bio": [
-        "Mohed Abbas is a full-stack web engineer. He builds web products end to end: interfaces in React and Next, APIs and services in Laravel and Node, and the Postgres, Redis, and Docker plumbing that keeps them running.",
-        "Travara was a full-stack client build: a Figma design with Hamail Hassan, a Laravel and Postgres back end, a Next.js front end, and a Dockerised runtime the client owns. Currently open to full-time roles and freelance builds."
+        "Muhammed Safvan is a full-stack web engineer who builds products end to end: interfaces in React, APIs in Express and Node, MongoDB databases, and Stripe payment integrations — all built from scratch, no templates.",
+        "Vyntra was a full-stack client build: a custom luxury e-commerce platform engineered from the ground up, with editorial UI that matches the brand's premium positioning, and a clean codebase the client owns entirely. Currently open to full-time roles and freelance builds."
       ],
       "actions": [
         { "label": "All work", "href": "/work2" },
@@ -445,426 +455,8 @@
       ]
     },
     "nextCase": {
-      "slug": "emerald-psychiatry",
-      "counter": "Next case · 03 / 04"
-    }
-  },
-  "emerald-psychiatry": {
-    "hero": {
-      "title": "EMERALD",
-      "lede": "A patient-facing site for a mental-health clinic: warm, calm, and easy to act on. I designed and built the front end in Next.js and Tailwind, then containerised it so the clinic can host it anywhere without giving up a single Next.js feature. Figma design with Hamail Hassan.",
-      "image": "/images/work/emerald-psychiatry/01-hero.webp",
-      "alt": "Emerald Psychiatry patient landing page",
-      "pills": ["Front-End · Healthcare Web", "Next.js · Tailwind · Docker"],
-      "badge": "View\nCase",
-      "backHref": "/"
-    },
-    "ledger": {
-      "entries": [
-        {
-          "label": "Client",
-          "primary": "Emerald Psychiatry",
-          "secondary": "Mental-health clinic"
-        },
-        { "label": "Year", "primary": "2025", "secondary": "Front end shipped" },
-        {
-          "label": "Role",
-          "primary": "Front-End",
-          "secondary": "Design & development"
-        },
-        {
-          "label": "Stack",
-          "primary": "Next · Tailwind",
-          "secondary": "Docker · self-host"
-        },
-        {
-          "label": "Status",
-          "primary": "Shipped",
-          "secondary": "Handed to client"
-        }
-      ]
-    },
-    "context": {
-      "label": "Context",
-      "facts": [
-        "**Role**Front-end design & development",
-        "**Stack**Next.js · Tailwind · Docker",
-        "**Team**1 engineer (me) · 1 designer"
-      ],
-      "body": [
-        "**Emerald Psychiatry** is a mental-health clinic that needed a website to match the care it gives: calm, clear, and human. What it had was a generic template that made a careful practice look like everyone else.",
-        "The brief was front-end only. They had the words and the clinical credibility; what they lacked was a face. **One patient-facing site, fast and reassuring**, that turns a nervous first click into a booked appointment.",
-        "Hamail Hassan and I worked the design in Figma: warm greens, soft type, real photography over stock gloss. **I built the whole front end** from there in Next.js and Tailwind.",
-        "Because the clinic wanted to own its hosting, I shipped the site as a container. It runs anywhere a Docker host does and keeps every Next.js advantage, server rendering, routing, image handling, wherever it lands."
-      ]
-    },
-    "vision": {
-      "label": "The Vision",
-      "titleLine1": "A first click",
-      "titleLine2": "that feels",
-      "titleAccent": "safe.",
-      "body": [
-        "Two ideas shaped every screen. **One: lower the temperature.** People arrive here anxious, sometimes for the first time. Generous space, soft greens, and plain language do more than any hero animation to make reaching out feel possible.",
-        "**Two: make the next step obvious.** Book, learn, or call is never more than one clear button away. The site has a single job, to carry someone from worried to booked, and every section is measured against it."
-      ]
-    },
-    "product": {
-      "label": "The Front End",
-      "titleLine1": "Built to load,",
-      "titleLine2": "built to",
-      "titleAccent": "convert.",
-      "body": [
-        "The front end is a handful of considered sections, not a page builder's junk drawer. **Every block earns its place**: hero, services, the people behind the care, proof, and a clear path to book. Real photography carries the warmth; the type and spacing carry the calm.",
-        "Under the surface it's a typed Next.js app styled with Tailwind, tuned for speed and accessibility. **Containerised from day one**, it ships as a single image the clinic can run on its own infrastructure, no rebuild, no lock-in, no lost Next.js features."
-      ]
-    },
-    "dashboard": {
-      "badge": "Front\nEnd",
-      "figcaption": "Fig. 01 · Patient-facing landing · 2025",
-      "image": "/images/work/emerald-psychiatry/05-why.webp",
-      "alt": "Emerald Psychiatry why-us section"
-    },
-    "toggle": {
-      "label": "The Build",
-      "titleLine1": "All",
-      "titleAccent": "screens.",
-      "screens": [
-        {
-          "num": "01",
-          "name": "Patient landing",
-          "image": "/images/work/emerald-psychiatry/01-hero.webp",
-          "color": "#E6F1EC",
-          "description": "Brand-led hero, clear CTAs",
-          "meta": "1440 × 1117",
-          "hasGalleryCaption": true
-        },
-        {
-          "num": "02",
-          "name": "Brand statement",
-          "image": "/images/work/emerald-psychiatry/06-gallery.webp",
-          "color": "#FCE7DC",
-          "description": "Expertise and empathy block",
-          "meta": "1302 × 1205",
-          "hasGalleryCaption": true
-        },
-        {
-          "num": "03",
-          "name": "Why Emerald",
-          "image": "/images/work/emerald-psychiatry/05-why.webp",
-          "color": "#EAF2F0",
-          "description": "Science-backed, accessible care",
-          "meta": "1312 × 798",
-          "hasGalleryCaption": true
-        },
-        {
-          "num": "04",
-          "name": "The clinicians",
-          "image": "/images/work/emerald-psychiatry/07-team.webp",
-          "color": "#F2ECE2",
-          "description": "Team grid, credentials",
-          "meta": "1383 × 757",
-          "hasGalleryCaption": true
-        },
-        {
-          "num": "05",
-          "name": "Experience band",
-          "image": "/images/work/emerald-psychiatry/03-experience.webp",
-          "color": "#E9F0F4",
-          "description": "Care across every age group",
-          "meta": "1312 × 545",
-          "hasGalleryCaption": true
-        },
-        {
-          "num": "06",
-          "name": "Services",
-          "image": "/images/work/emerald-psychiatry/02-services.webp",
-          "color": "#F0ECE6",
-          "description": "Four care pathways",
-          "meta": "1334 × 603"
-        },
-        {
-          "num": "07",
-          "name": "Patient voices",
-          "image": "/images/work/emerald-psychiatry/04-testimonials.webp",
-          "color": "#FBE9DD",
-          "description": "Testimonial, organic shapes",
-          "meta": "1440 × 788"
-        },
-        {
-          "num": "08",
-          "name": "Closing CTA",
-          "image": "/images/work/emerald-psychiatry/08-cta.webp",
-          "color": "#ECF0EA",
-          "description": "Book or contact, one tap",
-          "meta": "1312 × 190"
-        },
-        {
-          "num": "09",
-          "name": "FAQ + footer",
-          "image": "/images/work/emerald-psychiatry/09-faq-footer.webp",
-          "color": "#EFEAF0",
-          "description": "Questions, links, sitemap",
-          "meta": "1440 × 1103"
-        }
-      ]
-    },
-    "colophon": {
-      "leftLabel": "Colophon",
-      "titleLine1": "Made with a small",
-      "titleAccent": "circle.",
-      "credits": [
-        {
-          "role": "Front-End",
-          "primary": "Mohed Abbas",
-          "secondary": "Design & development · Next, Tailwind, Docker"
-        },
-        {
-          "role": "Design",
-          "primary": "Hamail Hassan",
-          "secondary": "Figma · UI"
-        }
-      ],
-      "rightLabel": "About M.A",
-      "bio": [
-        "Mohed Abbas is a full-stack web engineer who designs as readily as he ships. He builds web products end to end, from the interface to the containers it runs in.",
-        "Emerald Psychiatry was a front-end engagement: brand-led UI in Figma with Hamail Hassan, built in Next.js and Tailwind, and handed over as a portable container. Currently open to full-time roles and freelance builds."
-      ],
-      "actions": [
-        { "label": "All work", "href": "/work2" },
-        { "label": "Back home", "href": "/" },
-        { "label": "Live site soon" }
-      ]
-    },
-    "nextCase": {
-      "slug": "permitto",
-      "counter": "Next case · 04 / 04"
-    }
-  },
-  "permitto": {
-    "hero": {
-      "title": "PERMITTO",
-      "lede": "Digitising the permit-to-work system for heavy industry moving high-risk job coordination off paper, radio chatter, and signature walks into a single audit-ready surface shared by crews, supervisors, and the control room.",
-      "image": "/images/work/tasktrox/Hero.webp",
-      "alt": "Placeholder · Tasktrox marketing landing (Permitto art forthcoming)",
-      "pills": ["EHS · Heavy industry", "Brand · Product · Field UX"],
-      "badge": "View\nCase",
-      "backHref": "/"
-    },
-    "ledger": {
-      "entries": [
-        {
-          "label": "Client",
-          "primary": "Permitto",
-          "secondary": "Industrial EHS platform"
-        },
-        { "label": "Year", "primary": "2025", "secondary": "January → August" },
-        {
-          "label": "Role",
-          "primary": "Lead",
-          "secondary": "Brand · Product · Field UX"
-        },
-        {
-          "label": "Stack",
-          "primary": "Next · Capacitor",
-          "secondary": "Postgres · Mapbox"
-        },
-        {
-          "label": "Reach",
-          "primary": "12",
-          "secondary": "Sites across 4 operators"
-        }
-      ]
-    },
-    "context": {
-      "label": "Context",
-      "facts": [
-        "**Discipline**Brand · Product · Field UX",
-        "**Duration**28 weeks",
-        "**Team**1 designer · 3 engineers · 1 HSE specialist · 1 PM"
-      ],
-      "body": [
-        "**Permitto arrived** with a binder. Three centimetres thick, sweat-warped, missing the page that mattered. A paper permit-to-work form for a hot-work job, lost somewhere between the contractor's pickup and the control-room window.",
-        "The brief was concrete: replace the binder. The real problem was harder. Every site we visited had a different paper template, a different signature ritual, a different unwritten rule about when you could finally light the torch. Auditors arrived twice a year and the binders had a quiet habit of going on holiday the week before they did.",
-        "We threw out the SaaS playbook on day one. **No dashboards for the foreman, no AI-as-mascot, no enterprise gradients.** Instead we anchored the system in the language of the field: gloves on, glare bright, radio crackling, one hand free."
-      ]
-    },
-    "vision": {
-      "label": "The Vision",
-      "titleLine1": "A permit that holds",
-      "titleLine2": "the",
-      "titleAccent": "line.",
-      "body": [
-        "Three principles shaped every screen. **One: the field is the source of truth.** Approvals begin on the tablet at the worksite, not in an office two buildings away. Isolations, gas tests and signatures are captured where they happen, by the people who did them.",
-        "**Two: glove-ready, glare-ready.** Type sized for safety glasses, contrast tuned for direct sun, hit targets sized for a leather work glove. **Three: stop the work, not the worker.** If a gas reading lapses or an isolation drifts, the permit pauses and the path back to safe is one tap — not a help-desk ticket."
-      ]
-    },
-    "pull": {
-      "attribution": {
-        "name": "Diego Sarmiento",
-        "role": "HSE Manager",
-        "location": "Cerro Verde plant, Antofagasta"
-      },
-      "act2": [
-        { "text": "“For the first time" },
-        { "text": "the paperwork" },
-        { "text": "follows", "accent": true }
-      ],
-      "act3": [{ "text": "the crew" }, { "text": "into the field.”" }]
-    },
-    "product": {
-      "label": "The Product",
-      "titleLine1": "The permit,",
-      "titleLine2": "shaped like a",
-      "titleAccent": "checklist.",
-      "body": [
-        "The permit treats every high-risk job as a sequenced checklist. **Hazards declared, isolations mapped, signatures gated** the right rail tracks state, never instructions, lifted directly from the way crews actually walk a job.",
-        "Each step aligns to the 8-pt grid but breathes for thumbs in gloves. No two approval states look identical without reason. Motion is 200ms expo.out, fast enough to confirm a tap, slow enough to read in direct sun."
-      ]
-    },
-    "dashboard": {
-      "badge": "Live\nDemo",
-      "figcaption": "Fig. 04 · Control-room overview · 06 / 24",
-      "image": "/images/work/tasktrox/Dashboard.webp",
-      "alt": "Placeholder · Tasktrox studio dashboard (Permitto art forthcoming)"
-    },
-    "toggle": {
-      "label": "The Build",
-      "titleLine1": "All",
-      "titleAccent": "screens.",
-      "screens": [
-        {
-          "num": "01",
-          "name": "Field tablet permit",
-          "image": "/images/work/tasktrox/Hero.webp",
-          "color": "#E6F4F8",
-          "description": "Hot-work permit, step-gated approvals",
-          "meta": "2400 × 1500"
-        },
-        {
-          "num": "02",
-          "name": "Control-room overview",
-          "image": "/images/work/tasktrox/Dashboard.webp",
-          "color": "#FBE4E5",
-          "description": "Active permits, isolation map",
-          "meta": "2400 × 1500"
-        },
-        {
-          "num": "03",
-          "name": "Isolation registry",
-          "image": "/images/work/tasktrox/Product.webp",
-          "color": "#FFF0DB",
-          "description": "LOTO chain, tag history, energy state",
-          "meta": "2400 × 1500",
-          "hasGalleryCaption": true
-        },
-        {
-          "num": "04",
-          "name": "Crew profile",
-          "image": "/images/work/tasktrox/About.webp",
-          "color": "#E8EFEA",
-          "description": "Competencies, certifications, expiry",
-          "meta": "2400 × 1500",
-          "hasGalleryCaption": true
-        },
-        {
-          "num": "05",
-          "name": "Audit trail",
-          "image": "/images/work/tasktrox/Price.webp",
-          "color": "#ECEFFF",
-          "description": "Signature chain, time-stamped, exportable",
-          "meta": "2400 × 1500",
-          "hasGalleryCaption": true
-        },
-        {
-          "num": "06",
-          "name": "Incident replay",
-          "image": "/images/work/tasktrox/testimonials.webp",
-          "color": "#EFE8D3",
-          "description": "Timeline reconstruction, post-job review",
-          "meta": "2400 × 1500",
-          "hasGalleryCaption": true
-        },
-        {
-          "num": "07",
-          "name": "Site footer",
-          "image": "/images/work/tasktrox/footer.webp",
-          "color": "#F4E8F0",
-          "description": "Closing marquee, site index",
-          "meta": "2400 × 1500",
-          "hasGalleryCaption": true
-        }
-      ]
-    },
-    "outcomes": {
-      "label": "Outcome",
-      "titleLine1": "What changed,",
-      "titleLine2": "in",
-      "titleAccent": "numbers.",
-      "metrics": [
-        {
-          "value": "12",
-          "title": "Sites",
-          "caption": "live across four operators"
-        },
-        {
-          "value": "47",
-          "unit": "%",
-          "title": "Approval time",
-          "caption": "median, paper → tablet"
-        },
-        {
-          "value": "0",
-          "title": "Lost permits",
-          "caption": "since rollout, 11 months in"
-        },
-        {
-          "value": "100",
-          "unit": "%",
-          "title": "Audit pass",
-          "caption": "first regulatory cycle"
-        }
-      ]
-    },
-    "colophon": {
-      "leftLabel": "Colophon",
-      "titleLine1": "Made with a small",
-      "titleAccent": "circle.",
-      "credits": [
-        {
-          "role": "Design Lead",
-          "primary": "Mohed Abbas",
-          "secondary": "Brand · Product · Field UX"
-        },
-        {
-          "role": "Engineering",
-          "primary": "Noor Rashid",
-          "secondary": "Iván Petrov · Hana Yusof"
-        },
-        {
-          "role": "HSE",
-          "primary": "Diego Sarmiento",
-          "secondary": "Field consultant"
-        },
-        {
-          "role": "Special thanks",
-          "primary": "Cerro Verde",
-          "secondary": "Permitto pilot working group"
-        }
-      ],
-      "rightLabel": "About M.A",
-      "bio": [
-        "Mohed Abbas is an independent designer working at the seam of brand, product and the small motion details that make software feel made. Selected work from 2018 → present.",
-        "Currently taking on one new engagement per quarter, typically a 6 to 14-week sprint covering identity, a flagship surface, and the design system that holds them together."
-      ],
-      "actions": [
-        { "label": "Start a project →" },
-        { "label": "Read approach" },
-        { "label": "All works" }
-      ]
-    },
-    "nextCase": {
-      "slug": "tasktrox",
-      "counter": "Next case · 01 / 04"
+      "slug": "medifind",
+      "counter": "Next case · 01 / 02"
     }
   }
 }

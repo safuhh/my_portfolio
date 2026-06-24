@@ -1,8 +1,8 @@
 {
-  "title": "MOHED ABBAS - Full Stack Web Engineer",
-  "description": "Portfolio of Mohed Abbas - Full Stack Web Engineer building full-stack web products end to end: React & Next.js front ends, Node & Python APIs, and cloud deployment.",
-  "author": "Mohed Abbas",
-  "siteUrl": "https://portfolio.thecodeman.cloud",
+  "title": "Muhammed Safvan - Full Stack Web Engineer",
+  "description": "Portfolio of Muhammed Safvan - Full Stack Web Engineer building full-stack web products end to end: React & Next.js front ends, Node & Python APIs, and cloud deployment.",
+  "author": "Muhammed Safvan",
+  "siteUrl": "https://safvann-portfolio.vercel.app",
   "themeColor": "#1b2028",
   "keywords": [
     "Full Stack Web Engineer",
@@ -13,27 +13,27 @@
     "TypeScript",
     "Web Development",
     "Portfolio",
-    "Mohed Abbas"
+    "Muhammed Safvan"
   ],
   "openGraph": {
-    "title": "MOHED ABBAS - Full Stack Web Engineer",
-    "description": "Portfolio of Mohed Abbas - Full Stack Web Engineer building full-stack web products end to end: React & Next.js front ends, Node & Python APIs, and cloud deployment.",
+    "title": "Muhammed Safvan - Full Stack Web Engineer",
+    "description": "Portfolio of Muhammed Safvan - Full Stack Web Engineer building full-stack web products end to end: React & Next.js front ends, Node & Python APIs, and cloud deployment.",
     "type": "website",
     "locale": "en_US",
-    "siteName": "Mohed Abbas Portfolio"
+    "siteName": "Muhammed Safvan Portfolio"
   },
   "twitter": {
     "card": "summary_large_image",
-    "creator": "@mohedabbas"
+    "creator": "@safuhh"
   },
   "person": {
-    "name": "Mohed Abbas",
+    "name": "Muhammed Safvan",
     "jobTitle": "Full Stack Web Engineer",
     "sameAs": [
-      "https://www.instagram.com/mohed._.abbas",
-      "https://www.linkedin.com/in/mohed-abbas/",
-      "https://github.com/mohed-abbas",
-      "https://x.com/mohed332"
+      "https://www.instagram.com/_safuhh._?igsh=MWlodmJrbmdoc3V5Yg==",
+      "https://www.linkedin.com/in/safvan-p-/",
+      "https://github.com/safuhh",
+      "https://x.com"
     ]
   }
 }

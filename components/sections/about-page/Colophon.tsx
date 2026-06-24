@@ -28,7 +28,7 @@ export function AboutPageColophon() {
   const eyebrowId = useId();
 
   const credits = [
-    { role: "Name", value: "Mohed Abbas" },
+    { role: "Name", value: "Muhammed Safvan" },
     { role: "Role", value: content.hero.title },
     { role: "Status", value: "Full time" },
     { role: "Based in", value: basedIn },

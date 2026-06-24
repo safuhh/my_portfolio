@@ -149,8 +149,8 @@ a.projectSticky {
 
 /* THE IMAGE */
 .imageCard {
-    width: min(80vw, 76vh * 3 / 2);
-    aspect-ratio: 3 / 2; /* fixed ratio so cover crops consistently across screens */
+    width: min(80vw, 76vh * 16 / 9);
+    aspect-ratio: 16 / 9; /* fixed ratio so 16:9 screenshots fit perfectly without side cropping */
     position: relative;
     z-index: 5;
     transform: scale(0.125) rotate(-10deg); /* Start small and crooked */
@@ -208,6 +208,39 @@ a.projectSticky {
     border: 2px solid var(--color-primary-text);
     border-radius: 50px;
     background-color: var(--color-background);
+}
+
+.demoButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    border-radius: 50px;
+    background: var(--color-primary-text);
+    color: var(--color-background);
+    font-family: var(--font-navbar);
+    font-weight: 500;
+    font-size: clamp(14px, 1.1vw, 16px);
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    transition:
+        transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+        background-color 0.3s ease,
+        color 0.3s ease,
+        box-shadow 0.3s ease;
+    will-change: transform;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .demoButton:hover {
+        transform: translateY(-2px) scale(1.05);
+        background: var(--color-accent-gold);
+        color: var(--color-primary-text);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    }
 }
 
 /* ============================================================

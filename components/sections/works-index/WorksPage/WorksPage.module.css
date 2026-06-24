@@ -23,10 +23,10 @@
 
 .intro {
     padding: clamp(140px, 22vh, 220px) 0 clamp(48px, 8vh, 96px);
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 32px;
-    align-items: end;
+    align-items: flex-start;
 }
 
 .headline {
@@ -36,6 +36,7 @@
     line-height: 0.86;
     text-transform: lowercase;
     margin-left: -0.06em;
+    white-space: nowrap;
 }
 
 .headline > span {

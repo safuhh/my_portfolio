@@ -11,14 +11,14 @@ import { Contact } from "@/components/sections/Contact";
 import { AboutPageHeroEcho } from "./Echo";
 import { AboutPageIntro } from "./Intro";
 import { AboutPageExperience } from "./Experience";
-import { AboutPageCredentials } from "./Credentials";
+
 import { AboutPageColophon } from "./Colophon";
 
 const VITALS = [
   { label: "Status", primary: "Full time", secondary: "Builds independently" },
   { label: "Discipline", primary: "Full Stack", secondary: "Interface to infrastructure" },
-  { label: "Building", primary: "TASKTROX", secondary: "Internal ops platform" },
-  { label: "Based in", primary: "Europe", secondary: "Working worldwide" },
+  { label: "Building", primary: "MEDIFIND", secondary: "E-Health platform" },
+  { label: "Based in", primary: "Kerala, India", secondary: "Working worldwide" },
   { label: "Ships", primary: "Real things", secondary: "Not mockups" },
 ];
 
@@ -29,7 +29,7 @@ export function AboutPageView() {
       <Ledger entries={VITALS} />
       <AboutPageIntro />
       <AboutPageExperience />
-      <AboutPageCredentials />
+
       <AboutPageColophon />
       <Contact />
     </main>

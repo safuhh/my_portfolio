@@ -331,6 +331,20 @@ export const Projects = () => {
                    <div className={styles.projectMeta}>
                        <div className={styles.pill}>{caseStudies[project.id]?.hero?.pills?.[1] ?? project.year}</div>
                        <div className={styles.pill}>{project.category}</div>
+                       {project.demoUrl && (
+                           <button
+                             type="button"
+                             className={styles.demoButton}
+                             onClick={(e) => {
+                                 e.preventDefault();
+                                 e.stopPropagation();
+                                 window.open(project.demoUrl, '_blank');
+                             }}
+                             aria-label="View live demo"
+                           >
+                               Live Demo ↗
+                           </button>
+                       )}
                    </div>
                </>
            );

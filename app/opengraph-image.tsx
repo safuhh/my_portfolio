@@ -38,7 +38,7 @@ export default function OpengraphImage() {
             color: accentColor,
           }}
         >
-          MOHED ABBAS · DESIGNER
+          Muhammed Safvan · ENGINEER
         </div>
         <div
           style={{
@@ -56,7 +56,7 @@ export default function OpengraphImage() {
               display: "flex",
             }}
           >
-            MOHED
+            MUHAMMED
           </div>
           <div
             style={{
@@ -68,7 +68,7 @@ export default function OpengraphImage() {
               alignSelf: "flex-end",
             }}
           >
-            ABB<span style={{ color: accentColor }}>A</span>S
+            SAFV<span style={{ color: accentColor }}>A</span>N
           </div>
         </div>
         <div

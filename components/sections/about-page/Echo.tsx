@@ -136,7 +136,7 @@ export function AboutPageHeroEcho() {
 
   return (
     <section ref={sectionRef} className={styles.hero}>
-      <h1 className={styles.srOnly}>About — Mohed Abbas</h1>
+      <h1 className={styles.srOnly}>About — Muhammed Safvan</h1>
 
       <div className={styles.top} data-reveal>
         <TransitionLink

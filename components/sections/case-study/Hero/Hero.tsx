@@ -44,6 +44,7 @@ export function Hero({
   pills,
   badge,
   backHref,
+  demoUrl,
 }: CaseStudyHeroContent) {
   const ledeWords = lede.split(" ");
   const { color: currentAccent } = useAccentColor();
@@ -122,7 +123,7 @@ export function Hero({
         // Pills — top-of-cascade entrance (fires earliest so the eye
         // moves from pills → title → lede in reading order).
         const pillEls = metaRef.current
-          ? metaRef.current.querySelectorAll<HTMLElement>(`.${styles.pill}`)
+          ? metaRef.current.querySelectorAll<HTMLElement>(`.${styles.pill}, .${styles.demoButton}`)
           : null;
         let pillsTween: gsap.core.Tween | null = null;
         if (pillEls && pillEls.length) {
@@ -617,6 +618,16 @@ export function Hero({
               </span>
             );
           })}
+          {demoUrl && (
+            <a
+              href={demoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.demoButton}
+            >
+              Live Demo ↗
+            </a>
+          )}
         </div>
         <p ref={ledeRef} className={styles.lede}>
           {/* key={i}: source is `lede` — a static build-time prop split at spaces, never reordered. */}

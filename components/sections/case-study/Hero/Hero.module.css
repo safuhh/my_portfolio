@@ -142,6 +142,38 @@
     color: var(--color-background);
 }
 
+.demoButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 9px 24px;
+    height: calc(2px * 2 + 9px * 2 + clamp(13px, 1vw, 16px));
+    border-radius: 999px;
+    background: var(--color-primary-text);
+    color: var(--color-background);
+    font-family: var(--font-navbar);
+    font-size: clamp(14px, 1.05vw, 17px);
+    line-height: 1;
+    text-decoration: none;
+    font-weight: 500;
+    transition:
+        transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+        background-color 0.28s ease,
+        color 0.28s ease,
+        box-shadow 0.28s ease;
+    will-change: transform;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .demoButton:hover {
+        transform: translateY(-2px) scale(1.03);
+        background: var(--color-accent-gold);
+        color: var(--color-primary-text);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+}
+
 .lede {
     margin: 0;
     max-width: 32ch;
@@ -171,7 +203,7 @@
     --card-radius: var(--radius-portrait);
     position: relative;
     width: clamp(420px, 54%, 920px);
-    aspect-ratio: 16 / 10;
+    aspect-ratio: 16 / 9;
     border-radius: var(--card-radius);
     box-shadow: 0 5px 10px 20px rgba(0, 0, 0, 0.18);
     will-change: transform, width, height, top, left;

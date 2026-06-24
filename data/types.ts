@@ -231,6 +231,7 @@ export interface Project {
   badgeShadowColor?: string;
   /** When true, the project is shown in the home page Projects section. Order-independent. */
   featured?: boolean;
+  demoUrl?: string;
 }
 
 export interface ProjectsContent {
@@ -279,7 +280,7 @@ export interface ContactContent {
   };
   row4: { lead: string; label: string };
   submit: string;
-  fallback: { label: string; email: string };
+  fallback: { label: string; email: string; whatsapp?: string; phone?: string };
 }
 
 export interface Content {
@@ -570,6 +571,7 @@ export interface CaseStudyHeroContent {
   badge?: string;
   year?: string;
   backHref?: string;
+  demoUrl?: string;
 }
 
 export interface LedgerEntry {

@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import { AboutPageView } from '@/components/sections/about-page';
 
 export const metadata: Metadata = {
-  title: 'About · Mohed Abbas',
+  title: 'About · Muhammed Safvan',
   description:
-    'Mohed Abbas builds web products end to end. Profile, experience, certifications and studies.',
+    'Muhammed Safvan builds web products end to end. Profile, experience, certifications and studies.',
   alternates: { canonical: '/about' },
 };
 

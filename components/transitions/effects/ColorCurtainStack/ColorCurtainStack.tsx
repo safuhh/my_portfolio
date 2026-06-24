@@ -167,7 +167,7 @@ function buildCurtains(payload: TransitionEffectProps['payload']): CurtainConfig
         textTone: 'paper',
         labelTone: 'ink',
         scrollClass: styles.trackScrollRight,
-        labels: { tr: 'Skill · 02', bl: 'Mohed Abbas' },
+        labels: { tr: 'Skill · 02', bl: 'Muhammed Safvan' },
       },
       {
         background: INK,

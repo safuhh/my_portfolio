@@ -30,7 +30,7 @@ export async function generateMetadata({
   const canonical = `/work/${slug}`;
   if (entry?.hero) {
     return {
-      title: `${entry.hero.title} · Case Study · Mohed Abbas`,
+      title: `${entry.hero.title} · Case Study · Muhammed Safvan`,
       description: entry.hero.lede,
       alternates: { canonical },
       openGraph: {
@@ -43,7 +43,7 @@ export async function generateMetadata({
       },
     };
   }
-  return { title: 'Case Study · Mohed Abbas', alternates: { canonical } };
+  return { title: 'Case Study · Muhammed Safvan', alternates: { canonical } };
 }
 
 export default async function CaseStudyPage({
