@@ -29,7 +29,7 @@ import transitionsJson from './transitions.json';
 // `string`, so the narrowed union types in SiteMetadata need an assertion at
 // this single boundary — same pattern as transitionsConfig below.
 export const siteMetadata: SiteMetadata = siteMetadataJson as SiteMetadata;
-export const content: Content = contentJson;
+export const content: Content = contentJson as unknown as Content;
 export const navigation: Navigation = navigationJson;
 export const designTokens: DesignTokens = designTokensJson;
 export const animationConfig: AnimationConfig = animationConfigJson;
