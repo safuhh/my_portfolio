@@ -94,10 +94,9 @@
     display: inline-block;
 }
 
-/* ============================================
-   BRAND MARK (MA) - Center of navbar
-   Revealed via scroll animation from Hero
-   ============================================ */
+/* ==========================================================================
+   BRAND MARK (MS) - Center of navbar
+   ========================================================================== */
 
 .navCenterWrapper {
     display: flex;
