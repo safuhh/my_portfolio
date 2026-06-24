@@ -175,14 +175,7 @@ export interface AboutContent {
   _cvNote?: string;
   /** Work history (newest first). */
   experience: ExperienceEntry[];
-  /** Unified, de-duplicated credentials ledger (degrees + their titles +
-   *  standalone courses) shown on the /about page. Newest first. */
-  credentials?: CredentialEntry[];
-  /** @deprecated Legacy split arrays kept only for the unmounted home About
-   *  exploration variants. The /about page reads `credentials` instead. */
-  certifications?: CertificationEntry[];
-  /** @deprecated See `certifications`. */
-  education?: EducationEntry[];
+
 }
 
 export interface ServiceFace {
