@@ -101,7 +101,7 @@
     margin-left: auto;
     margin-right: 0;
     /* Hide default cursor in spotlight zone */
-    cursor: none;
+    
     /* Allow spotlight background to bleed out */
     overflow: visible;
     contain: layout style;

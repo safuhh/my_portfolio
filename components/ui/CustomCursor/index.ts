@@ -1,1 +1,0 @@
-export { CustomCursor } from './CustomCursor';

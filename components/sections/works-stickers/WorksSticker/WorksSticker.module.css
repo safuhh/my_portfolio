@@ -18,7 +18,7 @@
     background: var(--color-background);
     color: var(--color-primary-text);
     text-decoration: none;
-    cursor: none;
+    
     transform: rotate(var(--tilt, 0deg));
     margin-left: var(--offset, 0%);
     animation: worksStickerWobble var(--wobble-dur, 5s) ease-in-out infinite alternate;

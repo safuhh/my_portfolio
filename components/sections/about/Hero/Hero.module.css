@@ -60,7 +60,7 @@
   position: relative;
   display: grid;
   width: fit-content;
-  cursor: none;
+  
   isolation: isolate;
 }
 

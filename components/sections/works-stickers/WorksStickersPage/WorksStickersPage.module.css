@@ -10,7 +10,7 @@
     min-height: 100vh;
     padding: 0 32px;
     color: var(--color-primary-text, #1b2028);
-    cursor: none;
+    
 }
 
 /* All content sits above the layout-level interactive background (z-index: -1). */
@@ -66,7 +66,7 @@
     }
 }
 
-/* Keyboard affordance — .root sets cursor:none, so a visible focus ring
+/* Keyboard affordance — .root sets , so a visible focus ring
    is the only signal a keyboard user gets that this is the active link. */
 .backLink:focus-visible {
     outline: 2px solid var(--color-accent-purple);

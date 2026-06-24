@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Doppio_One } from "next/font/google";
 import "./globals.css";
-import { CustomCursor } from "@/components/ui/CustomCursor";
+
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { BackToTop } from "@/components/ui/BackToTop";
 import { AccentColorProvider } from "@/lib/AccentColorContext";
@@ -97,7 +97,7 @@ export default function RootLayout({
             <TransitionProvider>
               <InteractiveBackground />
               <Navbar />
-              <CustomCursor />
+
               <BackToTop />
               <ThemeToggle />
               {children}
