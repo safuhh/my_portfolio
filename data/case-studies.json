@@ -2,8 +2,8 @@
   "medifind": {
     "hero": {
       "title": "MEDIFIND",
-      "lede": "A full-stack healthcare platform with five distinct user roles — Patient, Doctor, Pharmacy Seller, Delivery Boy, and Admin — bringing medicine discovery, video consultations, real-time order tracking, and platform governance into one unified system. Built with Next.js on the front end and Express on the back end.",
-      "image": "/images/projects/medifind/Hero.png",
+      "lede": "A full-stack healthcare ecosystem with five distinct user roles — Patient, Doctor, Pharmacy Seller, Delivery Boy, and Admin — bringing AI-optimised medicine discovery, live video consultations, OpenStreetMap tracking, subscription monetization, and governance into one unified platform. Built with Next.js, Express, MongoDB, and Socket.io.",
+      "image": "/images/projects/medifind/medifind-landing.png",
       "alt": "MediFind — Find exactly what you need, right where you are",
       "pills": ["Full-Stack · Healthcare Platform", "Next.js · Express · MongoDB · Socket.io"],
       "badge": "View\nCase",
@@ -39,12 +39,12 @@
       "label": "Context",
       "facts": [
         "**Role**Full-stack engineer",
-        "**Stack**Next.js · Express.js · MongoDB · Socket.io · Jitsi",
+        "**Stack**Next.js · Express.js · MongoDB · Socket.io · OpenStreetMap · Jitsi",
         "**Team**1 engineer (me)"
       ],
       "body": [
         "**Finding the right medicine shouldn't mean calling five pharmacies.** Most patients either rely on a single pharmacy near them or waste time searching online with no real-time stock information. MediFind was built to close that gap.",
-        "MediFind is not a single-user product. It is a **five-role ecosystem** — each actor has their own dedicated dashboard, workflow, and set of responsibilities. A Patient searches and orders medicines, books doctor consultations, and tracks deliveries. A **Doctor** manages their availability, accepts consultation bookings, conducts Jitsi video calls, and issues digital health reports. A **Pharmacy Seller** registers their store, manages their medicine inventory, processes incoming orders, and tracks their earnings. A **Delivery Boy** receives assigned deliveries, updates status in real time, and confirms handoff. An **Admin** governs the entire platform — approving registrations, managing disputes, and monitoring operations.",
+        "MediFind is not a single-user product. It is a **five-role ecosystem** with an integrated **Pro subscription system (pricing plans at ₹999/month and ₹833/yearly)** for Sellers and Doctors. Each actor has their own dedicated dashboard, workflow, and set of responsibilities. A Patient searches and orders medicines, books doctor consultations with 15-minute slot intervals, makes payments, tracks deliveries in real time, and submits doctor reviews. A **Doctor** manages their weekly availability, accepts consultation bookings, conducts secure Jitsi video calls directly in the app, and writes digital health reports. A **Pharmacy Seller** lists medicines, manages their live inventory, processes incoming orders, tracks earnings, and views detailed sales analytics on their top products. A **Delivery Boy** receives real-time order pickup notifications, views customer drop-off details, and uses a live route map powered by OpenStreetMap for tracking. An **Admin** governs the entire platform — approving registrations, managing disputes, and monitoring operations and active plan subscribers.",
         "I built every one of these roles independently — from the per-role authentication system and dashboards to the real-time Socket.io notification layer that connects all five actors. **No role was an afterthought.**"
       ]
     },
@@ -55,7 +55,7 @@
       "titleAccent": "zero gaps.",
       "body": [
         "**Every healthcare interaction has multiple participants.** Most apps solve for one of them — the patient — and leave the rest operating on WhatsApp groups and spreadsheets. MediFind was designed from the start to be the single source of truth for all five actors simultaneously.",
-        "**Real-time inventory is non-negotiable.** If a medicine shows as in stock, it is in stock — pharmacy sellers update their catalogue live and stock changes propagate instantly. When a patient orders, the pharmacy seller sees it immediately. When it ships, the delivery boy's queue updates. When it arrives, the patient gets a confirmation. **Every transition is tracked. Nothing falls through.**"
+        "**Real-time inventory and AI-optimised fulfillment.** If a medicine shows as in stock, it is in stock — pharmacy sellers update their catalogue live and stock changes propagate instantly. If a patient needs multiple medicines, an AI-powered fulfillment engine resolves generic names and applies a greedy set-cover algorithm to split orders optimally across the fewest, nearest pharmacies. When a patient orders, the pharmacy seller sees it immediately. When it ships, the delivery boy's queue updates. When it arrives, the patient gets a confirmation. **Every transition is tracked. Nothing falls through.**"
       ]
     },
     "product": {
@@ -71,7 +71,7 @@
     "dashboard": {
       "badge": "Live\nProduct",
       "figcaption": "Fig. 02 · Platform ecosystem overview · 2026",
-      "image": "/images/projects/medifind/Feature.png",
+      "image": "/images/projects/medifind/medifind-features.png",
       "alt": "MediFind — A complete ecosystem for smarter healthcare"
     },
     "toggle": {
@@ -82,15 +82,16 @@
         {
           "num": "01",
           "name": "Landing page",
-          "image": "/images/projects/medifind/Hero.png",
+          "image": "/images/projects/medifind/medifind-landing.png",
           "color": "#E6F4F0",
           "description": "Location-aware medicine search hero",
-          "meta": "1440 × 768"
+          "meta": "1440 × 768",
+          "hasGalleryCaption": true
         },
         {
           "num": "02",
           "name": "Platform overview",
-          "image": "/images/projects/medifind/Feature.png",
+          "image": "/images/projects/medifind/medifind-features.png",
           "color": "#E0F0FA",
           "description": "AI fulfillment · video consults · health reports",
           "meta": "1440 × 768",
@@ -98,39 +99,196 @@
         },
         {
           "num": "03",
-          "name": "Patient cart",
-          "image": "/images/projects/medifind/Screen01.png",
+          "name": "Medicine search results",
+          "image": "/images/projects/medifind/medifind-medicine-search.png",
           "color": "#EAF6F0",
-          "description": "Cart with order summary and GST breakdown",
+          "description": "Category filters, price range slider and listing cards",
           "meta": "1440 × 768",
           "hasGalleryCaption": true
         },
         {
           "num": "04",
           "name": "Medicine detail",
-          "image": "/images/projects/medifind/Screen02.png",
+          "image": "/images/projects/medifind/medifind-medicine-details.png",
           "color": "#F0FAF4",
-          "description": "Product page — price, pharmacy, distance",
+          "description": "Product details, seller distance, and fast shipping label",
           "meta": "1440 × 768",
           "hasGalleryCaption": true
         },
         {
           "num": "05",
-          "name": "Seller dashboard",
-          "image": "/images/projects/medifind/Screen03.png",
+          "name": "AI fulfillment plan",
+          "image": "/images/projects/medifind/medifind-fulfillment-plan.png",
           "color": "#EBF5EC",
-          "description": "Orders received, earnings, delivery tracking",
+          "description": "Greedy set-cover prescription split across nearest sellers",
           "meta": "1440 × 768",
           "hasGalleryCaption": true
         },
         {
           "num": "06",
-          "name": "Help & support",
-          "image": "/images/projects/medifind/Help.png",
-          "color": "#F4FAE6",
-          "description": "FAQ, live chat, inventory explainer",
+          "name": "Patient cart",
+          "image": "/images/projects/medifind/medifind-patient-cart.png",
+          "color": "#F0EEF4",
+          "description": "Cart items list, GST breakdown and subtotal check",
           "meta": "1440 × 768",
           "hasGalleryCaption": true
+        },
+        {
+          "num": "07",
+          "name": "Doctor specialties search",
+          "image": "/images/projects/medifind/medifind-doctor-specialties.png",
+          "color": "#EEF0F4",
+          "description": "Search bar and specialization directory buttons",
+          "meta": "1440 × 768",
+          "hasGalleryCaption": true
+        },
+        {
+          "num": "08",
+          "name": "Recommended nearby doctors",
+          "image": "/images/projects/medifind/medifind-recommended-doctors.png",
+          "color": "#F4FAE6",
+          "description": "Consultation fee, experience and distance sorting list",
+          "meta": "1440 × 768"
+        },
+        {
+          "num": "09",
+          "name": "Psychiatrist listing",
+          "image": "/images/projects/medifind/medifind-doctor-search-results.png",
+          "color": "#E6F4F0",
+          "description": "Doctor search results filtering list by selected specialty",
+          "meta": "1440 × 768"
+        },
+        {
+          "num": "10",
+          "name": "Doctor profile & booking",
+          "image": "/images/projects/medifind/medifind-doctor-booking.png",
+          "color": "#F0FAF4",
+          "description": "Professional summary, expertise and 15-minute slot selector",
+          "meta": "1440 × 768",
+          "hasGalleryCaption": true
+        },
+        {
+          "num": "11",
+          "name": "My consultations panel",
+          "image": "/images/projects/medifind/medifind-patient-consultations.png",
+          "color": "#E0F0FA",
+          "description": "Tracking patient appointment history, bills, and ratings",
+          "meta": "1440 × 768"
+        },
+        {
+          "num": "12",
+          "name": "Medical report summary",
+          "image": "/images/projects/medifind/medifind-consultation-report.png",
+          "color": "#EAF6F0",
+          "description": "Digital health report with document ID and observations",
+          "meta": "1440 × 768",
+          "hasGalleryCaption": true
+        },
+        {
+          "num": "13",
+          "name": "Doctor rating modal",
+          "image": "/images/projects/medifind/medifind-doctor-review.png",
+          "color": "#F4FAE6",
+          "description": "Interactive 5-star rating and description review form",
+          "meta": "1440 × 768"
+        },
+        {
+          "num": "14",
+          "name": "Track delivery popup",
+          "image": "/images/projects/medifind/medifind-delivery-tracking.png",
+          "color": "#EBF5EC",
+          "description": "Order tracking timeline with real-time status updates",
+          "meta": "1440 × 768"
+        },
+        {
+          "num": "15",
+          "name": "Delivery request prompt",
+          "image": "/images/projects/medifind/medifind-delivery-notification.png",
+          "color": "#F0EEF4",
+          "description": "Socket.io real-time pickup request modal for delivery agents",
+          "meta": "1440 × 768"
+        },
+        {
+          "num": "16",
+          "name": "Delivery route mapping",
+          "image": "/images/projects/medifind/medifind-delivery-route.png",
+          "color": "#EEF0F4",
+          "description": "OpenStreetMap integration for live navigation to dropoff location",
+          "meta": "1440 × 768",
+          "hasGalleryCaption": true
+        },
+        {
+          "num": "17",
+          "name": "Seller orders panel",
+          "image": "/images/projects/medifind/medifind-seller-orders.png",
+          "color": "#EAF6F0",
+          "description": "Seller dashboard managing orders received and earnings ledger",
+          "meta": "1440 × 768"
+        },
+        {
+          "num": "18",
+          "name": "Seller analytics",
+          "image": "/images/projects/medifind/medifind-seller-analytics.png",
+          "color": "#E0F0FA",
+          "description": "Most selling products ranked by revenue and share of sales",
+          "meta": "1440 × 768",
+          "hasGalleryCaption": true
+        },
+        {
+          "num": "19",
+          "name": "Doctor appointment detail",
+          "image": "/images/projects/medifind/medifind-doctor-appointment-details.png",
+          "color": "#EBF5EC",
+          "description": "Consultation details modal inside the doctor portal",
+          "meta": "1440 × 768"
+        },
+        {
+          "num": "20",
+          "name": "Doctor patient records",
+          "image": "/images/projects/medifind/medifind-doctor-patient-records.png",
+          "color": "#F0FAF4",
+          "description": "Doctor portal viewing patient list, logs and diagnosis reports",
+          "meta": "1440 × 768"
+        },
+        {
+          "num": "21",
+          "name": "Doctor profile edit",
+          "image": "/images/projects/medifind/medifind-doctor-profile-edit.png",
+          "color": "#F4FAE6",
+          "description": "Doctor portal updating professional details and consultation fees",
+          "meta": "1440 × 768"
+        },
+        {
+          "num": "22",
+          "name": "MediFind Pro pricing",
+          "image": "/images/projects/medifind/medifind-pricing-plans.png",
+          "color": "#E6F4F0",
+          "description": "Professional tier subscription plans with free trial limits",
+          "meta": "1440 × 768"
+        },
+        {
+          "num": "23",
+          "name": "Admin subscribers tracking",
+          "image": "/images/projects/medifind/medifind-admin-subscriptions.png",
+          "color": "#EEF0F4",
+          "description": "Admin panel showing active monthly and yearly subscription plans",
+          "meta": "1440 × 768"
+        },
+        {
+          "num": "24",
+          "name": "Admin doctor verifications",
+          "image": "/images/projects/medifind/medifind-admin-doctor-verifications.png",
+          "color": "#EBF5EC",
+          "description": "Admin dashboard list for reviewing doctor credentials and applications",
+          "meta": "1440 × 768"
+        },
+        {
+          "num": "25",
+          "name": "Help & support",
+          "image": "/images/projects/medifind/medifind-help-center.png",
+          "color": "#F4FAE6",
+          "description": "Help center with live chat support and interactive FAQs",
+          "meta": "1440 × 768"
         }
       ]
     },
@@ -138,32 +296,32 @@
       "label": "Architecture",
       "titleLine1": "Under the",
       "titleAccent": "hood.",
-      "intro": "MediFind is a full-stack healthcare platform built entirely with Next.js on the client and Express on the server, with MongoDB as the database and Socket.io powering all real-time updates across five user roles — patient, doctor, pharmacy seller, delivery boy, and admin. **No role shares a dashboard. Every actor has their own purpose-built surface.**",
+      "intro": "MediFind is a full-stack healthcare platform built with Next.js on the client and Express on the server, with MongoDB as the database and Socket.io powering all real-time updates across five user roles — patient, doctor, pharmacy seller, delivery boy, and admin. **No role shares a dashboard. Every actor has their own purpose-built surface.**",
       "layers": [
         {
           "name": "Client",
-          "tech": ["Next.js", "TypeScript", "Tailwind CSS"],
-          "detail": "Server-rendered React with five separate dashboard experiences — one per role. The patient-facing pages are public and SEO-optimised. Seller, doctor, delivery, and admin dashboards are protected routes with role-specific layouts and permissions."
+          "tech": ["Next.js", "TypeScript", "Tailwind CSS", "OpenStreetMap"],
+          "detail": "Server-rendered React with five separate dashboard experiences — one per role. Incorporates OpenStreetMap for live route mapping, Jitsi Iframe API for secure video consultations, and GSAP/CSS animations."
         },
         {
           "name": "API",
-          "tech": ["Express.js", "Node.js", "JWT Auth"],
-          "detail": "RESTful Express API with role-based access control. Each role has its own set of endpoints and middleware guards. JWT access tokens with refresh-token rotation ensure sessions are secure. Doctors, pharmacies, and delivery boys go through an admin-approval flow before they can operate."
+          "tech": ["Express.js", "Node.js", "JWT Auth", "Greedy Set-Cover"],
+          "detail": "RESTful Express API with role-based access control. Implements RAG-powered generic name mapping and a Greedy Set-Cover algorithm to split orders optimally across sellers."
         },
         {
           "name": "Data & Real-Time",
           "tech": ["MongoDB", "Socket.io", "Jitsi"],
-          "detail": "MongoDB stores users, medicines, pharmacies, orders, consultations, and health reports as flexible documents. Socket.io broadcasts order updates to sellers and delivery tracking to patients in real time. Jitsi handles encrypted video consultations between doctors and patients without any media data touching the server."
+          "detail": "MongoDB stores users, medicines, bookings, and subscription plan states. Socket.io broadcasts order events and delivery updates instantly, while Jitsi handles encrypted video rooms."
         },
         {
           "name": "Notifications",
           "tech": ["Socket.io Events", "In-App Alerts"],
-          "detail": "Every key action — new order placed, order picked up, delivery confirmed, consultation booked — fires a Socket.io event that updates the relevant dashboard instantly. No polling, no refresh. The platform feels alive because all five roles are connected through the same event layer."
+          "detail": "Every key action — new order placed, order picked up, delivery confirmed, consultation booked — fires a Socket.io event that updates the relevant dashboard instantly. No polling, no refresh."
         }
       ],
       "facts": [
         { "value": "5", "title": "User roles", "caption": "patient · doctor · seller · delivery · admin" },
-        { "value": "6", "title": "Screens", "caption": "shipped to production" },
+        { "value": "25", "title": "Screens", "caption": "shipped to production" },
         { "value": "0s", "title": "Delay", "caption": "real-time Socket.io events" },
         { "value": "1", "title": "Engineer", "caption": "front end to back end" }
       ]
@@ -180,7 +338,7 @@
           "caption": "each with their own dashboard"
         },
         {
-          "value": "6",
+          "value": "25",
           "title": "Surfaces",
           "caption": "shipped and in use"
         },
